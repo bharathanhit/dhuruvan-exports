@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ShieldCheck } from 'lucide-react';
 import { NavHashLink } from 'react-router-hash-link';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrollProgress, setScrollProgress] = useState(0);
+    const location = useLocation();
 
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 50);
-
-            // Calculate scroll progress
             const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
             const progress = (window.scrollY / totalScroll) * 100;
             setScrollProgress(progress);
@@ -30,68 +29,76 @@ const Navbar = () => {
         { name: 'Contact', href: '/#contact' },
     ];
 
-    return (
-        <nav className={`fixed w-full z-50 transition-all duration-500 ${isScrolled ? 'glass py-3 shadow-2xl' : 'bg-transparent py-6'}`}>
-            {/* Scroll Progress Bar */}
-            <motion.div
-                className="absolute bottom-0 left-0 h-[2px] bg-secondary origin-left z-50"
-                style={{ width: `${scrollProgress}%` }}
-            />
+    const isSubPage = location.pathname !== '/';
 
-            <div className="container flex justify-between items-center">
+    return (
+        <nav className={`fixed w-full z-50 transition-all duration-500 ${(isScrolled || isSubPage) ? 'bg-white py-4 shadow-xl border-b border-slate-100' : 'bg-transparent py-8'}`}>
+            {/* Scroll Progress Bar */}
+            <div className="absolute bottom-0 left-0 w-full h-[3px] bg-slate-100/10">
+                <motion.div
+                    className="h-full bg-secondary origin-left shadow-[0_0_10px_rgba(30,158,84,0.5)]"
+                    style={{ scaleX: scrollProgress / 100 }}
+                />
+            </div>
+
+            <div className="container px-6 flex justify-between items-center">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-3 group cursor-pointer"
                 >
-                    <span className={`text-xl md:text-3xl font-black tracking-tighter transition-colors duration-500 ${isScrolled ? 'text-primary' : 'text-white'}`}>
-                        DHURUVAN <span className="text-secondary italic">EXPORTS</span>
-                    </span>
+                    <NavHashLink smooth to="/#" className="flex items-center gap-2 group">
+                        <span className={`text-2xl md:text-3xl font-black tracking-tighter transition-colors duration-500 ${(isScrolled || isSubPage) ? 'text-primary' : 'text-white'}`}>
+                            DHURUVAN <span className="text-secondary italic">EXPORTS</span>
+                        </span>
+                    </NavHashLink>
                 </motion.div>
 
                 {/* Desktop Menu */}
-                <div className="hidden md:flex gap-10 items-center">
-                    {navLinks.map((link, i) => (
-                        <motion.div
-                            key={link.name}
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                        >
-                            <NavHashLink
-                                smooth
-                                to={link.href}
-                                className={`relative font-bold text-sm uppercase tracking-widest transition-colors duration-500 group ${isScrolled ? 'text-primary' : 'text-white'} hover:text-secondary`}
+                <div className="hidden lg:flex gap-12 items-center">
+                    <div className="flex gap-10 items-center">
+                        {navLinks.map((link, i) => (
+                            <motion.div
+                                key={link.name}
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.1 }}
                             >
-                                {link.name}
-                                <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-secondary transition-all duration-300 group-hover:w-full" />
-                            </NavHashLink>
-                        </motion.div>
-                    ))}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                    >
-                        <NavHashLink
-                            smooth
+                                <NavHashLink
+                                    smooth
+                                    to={link.href}
+                                    className={`relative font-black text-[11px] uppercase tracking-[0.2em] transition-colors duration-500 group ${(isScrolled || isSubPage) ? 'text-slate-600' : 'text-white/80'} hover:text-secondary`}
+                                >
+                                    {link.name}
+                                    <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-secondary transition-all duration-300 group-hover:w-full" />
+                                </NavHashLink>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-6 pl-10 border-l border-slate-200/20">
+                        <Link
                             to="/#contact"
-                            className={`btn px-6 py-3 text-xs font-black tracking-[0.2em] uppercase shadow-lg transition-all duration-500 ${isScrolled ? 'btn-primary' : 'bg-white text-primary hover:bg-secondary hover:text-white'}`}
+                            className={`btn whitespace-nowrap px-8 py-3.5 text-[10px] font-black tracking-[0.25em] uppercase transition-all duration-500 ${(isScrolled || isSubPage) ? 'btn-primary' : 'bg-white text-primary hover:bg-secondary hover:text-white shadow-xl'}`}
                         >
-                            Start Partnership
-                        </NavHashLink>
-                    </motion.div>
-                    <Link
-                        to="/admin"
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 hover:bg-secondary/10 ${isScrolled ? 'text-primary/30 hover:text-secondary' : 'text-white/30 hover:text-white'}`}
-                        title="Admin Panel"
-                    >
-                        <ShieldCheck size={16} />
-                    </Link>
+                            Get Export Quote
+                        </Link>
+
+                        <Link
+                            to="/admin"
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 hover:bg-secondary/10 ${(isScrolled || isSubPage) ? 'text-slate-300 hover:text-secondary' : 'text-white/20 hover:text-white'}`}
+                            title="Admin Panel"
+                        >
+                            <ShieldCheck size={18} />
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Mobile Toggle */}
-                <button className={`md:hidden w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-500 ${isScrolled ? 'bg-primary/5 text-primary' : 'bg-white/10 text-white border border-white/20'}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                    {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                <button
+                    className={`lg:hidden w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-500 ${(isScrolled || isSubPage) ? 'bg-primary/5 text-primary' : 'bg-white/10 text-white border border-white/20'}`}
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
             </div>
 
@@ -99,33 +106,39 @@ const Navbar = () => {
             <AnimatePresence>
                 {isMenuOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="md:hidden bg-white/95 backdrop-blur-xl border-t shadow-2xl overflow-hidden"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="lg:hidden bg-white border-t border-slate-100 shadow-2xl overflow-hidden"
                     >
-                        <div className="container py-10 flex flex-col gap-6">
+                        <div className="p-8 flex flex-col gap-6">
                             {navLinks.map((link) => (
                                 <NavHashLink
                                     smooth
                                     key={link.name}
                                     to={link.href}
-                                    className="text-2xl font-black text-primary uppercase tracking-tighter hover:text-secondary transition-colors"
+                                    className="text-3xl font-black text-primary uppercase tracking-tighter hover:text-secondary transition-colors"
                                     onClick={() => setIsMenuOpen(false)}
                                 >
                                     {link.name}
                                 </NavHashLink>
                             ))}
-                            <NavHashLink smooth to="/#contact" className="btn btn-primary w-full py-5 text-center text-lg font-black uppercase tracking-widest" onClick={() => setIsMenuOpen(false)}>
+                            <div className="h-px bg-slate-100 w-full my-4" />
+                            <NavHashLink
+                                smooth
+                                to="/#contact"
+                                className="btn btn-primary w-full py-5 text-center text-[13px] font-black uppercase tracking-widest"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
                                 Contact Us
                             </NavHashLink>
                             <Link
                                 to="/admin"
-                                className="flex items-center gap-3 text-gray-400 text-sm font-bold uppercase tracking-widest hover:text-secondary transition-colors pt-4 border-t border-gray-100 mt-2"
+                                className="flex items-center justify-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] hover:text-secondary transition-colors py-4"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 <ShieldCheck size={16} />
-                                Admin
+                                System Admin
                             </Link>
                         </div>
                     </motion.div>
@@ -134,7 +147,6 @@ const Navbar = () => {
         </nav>
     );
 };
-
 
 export default Navbar;
 

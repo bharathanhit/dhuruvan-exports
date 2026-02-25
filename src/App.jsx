@@ -5,6 +5,7 @@ import Home from './components/Home';
 import TermsAndConditions from './components/TermsAndConditions';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import WoodCrafts from './components/WoodCrafts';
+import ProductDetail from './components/ProductDetail';
 import AdminPanel from './components/AdminPanel';
 import Footer from './components/Footer';
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="/terms" element={<TermsAndConditions />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/wood-crafts" element={<WoodCrafts />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>
       <Footer />
