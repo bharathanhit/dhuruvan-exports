@@ -132,7 +132,7 @@ const WoodCrafts = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-5xl md:text-8xl font-black text-white mb-8 tracking-tighter leading-[0.95]"
+                            className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-[0.95]"
                         >
                             Wood & Rattan<br />
                             <span className="text-secondary italic">Excellence.</span>
@@ -193,7 +193,7 @@ const WoodCrafts = () => {
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1, duration: 0.8 }}
                                 onClick={() => setSelected(product)}
-                                className="group bg-white rounded-[2.5rem] overflow-hidden shadow-[0_15px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,43,88,0.12)] border border-slate-100 transition-all duration-700 hover:-translate-y-2 cursor-pointer"
+                                className="group m-2 bg-white rounded-[2.5rem] overflow-hidden shadow-[0_15px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,43,88,0.12)] border border-slate-100 transition-all duration-700 hover:-translate-y-2 cursor-pointer"
                             >
                                 {/* Image Container */}
                                 <div className="relative h-72 overflow-hidden bg-slate-50">

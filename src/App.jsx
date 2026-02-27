@@ -5,8 +5,11 @@ import Home from './components/Home';
 import TermsAndConditions from './components/TermsAndConditions';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import WoodCrafts from './components/WoodCrafts';
+import Certificates from './components/Certificates';
 import ProductDetail from './components/ProductDetail';
 import AdminPanel from './components/AdminPanel';
+import AboutPage from './components/AboutPage';
+import ServicesPage from './components/ServicesPage';
 import Footer from './components/Footer';
 
 // Scroll to top on route change
@@ -30,6 +33,9 @@ function App() {
         <Route path="/terms" element={<TermsAndConditions />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/wood-crafts" element={<WoodCrafts />} />
+        <Route path="/certificates" element={<Certificates />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/services" element={<ServicesPage />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>

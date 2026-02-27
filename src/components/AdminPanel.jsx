@@ -134,7 +134,7 @@ const StatCard = ({ icon: Icon, label, value, change, color, delay }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay, duration: 0.5 }}
-            className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all"
+            className="bg-white border m-2 border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all"
         >
             <div className="flex items-center justify-between mb-5">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${colorMap[color]}`}>
@@ -162,7 +162,7 @@ const QuickAction = ({ icon: Icon, label, color }) => {
     };
 
     return (
-        <button className={`flex items-center gap-3 p-4 bg-white border rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:-translate-y-1 hover:shadow-lg ${colorMap[color]}`}>
+        <button className={`flex items-center gap-3 m-1 p-4 bg-white border rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:-translate-y-1 hover:shadow-lg ${colorMap[color]}`}>
             <Icon size={18} />
             <span>{label}</span>
         </button>

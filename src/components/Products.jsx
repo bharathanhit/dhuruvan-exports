@@ -34,7 +34,7 @@ const ProductCard = ({ title, category, image, description, index, link, isHalal
                 y: -12,
                 transition: { duration: 0.4, ease: "easeOut" }
             }}
-            className="group relative bg-[#0D1B2A] rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_40px_100px_rgba(30,158,84,0.15)] transition-all duration-700 border border-white/5 perspective-1000"
+            className="group relative m-2 bg-[#0D1B2A] rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_40px_100px_rgba(30,158,84,0.15)] transition-all duration-700 border border-white/5 perspective-1000"
         >
             <Wrapper {...wrapperProps} className={link ? 'block no-underline' : ''}>
                 {/* Image Container */}

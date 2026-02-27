@@ -19,7 +19,7 @@ const Hero = () => {
     }, [images.length]);
 
     return (
-        <section className="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden bg-primary">
+        <section className="relative min-h-screen flex items-center pt-32 pb-12 overflow-hidden bg-primary">
             {/* Background Slideshow */}
             <div className="absolute inset-0 z-0 bg-black">
                 <AnimatePresence initial={false}>
@@ -52,7 +52,7 @@ const Hero = () => {
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 1, ease: "easeOut" }}
-                        className="flex items-center gap-4 mb-6"
+                        className="flex items-center gap-4 mb-8 mt-12"
                     >
                         <motion.div
                             initial={{ width: 0 }}
@@ -61,7 +61,7 @@ const Hero = () => {
                             className="h-px bg-secondary"
                         />
                         <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.4em] text-secondary">
-                            Fastest & Secured Export Solutions
+                            Fastest & Secure Export Solutions
                         </span>
                     </motion.div>
 
@@ -69,7 +69,7 @@ const Hero = () => {
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-5xl md:text-8xl mb-6 leading-[1.05] text-white font-black text-shadow-lg tracking-tighter"
+                        className="text-5xl md:text-7xl mb-6 leading-[1.05] text-white font-black text-shadow-lg tracking-tighter"
                     >
                         Connecting <span className="text-secondary italic">India</span> <br />
                         <span className="text-white/90 font-light">to the Global Market.</span>

@@ -6,10 +6,11 @@ import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin, ShieldCheck, Shopp
 const Footer = () => {
     const quickLinks = [
         { name: 'Home Catalog', href: '/#' },
+        { name: 'Our Services', href: '/services' },
         { name: 'Our Products', href: '/#products' },
-        { name: 'Company Story', href: '/#about' },
+        { name: 'Our Certificates', href: '/certificates' },
+        { name: 'Company Story', href: '/about' },
         { name: 'Quality Standards', href: '/#why-choose' },
-        { name: 'Export Inquiry', href: '/#contact' },
     ];
 
     const categories = [
@@ -118,12 +119,12 @@ const Footer = () => {
                             Connect
                         </h4>
                         <div className="flex flex-col gap-4">
-                            <div className="flex gap-3 items-center group cursor-pointer">
+                            <a href="mailto:Dhuruvanexports@gmail.com" className="flex gap-3 items-center group cursor-pointer">
                                 <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
                                     <Mail size={14} />
                                 </div>
-                                <span className="text-slate-600 font-bold text-xs truncate">info@dhuruvanexports.com</span>
-                            </div>
+                                <span className="text-slate-600 font-bold text-xs truncate">Dhuruvanexports@gmail.com</span>
+                            </a>
                             <div className="flex gap-3 items-center group cursor-pointer">
                                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
                                     <Phone size={14} />

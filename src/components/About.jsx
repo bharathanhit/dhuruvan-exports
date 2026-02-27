@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { CheckCircle2, ShieldCheck, Award } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Award, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const About = () => {
     return (
@@ -118,7 +119,7 @@ const About = () => {
                         whileInView={{ y: 0, opacity: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.5 }}
-                        className="grid grid-cols-2 gap-6 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden"
+                        className="grid grid-cols-2 gap-6 m-2 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden"
                     >
                         <motion.div
                             whileHover={{ y: -5 }}
@@ -140,6 +141,19 @@ const About = () => {
                         </motion.div>
                         {/* Subtle background flair */}
                         <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-secondary/5 rounded-full blur-3xl" />
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.6 }}
+                        className="mt-10"
+                    >
+                        <Link to="/about" className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-secondary transition-all duration-500 group">
+                            Discover Our Full Story
+                            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                        </Link>
                     </motion.div>
                 </motion.div>
             </div>
