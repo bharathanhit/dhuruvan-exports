@@ -123,20 +123,7 @@ const Testimonials = () => {
                     ))}
                 </div>
 
-                {/* Trust Badges Marquee (static for now) */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    className="mt-24 pt-16 border-t border-slate-50 flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-40 grayscale hover:grayscale-0 transition-all duration-700"
-                >
-                    {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="flex items-center gap-3 text-slate-400 font-black tracking-widest text-[10px] uppercase">
-                            <Building2 size={24} />
-                            Partner Organization {i}
-                        </div>
-                    ))}
-                </motion.div>
+                {/* Removed Partner Organization placeholder list */}
             </div>
         </section>
     );

@@ -5,25 +5,28 @@ import { CheckCircle2, ShieldCheck, Award, Target, Eye, Globe2, Users, HeartHand
 const AboutPage = () => {
     return (
         <div className="pt-24 min-h-screen bg-white">
-            {/* Hero Section */}
-            <section className="relative py-24 bg-slate-50 overflow-hidden">
+            {/* Hero Section - Compact & Premium */}
+            <section className="relative py-20 bg-slate-50 overflow-hidden border-b border-slate-100">
                 <div className="container px-6 relative z-10">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="max-w-4xl mx-auto text-center"
                     >
-                        <h1 className="text-6xl md:text-6xl font-black text-primary tracking-tighter mb-8 uppercase leading-[0.85]">
-                            A Legacy of <br />
-                            <span className="text-secondary italic">Indian Excellence</span>
+                        <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-secondary/5 border border-secondary/10 rounded-full text-secondary text-[9px] font-black uppercase tracking-[0.4em] mb-8">
+                            Our Global Footprint
+                        </div>
+                        <h1 className="text-5xl md:text-7xl font-black text-primary tracking-tighter mb-8 uppercase leading-[0.85]">
+                            The Dhuruvan <br />
+                            <span className="text-secondary italic">Export Legacy</span>
                         </h1>
-                        <p className="text-xl text-slate-500 leading-relaxed max-w-2xl mx-auto font-medium">
-                            Bridging the gap between India's finest producers and the global market with integrity, quality, and an unwavering commitment to transparency.
+                        <p className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto font-medium">
+                            Synthesizing India's rich artisanal heritage with modern global trade infrastructure.
                         </p>
                     </motion.div>
                 </div>
                 {/* Decorative background flair */}
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary/[0.03] rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-b from-secondary/[0.02] to-transparent pointer-events-none" />
             </section>
 
             {/* Core Story Section */}

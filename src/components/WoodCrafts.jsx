@@ -92,15 +92,16 @@ const woodProducts = [
 const WoodCrafts = () => {
     const [selected, setSelected] = useState(null);
 
-    const handleWhatsApp = (product) => {
-        const msg = encodeURIComponent(`Hello Dhuruvan Exports,\n\nI am interested in the following wood craft product:\n\n*${product.name}*\nCategory: ${product.category}\n\nPlease share pricing and export details.\n\nThank you.`);
-        window.open(`https://wa.me/919952777973?text=${msg}`, '_blank');
+    const handleEmail = (product) => {
+        const subject = encodeURIComponent(`Inquiry for ${product.name}`);
+        const body = encodeURIComponent(`Hello Dhuruvan Exports,\n\nI am interested in the following wood craft product:\n\n*${product.name}*\nCategory: ${product.category}\n\nPlease share pricing and export details.\n\nThank you.`);
+        window.location.href = `mailto:Dhuruvanexports@gmail.com?subject=${subject}&body=${body}`;
     };
 
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
-            <section className="relative pt-32 pb-48 lg:pt-56 lg:pb-72 overflow-hidden bg-primary">
+            <section className="relative pt-32 pb-48 lg:pt-48 lg:pb-64 overflow-hidden bg-primary">
                 {/* Background Visuals */}
                 <div className="absolute inset-0 opacity-10 blur-[100px] pointer-events-none">
                     <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary rounded-full transform translate-x-1/2 -translate-y-1/2" />
@@ -193,10 +194,10 @@ const WoodCrafts = () => {
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1, duration: 0.8 }}
                                 onClick={() => setSelected(product)}
-                                className="group m-2 bg-white rounded-[2.5rem] overflow-hidden shadow-[0_15px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,43,88,0.12)] border border-slate-100 transition-all duration-700 hover:-translate-y-2 cursor-pointer"
+                                className="group bg-white rounded-[2.5rem] overflow-hidden shadow-[0_15px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,43,88,0.12)] border border-slate-100 transition-all duration-700 hover:-translate-y-2 cursor-pointer"
                             >
-                                {/* Image Container */}
-                                <div className="relative h-72 overflow-hidden bg-slate-50">
+                                {/* Image Container - Reduced for Elegance */}
+                                <div className="relative h-56 overflow-hidden bg-slate-50">
                                     <motion.div
                                         className="w-full h-full"
                                         whileHover={{ scale: 1.1 }}
@@ -238,11 +239,11 @@ const WoodCrafts = () => {
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
-                                        onClick={(e) => { e.stopPropagation(); handleWhatsApp(product); }}
+                                        onClick={(e) => { e.stopPropagation(); handleEmail(product); }}
                                         className="w-full btn btn-primary py-4 text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 group-hover:shadow-xl transition-all"
                                     >
                                         <Send size={16} />
-                                        Inquire via WhatsApp
+                                        Send Inquiry
                                     </motion.button>
                                 </div>
                             </motion.div>
@@ -296,7 +297,7 @@ const WoodCrafts = () => {
 
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <button
-                                        onClick={() => handleWhatsApp(selected)}
+                                        onClick={() => handleEmail(selected)}
                                         className="flex-[2] btn btn-primary py-5 text-[12px] font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl shadow-green-100"
                                     >
                                         <Send size={18} />

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import halalImg from '../assets/halal.png';
 import { products } from '../data/products';
 
-const ProductCard = ({ title, category, image, description, index, link, isHalal, brand }) => {
+const ProductCard = ({ title, category, image, description, index, link, isHalal }) => {
     const Wrapper = link ? Link : 'div';
     const wrapperProps = link ? { to: link } : {};
 
@@ -37,8 +37,8 @@ const ProductCard = ({ title, category, image, description, index, link, isHalal
             className="group relative m-2 bg-[#0D1B2A] rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_40px_100px_rgba(30,158,84,0.15)] transition-all duration-700 border border-white/5 perspective-1000"
         >
             <Wrapper {...wrapperProps} className={link ? 'block no-underline' : ''}>
-                {/* Image Container */}
-                <div className="relative h-64 overflow-hidden">
+                {/* Image Container - Slightly shorter for elegance */}
+                <div className="relative h-56 overflow-hidden">
                     <motion.div
                         className="w-full h-full"
                         whileHover={{ scale: 1.15 }}
@@ -63,25 +63,13 @@ const ProductCard = ({ title, category, image, description, index, link, isHalal
                     {/* Dark Overlay on Hover */}
                     <div className="absolute inset-0 bg-primary/40 opacity-40 group-hover:opacity-20 transition-opacity duration-700" />
 
-                    {/* Category & Brand Badges */}
-                    <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            className="px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg"
-                        >
-                            <span className="text-[10px] font-black text-white uppercase tracking-[0.1em]">{category}</span>
-                        </motion.div>
-                        {brand && (
-                            <motion.div
-                                initial={{ opacity: 0, x: -10 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.1 + 0.3 }}
-                                className="px-4 py-1.5 bg-secondary/80 backdrop-blur-md rounded-full shadow-lg self-start"
-                            >
-                                <span className="text-[9px] font-black text-white uppercase tracking-[0.2em]">{brand}</span>
-                            </motion.div>
-                        )}
-                    </div>
+                    {/* Category Badge */}
+                    <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        className="absolute top-4 left-4 z-20 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg"
+                    >
+                        <span className="text-[10px] font-black text-white uppercase tracking-[0.1em]">{category}</span>
+                    </motion.div>
 
                     {/* Halal Badge */}
                     {isHalal && (
@@ -202,7 +190,7 @@ const Products = () => {
                     </motion.div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 px-6 pb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 px-6 pb-8">
                     {products.map((product, idx) => (
                         <ProductCard
                             key={idx}

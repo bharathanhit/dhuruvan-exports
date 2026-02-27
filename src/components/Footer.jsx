@@ -16,7 +16,7 @@ const Footer = () => {
     const categories = [
         { name: 'Premium Basmati', href: '/#products' },
         { name: 'Agro Commodities', href: '/#products' },
-        { name: 'Halal Certified', href: '/#products' },
+
         { name: 'Handcrafted Wood', href: '/wood-crafts' },
         { name: 'Global Logistics', href: '/#contact' },
     ];
@@ -137,9 +137,15 @@ const Footer = () => {
 
                 {/* Legacy & Compliance Bar */}
                 <div className="flex flex-col lg:flex-row justify-between items-center gap-8">
-                    <div className="flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-full border border-slate-100">
-                        <ShieldCheck size={16} className="text-secondary" />
-                        <span className="text-slate-400 font-black text-[9px] uppercase tracking-[0.2em]">ISO 9001:2015 Registered Export House</span>
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                        <div className="flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-primary/[0.05] to-secondary/[0.05] rounded-full border border-slate-100 shadow-sm animate-pulse-slow">
+                            <ShieldCheck size={14} className="text-secondary" />
+                            <span className="text-primary font-black text-[9px] uppercase tracking-[0.2em]">Govt. Certified</span>
+                        </div>
+                        <div className="flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-secondary/[0.05] to-primary/[0.05] rounded-full border border-slate-100 shadow-sm">
+                            <Zap size={14} className="text-secondary" />
+                            <span className="text-primary font-black text-[9px] uppercase tracking-[0.2em]">Award Winning Export House</span>
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap items-center justify-center gap-8">

@@ -53,95 +53,97 @@ const ServicesPage = () => {
 
     return (
         <div className="pt-24 min-h-screen bg-white">
-            {/* Hero Section */}
-            <section className="relative py-24 bg-slate-900 border-b border-white/5 overflow-hidden">
-                <div className="container px-6 relative z-10">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="max-w-4xl"
-                    >
-                        <div className="inline-flex items-center gap-3 px-5 py-2 bg-secondary/20 border border-secondary/30 rounded-full text-secondary text-[10px] font-black uppercase tracking-[0.4em] mb-8">
-                            Premium Export Ecosystem
-                        </div>
-                        <h1 className="text-6xl md:text-6xl font-black text-white tracking-tighter mb-8 uppercase leading-[0.85]">
-                            World Class <br />
-                            <span className="text-secondary italic">Services</span>
-                        </h1>
-                        <p className="text-xl text-white/50 leading-relaxed max-w-2xl font-medium">
-                            Dhuruvan Exports provides a comprehensive suite of services that bridge the gap between Indian excellence and global demand.
-                        </p>
-                    </motion.div>
-                </div>
-                {/* Motion background */}
-                <motion.div
-                    animate={{
-                        rotate: [0, 360],
-                        scale: [1, 1.2, 1]
-                    }}
-                    transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-1/2 right-0 w-[800px] h-[800px] bg-secondary/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"
-                />
-            </section>
+            {/* Content starts directly with Private Label Section */}
 
-            {/* Private Label Packaging - Deep Dive (Styled after user reference) */}
-            <section className="py-24 md:py-32 bg-white">
+            {/* Private Label Packaging - Deep Dive (Premium Split Layout) */}
+            <section className="py-24 md:py-32 bg-white relative overflow-hidden">
+                {/* Background Decorations */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/[0.03] rounded-full blur-3xl -z-10 translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/[0.03] rounded-full blur-3xl -z-10 -translate-x-1/2" />
+
                 <div className="container px-6">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="mb-16"
-                    >
-                        <div className="relative w-full max-w-6xl mx-auto rounded-[3rem] overflow-hidden shadow-2xl mb-20 bg-slate-50 border border-slate-100">
-                            <img
-                                src="/private_label_packaging_display_1772193650032.png"
-                                alt="Private Label Packaging Range"
-                                className="w-full h-auto object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                        </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+                        {/* Image Side (Left) */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="relative"
+                        >
+                            <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                transition={{ type: "spring", stiffness: 100 }}
+                                className="relative rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-30px_rgba(0,43,88,0.25)] border-8 border-white bg-slate-50"
+                            >
+                                <img
+                                    src="/private_label_packaging_display_1772193650032.png"
+                                    alt="Private Label Packaging Range"
+                                    className="w-full h-auto object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none" />
+                            </motion.div>
 
-                        <div className="text-center max-w-4xl mx-auto">
-                            <h2 className="text-4xl md:text-5xl font-black text-primary mb-6 uppercase tracking-[0.2em]">
-                                Private Label Packaging
-                            </h2>
-                            {/* Custom Divider matching reference */}
-                            <div className="flex justify-center mb-10">
-                                <div className="h-1 w-64 bg-[#B91C1C]" /> {/* Red part */}
-                                <div className="h-1 w-8 bg-[#F59E0B] ml-2" /> {/* Yellow part */}
+                            {/* Floating Stats or Label */}
+                            <motion.div
+                                animate={{ y: [0, -10, 0] }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute -bottom-8 -right-8 bg-white p-6 rounded-[2rem] shadow-2xl border border-slate-50 hidden md:block"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
+                                        <Package size={24} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xl font-black text-primary leading-none">100+</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Design Templates</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+
+                        {/* Text Side (Right) */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="flex flex-col items-start text-left"
+                        >
+                            <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 bg-slate-50 border border-slate-100 rounded-full">
+                                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Retail Ready Solutions</span>
                             </div>
 
-                            <p className="text-lg text-slate-600 leading-relaxed mb-12 text-center px-4">
-                                Our company prides itself in being one of the largest packaging and labelling houses in India. Aside from processing spices, we also provide packaging solutions to various clients across the country. From designing to manufacturing and labelling, our team of dynamic and dedicated packaging professionals will provide you with end-to-end solutions, catering to all your packaging requirements - be it formatting, choosing the appropriate size and shape, designing, labelling and barcoding. We give you the liberty to choose from our range of packaging services - pillow pouches, mono cartons, boxes, pet jars and grinders. Or you can even have a discussion if you have anything specific in mind.
+                            <h2 className="text-4xl md:text-6xl font-black text-primary mb-8 uppercase tracking-tighter leading-none">
+                                Private Label <br />
+                                <span className="text-secondary italic">Packaging Hub</span>
+                            </h2>
+
+                            <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-10">
+                                Empower your brand with our world-class packaging infrastructure. We provide <span className="text-primary font-bold italic underline decoration-secondary/30">End-to-End solutions</span> — from conceptual design to retail-ready physical products.
                             </p>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 max-w-5xl mx-auto text-left">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12 w-full">
                                 {[
-                                    "Pillow Pouches",
-                                    "Mono Cartons",
-                                    "Custom Boxes",
-                                    "PET Jars",
-                                    "Grinders",
-                                    "Barcoding Solutions",
-                                    "Size & Shape Consulting",
-                                    "Brand Design"
+                                    { title: "Custom Formats", desc: "Pillow Pouches & Mono Cartons" },
+                                    { title: "Brand Identity", desc: "Global Logo & Label Design" },
+                                    { title: "Compliance", desc: "Barcoding & Int'l Standards" },
+                                    { title: "Material Science", desc: "PET Jars, Grinders & Boxes" }
                                 ].map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-3">
-                                        <div className="w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-                                            <CheckCircle2 size={12} />
-                                        </div>
-                                        <span className="font-bold text-primary text-[11px] uppercase tracking-wider">{item}</span>
+                                    <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-secondary/20 transition-all">
+                                        <h4 className="text-[11px] font-black uppercase text-primary tracking-widest mb-1">{item.title}</h4>
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{item.desc}</p>
                                     </div>
                                 ))}
                             </div>
 
-                            <Link to="/#contact" className="inline-flex items-center gap-4 px-12 py-5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-secondary transition-all duration-500 shadow-xl shadow-primary/10">
-                                Start Your Brand Journey
-                                <ArrowRight size={16} />
-                            </Link>
-                        </div>
-                    </motion.div>
+                            <motion.div
+                                whileHover={{ x: 5 }}
+                                transition={{ type: "spring", stiffness: 400 }}
+                            >
+
+                            </motion.div>
+                        </motion.div>
+                    </div>
                 </div>
             </section>
 
@@ -184,27 +186,7 @@ const ServicesPage = () => {
                 </div>
             </section>
 
-            {/* CTA */}
-            <section className="py-24 bg-white">
-                <div className="container px-6">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        className="p-16 md:p-24 bg-primary rounded-[4rem] text-center text-white relative overflow-hidden"
-                    >
-                        <div className="relative z-10">
-                            <h2 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter">Ready to Scale Global?</h2>
-                            <p className="text-white/60 mb-12 max-w-2xl mx-auto font-medium text-lg leading-relaxed">
-                                Whether you need bulk cargo or custom private label solutions, Dhuruvan Exports is your turnkey partner for global success.
-                            </p>
-                            <Link to="/#contact" className="px-12 py-6 bg-secondary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white hover:text-primary transition-all duration-500 shadow-2xl">
-                                Start Inquiry
-                            </Link>
-                        </div>
-                    </motion.div>
-                </div>
-            </section>
+
         </div>
     );
 };

@@ -28,13 +28,13 @@ const Navbar = () => {
         { name: 'Services', href: '/services' },
         { name: 'Certificates', href: '/certificates' },
         { name: 'About', href: '/about' },
-        { name: 'Contact', href: '/#contact' },
+
     ];
 
     const isSubPage = location.pathname !== '/';
 
     return (
-        <nav className={`fixed w-full z-50 transition-all duration-500 ${(isScrolled || isSubPage) ? 'bg-white py-4 shadow-xl border-b border-slate-100' : 'bg-transparent py-8'}`}>
+        <nav className={`fixed w-full z-50 transition-all duration-500 ${(isScrolled || isSubPage) ? 'bg-white py-3 shadow-xl border-b border-slate-100' : 'bg-transparent py-8'}`}>
             {/* Scroll Progress Bar */}
             <div className="absolute bottom-0 left-0 w-full h-[3px] bg-slate-100/10">
                 <motion.div
@@ -49,7 +49,7 @@ const Navbar = () => {
                     animate={{ opacity: 1, x: 0 }}
                 >
                     <NavHashLink smooth to="/#" className="flex items-center gap-2 group">
-                        <span className={`text-2xl md:text-3xl font-black tracking-tighter transition-colors duration-500 ${(isScrolled || isSubPage) ? 'text-primary' : 'text-white'}`}>
+                        <span className={`text-xl md:text-2xl font-black tracking-tighter transition-colors duration-500 ${(isScrolled || isSubPage) ? 'text-primary' : 'text-white'}`}>
                             DHURUVAN <span className="text-secondary italic">EXPORTS</span>
                         </span>
                     </NavHashLink>
@@ -82,7 +82,7 @@ const Navbar = () => {
                             to="/#contact"
                             className={`btn whitespace-nowrap px-8 py-3.5 text-[10px] font-black tracking-[0.25em] uppercase transition-all duration-500 ${(isScrolled || isSubPage) ? 'btn-primary' : 'bg-white text-primary hover:bg-secondary hover:text-white shadow-xl'}`}
                         >
-                            Get Export Quote
+                            Start Partnership
                         </Link>
 
                         <Link
