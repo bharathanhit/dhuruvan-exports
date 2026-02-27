@@ -84,33 +84,39 @@ const ServicesPage = () => {
                 />
             </section>
 
-            {/* Private Label Packaging - Deep Dive (Based on User Image) */}
+            {/* Private Label Packaging - Deep Dive (Styled after user reference) */}
             <section className="py-24 md:py-32 bg-white">
                 <div className="container px-6">
-                    <div className="flex flex-col lg:flex-row gap-16 items-center">
-                        <motion.div
-                            initial={{ opacity: 0, x: -50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            className="flex-1"
-                        >
-                            <div className="inline-flex items-center gap-3 px-4 py-2 bg-primary/5 rounded-full text-primary text-[10px] font-black uppercase tracking-widest mb-6">
-                                <Package size={14} className="text-secondary" />
-                                Specialty Service
-                            </div>
-                            <h2 className="text-4xl md:text-6xl font-black text-primary mb-8 uppercase tracking-tighter leading-none">
-                                Private Label <br />
-                                <span className="text-secondary italic">Packaging</span>
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="mb-16"
+                    >
+                        <div className="relative w-full max-w-6xl mx-auto rounded-[3rem] overflow-hidden shadow-2xl mb-20 bg-slate-50 border border-slate-100">
+                            <img
+                                src="/private_label_packaging_display_1772193650032.png"
+                                alt="Private Label Packaging Range"
+                                className="w-full h-auto object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                        </div>
+
+                        <div className="text-center max-w-4xl mx-auto">
+                            <h2 className="text-4xl md:text-5xl font-black text-primary mb-6 uppercase tracking-[0.2em]">
+                                Private Label Packaging
                             </h2>
-                            <div className="h-1.5 w-32 bg-primary mb-8" />
-                            <p className="text-xl text-slate-500 font-medium leading-relaxed mb-8 italic">
-                                "One of the largest packaging and labelling houses in India."
-                            </p>
-                            <p className="text-lg text-slate-600 leading-relaxed mb-10">
-                                Our company prides itself in being one of the largest packaging and labelling houses in India. Aside from processing spices, we also provide packaging solutions to various clients across the country. From designing to manufacturing and labelling, our team of dynamic and dedicated packaging professionals will provide you with end-to-end solutions, catering to all your packaging requirements - be it formatting, choosing the appropriate size and shape, designing, labelling and barcoding.
+                            {/* Custom Divider matching reference */}
+                            <div className="flex justify-center mb-10">
+                                <div className="h-1 w-64 bg-[#B91C1C]" /> {/* Red part */}
+                                <div className="h-1 w-8 bg-[#F59E0B] ml-2" /> {/* Yellow part */}
+                            </div>
+
+                            <p className="text-lg text-slate-600 leading-relaxed mb-12 text-center px-4">
+                                Our company prides itself in being one of the largest packaging and labelling houses in India. Aside from processing spices, we also provide packaging solutions to various clients across the country. From designing to manufacturing and labelling, our team of dynamic and dedicated packaging professionals will provide you with end-to-end solutions, catering to all your packaging requirements - be it formatting, choosing the appropriate size and shape, designing, labelling and barcoding. We give you the liberty to choose from our range of packaging services - pillow pouches, mono cartons, boxes, pet jars and grinders. Or you can even have a discussion if you have anything specific in mind.
                             </p>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 max-w-5xl mx-auto text-left">
                                 {[
                                     "Pillow Pouches",
                                     "Mono Cartons",
@@ -118,54 +124,24 @@ const ServicesPage = () => {
                                     "PET Jars",
                                     "Grinders",
                                     "Barcoding Solutions",
-                                    "Size & Shape Consulting"
+                                    "Size & Shape Consulting",
+                                    "Brand Design"
                                 ].map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-3 group">
-                                        <div className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
-                                            <CheckCircle2 size={14} />
+                                    <div key={idx} className="flex items-center gap-3">
+                                        <div className="w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+                                            <CheckCircle2 size={12} />
                                         </div>
-                                        <span className="font-bold text-primary text-sm">{item}</span>
+                                        <span className="font-bold text-primary text-[11px] uppercase tracking-wider">{item}</span>
                                     </div>
                                 ))}
                             </div>
 
-                            <Link to="/#contact" className="inline-flex items-center gap-4 px-10 py-5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-secondary transition-all duration-500 shadow-xl shadow-primary/10">
-                                Start Your Brand
+                            <Link to="/#contact" className="inline-flex items-center gap-4 px-12 py-5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-secondary transition-all duration-500 shadow-xl shadow-primary/10">
+                                Start Your Brand Journey
                                 <ArrowRight size={16} />
                             </Link>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            className="flex-1 relative"
-                        >
-                            <div className="aspect-square bg-slate-50 rounded-[4rem] overflow-hidden border border-slate-100 relative group">
-                                <img
-                                    src="/private_label_packaging_display_1772193650032.png"
-                                    alt="Private Label Packaging Solutions"
-                                    className="w-full h-full object-cover grayscale-0 group-hover:scale-105 transition-all duration-1000"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent opacity-60" />
-                                <div className="absolute bottom-12 left-12 right-12 p-8 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20">
-                                    <h4 className="text-white text-2xl font-black uppercase mb-2">Retail Ready</h4>
-                                    <p className="text-white/70 text-sm font-medium">We give you the liberty to choose from our range of packaging services.</p>
-                                </div>
-                            </div>
-
-                            {/* Decorative Stats */}
-                            <motion.div
-                                animate={{ y: [0, -20, 0] }}
-                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                className="absolute -top-10 -right-10 p-8 bg-white rounded-3xl shadow-2xl border border-slate-50 z-20"
-                            >
-                                <BarChart3 size={32} className="text-secondary mb-4" />
-                                <div className="text-3xl font-black text-primary">100%</div>
-                                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Customization</div>
-                            </motion.div>
-                        </motion.div>
-                    </div>
+                        </div>
+                    </motion.div>
                 </div>
             </section>
 

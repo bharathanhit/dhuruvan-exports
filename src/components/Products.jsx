@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import halalImg from '../assets/halal.png';
 import { products } from '../data/products';
 
-const ProductCard = ({ title, category, image, description, index, link, isHalal }) => {
+const ProductCard = ({ title, category, image, description, index, link, isHalal, brand }) => {
     const Wrapper = link ? Link : 'div';
     const wrapperProps = link ? { to: link } : {};
 
@@ -63,13 +63,25 @@ const ProductCard = ({ title, category, image, description, index, link, isHalal
                     {/* Dark Overlay on Hover */}
                     <div className="absolute inset-0 bg-primary/40 opacity-40 group-hover:opacity-20 transition-opacity duration-700" />
 
-                    {/* Category Badge */}
-                    <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        className="absolute top-4 left-4 z-20 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg"
-                    >
-                        <span className="text-[10px] font-black text-white uppercase tracking-[0.1em]">{category}</span>
-                    </motion.div>
+                    {/* Category & Brand Badges */}
+                    <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            className="px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg"
+                        >
+                            <span className="text-[10px] font-black text-white uppercase tracking-[0.1em]">{category}</span>
+                        </motion.div>
+                        {brand && (
+                            <motion.div
+                                initial={{ opacity: 0, x: -10 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 + 0.3 }}
+                                className="px-4 py-1.5 bg-secondary/80 backdrop-blur-md rounded-full shadow-lg self-start"
+                            >
+                                <span className="text-[9px] font-black text-white uppercase tracking-[0.2em]">{brand}</span>
+                            </motion.div>
+                        )}
+                    </div>
 
                     {/* Halal Badge */}
                     {isHalal && (

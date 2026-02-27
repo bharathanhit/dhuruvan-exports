@@ -31,14 +31,26 @@ const ProductDetail = () => {
             <div className="container px-6 pt-24 pb-16 lg:pt-32 lg:pb-24">
                 {/* Hero Header */}
                 <div className="mb-12 lg:mb-16 lg:pl-[5%]">
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center gap-4 px-5 py-2.5 bg-secondary/10 border border-secondary/20 rounded-full text-secondary text-[11px] font-black uppercase tracking-[0.3em] mb-6"
-                    >
-                        <TrendingUp size={16} />
-                        <span>Premium {product.category}</span>
-                    </motion.div>
+                    <div className="flex flex-wrap items-center gap-4 mb-6">
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="inline-flex items-center gap-4 px-5 py-2.5 bg-secondary/10 border border-secondary/20 rounded-full text-secondary text-[11px] font-black uppercase tracking-[0.3em]"
+                        >
+                            <TrendingUp size={16} />
+                            <span>Premium {product.category}</span>
+                        </motion.div>
+                        {product.brand && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.2 }}
+                                className="px-5 py-2.5 bg-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.3em] shadow-lg"
+                            >
+                                Brand: {product.brand}
+                            </motion.div>
+                        )}
+                    </div>
 
                     <motion.h1
                         initial={{ opacity: 0, x: -20 }}
@@ -71,17 +83,24 @@ const ProductDetail = () => {
                                     initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
-                                    className="flex items-center gap-5 mb-5"
+                                    className="flex flex-col gap-2 mb-5"
                                 >
-                                    <motion.span
-                                        whileHover={{ rotate: [0, -10, 10, 0] }}
-                                        className="text-2xl md:text-4xl filter grayscale hover:grayscale-0 transition-all duration-500 cursor-default"
-                                    >
-                                        {getEmojiForVariety(index)}
-                                    </motion.span>
-                                    <h2 className="text-xl md:text-3xl font-black text-primary tracking-tighter leading-tight">
-                                        {variety.title}
-                                    </h2>
+                                    <div className="flex items-center gap-5">
+                                        <motion.span
+                                            whileHover={{ rotate: [0, -10, 10, 0] }}
+                                            className="text-2xl md:text-4xl filter grayscale hover:grayscale-0 transition-all duration-500 cursor-default"
+                                        >
+                                            {getEmojiForVariety(index)}
+                                        </motion.span>
+                                        <h2 className="text-xl md:text-3xl font-black text-primary tracking-tighter leading-tight">
+                                            {variety.title}
+                                        </h2>
+                                    </div>
+                                    {variety.brand && (
+                                        <span className="text-[10px] font-black text-secondary uppercase tracking-[0.4em] ml-12 md:ml-16">
+                                            Export Label: {variety.brand}
+                                        </span>
+                                    )}
                                 </motion.div>
 
                                 <motion.p
