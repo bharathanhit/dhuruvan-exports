@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -8,24 +8,53 @@ import {
     ShieldCheck,
     Globe2,
     Package,
-    ArrowRight,
-    LucideIcon
+    ArrowRight
 } from 'lucide-react';
-import { products } from '../data/products';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+import { products as staticProducts } from '../data/products';
 import halalImg from '../assets/halal.png';
+import GlobalInquiryButtons from './GlobalInquiryButtons';
 
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const product = products.find(p => p.id === id);
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!product) {
-            navigate('/#products');
-        }
-        window.scrollTo(0, 0);
-    }, [product, navigate]);
+        const fetchProduct = async () => {
+            setLoading(true);
+            try {
+                const staticProd = staticProducts.find(p => p.id === id);
+                const q = query(collection(db, 'products'), where('id', '==', id));
+                const snap = await getDocs(q);
 
+                if (!snap.empty) {
+                    const firestoreProd = { ...snap.docs[0].data(), docId: snap.docs[0].id };
+                    setProduct({ ...staticProd, ...firestoreProd });
+                } else if (staticProd) {
+                    setProduct(staticProd);
+                } else {
+                    navigate('/#products');
+                }
+            } catch (err) {
+                console.error("Firestore lookup failed:", err);
+                const staticProd = staticProducts.find(p => p.id === id);
+                if (staticProd) setProduct(staticProd);
+                else navigate('/#products');
+            }
+            setLoading(false);
+            window.scrollTo(0, 0);
+        };
+        fetchProduct();
+    }, [id, navigate]);
+
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center bg-white">
+            <div className="w-12 h-12 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />
+        </div>
+    );
     if (!product) return null;
 
     const getEmojiForVariety = (index) => {
@@ -46,10 +75,10 @@ const ProductDetail = () => {
                         Back to Catalog
                     </button>
                     <div className="flex items-center gap-4">
-                        <span className="text-slate-300 text-[10px] font-bold uppercase tracking-widest hidden md:block">SKU: DE-{product.id.substring(0, 4).toUpperCase()}</span>
-                        <Link to="/#contact" className="px-4 py-2 bg-primary text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-secondary transition-all">
-                            Enquire Now
-                        </Link>
+                        <span className="text-slate-300 text-[10px] font-bold uppercase tracking-widest hidden md:block">SKU: DE-{product.id?.substring(0, 4).toUpperCase()}</span>
+                        <div className="flex gap-2">
+                            <GlobalInquiryButtons productTitle={product.title} className="!grid-cols-3 !gap-2 !py-0 sm:!grid-cols-3" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -107,57 +136,55 @@ const ProductDetail = () => {
                             </div>
                         </section>
 
-                        {/* Varieties Section */}
-                        <section className="space-y-12">
-                            <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] mb-10 pl-1 border-l-4 border-secondary">Available Varieties & Quality</h2>
+                        {/* Varieties Section (Only show if present) */}
+                        {product.varieties && product.varieties.length > 0 && (
+                            <section className="space-y-12">
+                                <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] mb-10 pl-1 border-l-4 border-secondary">Available Varieties & Quality</h2>
 
-                            {product.varieties && product.varieties.map((variety, index) => (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    className="group relative bg-white border border-slate-100 rounded-[2.5rem] p-6 md:p-10 shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,43,88,0.08)] transition-all duration-700 flex flex-col md:flex-row gap-10 items-center overflow-hidden"
-                                >
-                                    {/* Numbering Overlay */}
-                                    <div className="absolute top-0 right-0 p-8 text-slate-50 font-black text-8xl pointer-events-none group-hover:text-secondary/5 transition-colors">
-                                        0{index + 1}
-                                    </div>
+                                {product.varieties.map((variety, index) => (
+                                    <motion.div
+                                        key={index}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        className="group relative bg-white border border-slate-100 rounded-[2.5rem] p-6 md:p-10 shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,43,88,0.08)] transition-all duration-700 flex flex-col md:flex-row gap-10 items-center overflow-hidden"
+                                    >
+                                        <div className="absolute top-0 right-0 p-8 text-slate-50 font-black text-8xl pointer-events-none group-hover:text-secondary/5 transition-colors">
+                                            0{index + 1}
+                                        </div>
 
-                                    {/* Small Premium Image - Further reduced for boutique feel */}
-                                    <div className="relative w-full md:w-[180px] shrink-0">
-                                        <div className="aspect-square relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] shadow-xl border-4 border-white">
-                                            <motion.img
-                                                whileHover={{ scale: 1.15 }}
-                                                transition={{ duration: 1 }}
-                                                src={variety.img}
-                                                alt={variety.title}
-                                                className="w-full h-full object-cover"
-                                            />
-                                            <div className="absolute inset-0 bg-primary/5 group-hover:bg-transparent transition-colors duration-500" />
+                                        <div className="relative w-full md:w-[180px] shrink-0">
+                                            <div className="aspect-square relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] shadow-xl border-4 border-white">
+                                                <motion.img
+                                                    whileHover={{ scale: 1.15 }}
+                                                    transition={{ duration: 1 }}
+                                                    src={variety.img}
+                                                    alt={variety.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <div className="absolute inset-0 bg-primary/5 group-hover:bg-transparent transition-colors duration-500" />
+                                            </div>
+                                            <div className="absolute -top-3 -left-3 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-xl z-10 border border-slate-50">
+                                                {getEmojiForVariety(index)}
+                                            </div>
                                         </div>
-                                        {/* Emoji Decoration */}
-                                        <div className="absolute -top-3 -left-3 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-xl z-10 border border-slate-50">
-                                            {getEmojiForVariety(index)}
-                                        </div>
-                                    </div>
 
-                                    {/* Description */}
-                                    <div className="flex-1 space-y-4 relative z-10">
-                                        <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter leading-tight group-hover:text-secondary transition-colors">
-                                            {variety.title}
-                                        </h3>
-                                        <p className="text-sm md:text-base text-slate-500 leading-relaxed font-medium">
-                                            {variety.desc}
-                                        </p>
-                                        <div className="flex gap-4 pt-2">
-                                            <span className="px-3 py-1 bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest rounded-md border border-slate-100 italic">Export Ready</span>
-                                            <span className="px-3 py-1 bg-secondary/5 text-[9px] font-black text-secondary uppercase tracking-widest rounded-md border border-secondary/10">Premium Grade</span>
+                                        <div className="flex-1 space-y-4 relative z-10">
+                                            <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter leading-tight group-hover:text-secondary transition-colors">
+                                                {variety.title}
+                                            </h3>
+                                            <p className="text-sm md:text-base text-slate-500 leading-relaxed font-medium">
+                                                {variety.desc}
+                                            </p>
+                                            <div className="flex gap-4 pt-2">
+                                                <span className="px-3 py-1 bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest rounded-md border border-slate-100 italic">Export Ready</span>
+                                                <span className="px-3 py-1 bg-secondary/5 text-[9px] font-black text-secondary uppercase tracking-widest rounded-md border border-secondary/10">Premium Grade</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </section>
+                                    </motion.div>
+                                ))}
+                            </section>
+                        )}
                     </div>
 
                     {/* Right Column: Specifications & Sidebar */}
@@ -165,64 +192,64 @@ const ProductDetail = () => {
                         <div className="sticky top-40 space-y-8">
 
                             {/* Detailed Specs Card */}
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="bg-primary text-white rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group"
-                            >
-                                {/* Decorative elements */}
-                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
-                                <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl" />
+                            {product.specifications && product.specifications.length > 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="bg-primary text-white rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group"
+                                >
+                                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
+                                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl" />
 
-                                <h3 className="text-2xl font-black mb-8 tracking-tighter flex items-center gap-3">
-                                    <ArrowRight size={20} className="text-secondary" />
-                                    Specifications
-                                </h3>
+                                    <h3 className="text-2xl font-black mb-8 tracking-tighter flex items-center gap-3">
+                                        <ArrowRight size={20} className="text-secondary" />
+                                        Specifications
+                                    </h3>
 
-                                <div className="space-y-6 relative z-10">
-                                    {product.specifications && product.specifications.map((spec, i) => (
-                                        <div key={i} className="flex flex-col gap-1 border-b border-white/10 pb-4 last:border-0 group-hover:border-white/20 transition-colors">
-                                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{spec.label}</span>
-                                            <span className="text-base font-bold text-white/90">{spec.value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {product.isHalal && (
-                                    <div className="mt-12 pt-8 border-t border-white/10 flex items-center gap-6">
-                                        <div className="w-16 h-16 bg-white rounded-2xl p-3 shadow-xl">
-                                            <img src={halalImg} alt="Halal" className="w-full h-full object-contain" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Global Standards</p>
-                                            <p className="text-sm font-black text-secondary uppercase">100% Halal Certified</p>
-                                        </div>
+                                    <div className="space-y-6 relative z-10">
+                                        {product.specifications.map((spec, i) => (
+                                            <div key={i} className="flex flex-col gap-1 border-b border-white/10 pb-4 last:border-0 group-hover:border-white/20 transition-colors">
+                                                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{spec.label}</span>
+                                                <span className="text-base font-bold text-white/90">{spec.value}</span>
+                                            </div>
+                                        ))}
                                     </div>
-                                )}
-                            </motion.div>
+
+                                    {product.isHalal && (
+                                        <div className="mt-12 pt-8 border-t border-white/10 flex items-center gap-6">
+                                            <div className="w-16 h-16 bg-white rounded-2xl p-3 shadow-xl">
+                                                <img src={halalImg} alt="Halal" className="w-full h-full object-contain" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Global Standards</p>
+                                                <p className="text-sm font-black text-secondary uppercase">100% Halal Certified</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
 
                             {/* Benefits List */}
-                            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-sm">
-                                <h3 className="text-xl font-black text-primary mb-8 tracking-tighter">Key Benefits</h3>
-                                <div className="space-y-4">
-                                    {product.benefits && product.benefits.map((benefit, i) => (
-                                        <div key={i} className="flex items-center gap-4 text-slate-600 group">
-                                            <div className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
-                                                <CheckCircle2 size={12} className="text-secondary group-hover:text-white" />
+                            {product.benefits && product.benefits.length > 0 && (
+                                <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-sm">
+                                    <h3 className="text-xl font-black text-primary mb-8 tracking-tighter">Key Benefits</h3>
+                                    <div className="space-y-4">
+                                        {product.benefits.map((benefit, i) => (
+                                            <div key={i} className="flex items-center gap-4 text-slate-600 group">
+                                                <div className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
+                                                    <CheckCircle2 size={12} className="text-secondary group-hover:text-white" />
+                                                </div>
+                                                <span className="text-sm font-bold tracking-tight">{benefit}</span>
                                             </div>
-                                            <span className="text-sm font-bold tracking-tight">{benefit}</span>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
 
-                                <Link
-                                    to="/#contact"
-                                    className="w-full mt-12 btn btn-primary py-5 text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl"
-                                >
-                                    Start Bulk Inquiry
-                                    <ArrowRight size={16} />
-                                </Link>
-                            </div>
+                                    <div className="mt-12 space-y-4">
+                                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Select Inquiry Method</p>
+                                        <GlobalInquiryButtons productTitle={product.title} context="Product Detail Page" />
+                                    </div>
+                                </div>
+                            )}
 
                         </div>
                     </div>
@@ -246,13 +273,9 @@ const ProductDetail = () => {
                         <p className="text-white/50 text-lg mb-12 font-medium">
                             Dhuruvan Exports handles everything from quality inspection to global logistics. Partner with us for reliable, high-volume supply.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                            <Link to="/#contact" className="px-10 py-5 bg-white text-primary rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-secondary hover:text-white transition-all shadow-2xl">
-                                Request Export Quote
-                            </Link>
-                            <Link to="/services" className="px-10 py-5 bg-white/10 text-white border border-white/20 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-white/20 transition-all">
-                                Our Supply Chain Services
-                            </Link>
+                        <div className="flex flex-col gap-6 justify-center">
+                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] mb-4">Partner with Dhuruvan Exports Today</p>
+                            <GlobalInquiryButtons productTitle={product.title} className="max-w-2xl mx-auto w-full" />
                         </div>
                     </div>
                 </motion.section>

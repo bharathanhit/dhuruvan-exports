@@ -9,8 +9,10 @@ import Certificates from './components/Certificates';
 import ProductDetail from './components/ProductDetail';
 import AdminPanel from './components/AdminPanel';
 import AboutPage from './components/AboutPage';
+import CategoryPage from './components/CategoryPage';
 import ServicesPage from './components/ServicesPage';
 import Footer from './components/Footer';
+import FloatingEnquiry from './components/FloatingEnquiry';
 
 // Scroll to top on route change
 const ScrollToTop = () => {
@@ -37,8 +39,10 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>
+      <FloatingEnquiry />
       <Footer />
     </div>
   );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ShieldCheck, Award, Target, Eye, Globe2, Users, HeartHandshake } from 'lucide-react';
+import GlobalInquiryButtons from './GlobalInquiryButtons';
 
 const AboutPage = () => {
     return (
@@ -189,6 +190,40 @@ const AboutPage = () => {
                                 <p className="text-slate-500 font-medium leading-relaxed text-sm">{val.desc}</p>
                             </motion.div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Final CTA Section */}
+            <section className="py-24 bg-white">
+                <div className="container px-6">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            className="bg-primary rounded-[3rem] p-12 md:p-20 relative overflow-hidden text-white shadow-[0_50px_100px_-20px_rgba(0,43,88,0.3)]"
+                        >
+                            <div className="relative z-10">
+                                <span className="text-secondary font-black text-[10px] uppercase tracking-[0.4em] mb-6 block">Future of Export</span>
+                                <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter uppercase leading-[0.85]">
+                                    Partner with <br />
+                                    <span className="text-secondary italic">Excellence.</span>
+                                </h2>
+                                <p className="text-white/60 font-medium text-lg mb-12 max-w-2xl mx-auto leading-relaxed">
+                                    Join our network of global partners and experience the transparency and reliability of Dhuruvan Exports.
+                                </p>
+
+                                <GlobalInquiryButtons
+                                    productTitle="Exploring Strategic Export Partnership"
+                                    context="About Us Page"
+                                    className="max-w-2xl mx-auto"
+                                />
+                            </div>
+
+                            {/* Decorative background flair */}
+                            <div className="absolute top-0 right-0 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+                            <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+                        </motion.div>
                     </div>
                 </div>
             </section>

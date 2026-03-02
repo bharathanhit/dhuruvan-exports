@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Send, Users, Award, Briefcase, Clock, Calendar, Sparkles, ChevronDown } from 'lucide-react';
+import { MapPin, Send, Users, Award, Briefcase, Clock, Calendar, Sparkles, ChevronDown, Phone, Mail, MessageCircle, CheckCircle, Globe } from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase';
 import flightImg from '../assets/flight.jpeg';
 
 const Contact = () => {
@@ -11,13 +13,51 @@ const Contact = () => {
         product: 'Premium Basmati Rice',
         logistics: 'Sea Freight (FCL/LCL)'
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [actionType, setActionType] = useState(null); // 'whatsapp', 'email', 'call'
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const subject = `New Inquiry from ${formData.name}`;
-        const body = `Inquiry Details:\n\nName: ${formData.name}\nBusiness Status: ${formData.industry}\nDestination: ${formData.destination}\nProduct: ${formData.product}\nLogistics: ${formData.logistics}\n\nSent from Dhuruvan Exports Website`;
+    const handleAction = async (type) => {
+        if (!formData.name || !formData.destination) {
+            alert("Please provide your name and destination port to continue.");
+            return;
+        }
 
-        window.location.href = `mailto:Dhuruvanexports@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        setIsSubmitting(true);
+        setActionType(type);
+
+        try {
+            // 1. Save to Firestore (Dashboard) - MANDATORY for all entry types
+            await addDoc(collection(db, 'inquiries'), {
+                ...formData,
+                contactMethod: type,
+                createdAt: serverTimestamp(),
+                status: 'new'
+            });
+
+            // 2. Perform Redirect with high specificity
+            const subject = `New Export Inquiry [${formData.product}] from ${formData.name}`;
+            const body = `📦 *New Export Inquiry - Dhuruvan Exports* 📦\n\n` +
+                `👤 *Name:* ${formData.name}\n` +
+                `🏢 *Business Type:* ${formData.industry}\n` +
+                `🎯 *Purpose:* Purchasing ${formData.product}\n` +
+                `📍 *Destination:* ${formData.destination}\n` +
+                `🚢 *Logistics:* ${formData.logistics}\n\n` +
+                `_Sent via Website Portal_`;
+
+            if (type === 'whatsapp') {
+                window.open(`https://wa.me/919952777973?text=${encodeURIComponent(body)}`, '_blank');
+            } else if (type === 'email') {
+                window.location.href = `mailto:Dhuruvanexports@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            } else if (type === 'call') {
+                window.location.href = `tel:+919952777973`;
+            }
+        } catch (error) {
+            console.error("Inquiry Error:", error);
+            alert("Connection error. Please try reaching us directly at +91 99527 77973.");
+        } finally {
+            setIsSubmitting(false);
+            setActionType(null);
+        }
     };
 
     return (
@@ -29,7 +69,7 @@ const Contact = () => {
                     <div className="lg:w-[45%] bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9] relative overflow-hidden hidden lg:flex items-center justify-center p-12">
                         <motion.div
                             initial={{ x: -120, opacity: 0 }}
-                            whileInView={{ x: 20, opacity: 1 }}
+                            whileInView={{ x: 10, opacity: 1 }}
                             transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
                             className="relative z-30 scale-[1.25]"
                         >
@@ -67,7 +107,7 @@ const Contact = () => {
                                 Reliable sourcing and global supply chain excellence.
                             </p>
 
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-6">
                                 {/* Full Name Field */}
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
@@ -118,43 +158,83 @@ const Contact = () => {
                                     </div>
                                 </div>
 
-                                {/* Product Inquiry Field */}
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Product Inquiry</label>
-                                    <div className="relative group">
-                                        <Award size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors z-10" />
-                                        <select
-                                            value={formData.product}
-                                            onChange={(e) => setFormData({ ...formData, product: e.target.value })}
-                                            className="w-full bg-[#F8FAFC] border border-[#F1F5F9] py-4 pl-14 pr-10 rounded-xl text-sm font-bold text-[#1E293B] outline-none focus:bg-white focus:border-[#3B82F6]/30 transition-all appearance-none cursor-pointer relative z-0"
-                                        >
-                                            <option>Premium Basmati Rice</option>
-                                            <option>Halal Certified Commodities</option>
-                                            <option>Sustainable Textiles</option>
-                                            <option>Handcrafted Woodwork</option>
-                                        </select>
-                                        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                {/* Product & Logistics Fields */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Product Inquiry</label>
+                                        <div className="relative group">
+                                            <Award size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors z-10" />
+                                            <select
+                                                value={formData.product}
+                                                onChange={(e) => setFormData({ ...formData, product: e.target.value })}
+                                                className="w-full bg-[#F8FAFC] border border-[#F1F5F9] py-4 pl-14 pr-10 rounded-xl text-sm font-bold text-[#1E293B] outline-none focus:bg-white focus:border-[#3B82F6]/30 transition-all appearance-none cursor-pointer relative z-0"
+                                            >
+                                                <option>Premium Basmati Rice</option>
+                                                <option>Halal Certified Commodities</option>
+                                                <option>Sustainable Textiles</option>
+                                                <option>Handcrafted Woodwork</option>
+                                            </select>
+                                            <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Logistics Preference</label>
+                                        <div className="relative group">
+                                            <Globe size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors z-10" />
+                                            <select
+                                                value={formData.logistics}
+                                                onChange={(e) => setFormData({ ...formData, logistics: e.target.value })}
+                                                className="w-full bg-[#F8FAFC] border border-[#F1F5F9] py-4 pl-14 pr-10 rounded-xl text-sm font-bold text-[#1E293B] outline-none focus:bg-white focus:border-[#3B82F6]/30 transition-all appearance-none cursor-pointer relative z-0"
+                                            >
+                                                <option>Sea Freight</option>
+                                                <option>Air Freight</option>
+                                                <option>Undecided / Need Advice</option>
+                                            </select>
+                                            <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                        </div>
                                     </div>
                                 </div>
 
-
-                                {/* Submit Button Styled as WhatsApp */}
-                                <motion.button
-                                    whileHover={{ scale: 1.02, boxShadow: "0 20px 40px -10px rgba(37,99,235,0.3)" }}
-                                    whileTap={{ scale: 0.98 }}
-                                    type="submit"
-                                    className="w-full bg-[#2563EB] text-white py-5 px-8 rounded-2xl font-black text-[12px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 shadow-xl transition-all mt-8"
-                                >
-                                    <Send size={18} />
-                                    Request Quote Via WhatsApp
-                                </motion.button>
+                                {/* Choice Buttons */}
+                                <div className="pt-6 space-y-4">
+                                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] text-center mb-6">Select Inquiry Method</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAction('whatsapp')}
+                                            disabled={isSubmitting}
+                                            className="bg-[#25D366] text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-lg shadow-green-200 disabled:opacity-50"
+                                        >
+                                            {isSubmitting && actionType === 'whatsapp' ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <MessageCircle size={18} />}
+                                            WhatsApp
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAction('email')}
+                                            disabled={isSubmitting}
+                                            className="bg-primary text-white py-4 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-lg disabled:opacity-50"
+                                        >
+                                            {isSubmitting && actionType === 'email' ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <Mail size={18} />}
+                                            Gmail
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAction('call')}
+                                            disabled={isSubmitting}
+                                            className="bg-white border-2 border-slate-100 text-slate-600 py-4 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:border-secondary hover:text-secondary transition-all disabled:opacity-50"
+                                        >
+                                            {isSubmitting && actionType === 'call' ? <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" /> : <Phone size={18} />}
+                                            Direct Call
+                                        </button>
+                                    </div>
+                                </div>
 
                                 {/* Footer Note */}
-                                <div className="flex items-center justify-center gap-2 mt-6 text-slate-400 text-[9px] font-black uppercase tracking-widest">
+                                <div className="flex items-center justify-center gap-2 mt-8 text-slate-400 text-[9px] font-black uppercase tracking-widest border-t border-slate-50 pt-8">
                                     <Calendar size={12} />
-                                    <span>Typical Response Time: 2 Business Hours</span>
+                                    <span>Instant Log to Admin Dashboard</span>
                                 </div>
-                            </form>
+                            </div>
                         </motion.div>
                     </div>
                 </div>

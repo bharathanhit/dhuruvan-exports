@@ -38,6 +38,7 @@ const Hero = () => {
                             src={images[currentImage]}
                             alt="Global Logistics"
                             className="w-full h-full object-cover"
+                            style={{ objectPosition: currentImage === 0 ? 'left center' : 'center center' }}
                         />
                     </motion.div>
                 </AnimatePresence>

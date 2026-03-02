@@ -1,10 +1,9 @@
-import waterImg from '../assets/water.jpeg';
 import woodcraftsImg from '../assets/woodcrafts.jpg';
+import waterImg from '../assets/water.jpeg';
 
 // Rice Images
 import basmati1 from '../assets/pasmati/3bf96918afed8aae47ec10c7099a3470.jpg';
 import basmati2 from '../assets/pasmati/bfb94b8934e15f5529a44be1952cddcf.jpg';
-
 import nonBasmati1 from '../assets/non pasmati/26864a111cb62d87147528c71d8a6ff1.jpg';
 
 // Meat Images
@@ -14,121 +13,148 @@ import buffalo1 from '../assets/baffalo meat/6c0071e78766afe56c65f019f30ab2a6.jp
 import water1 from '../assets/water/2bd373bf4e9c47df0a817b9638a0eb06.jpg';
 import water2 from '../assets/water/ce394517e738cbb4b992acac7dff0e30.jpg';
 
+export const categories = [
+    {
+        id: 'agro-products',
+        title: 'Agro Products',
+        slug: 'agro-products',
+        description: 'Premium agricultural commodities — rice, spices, dry fruits & more — sourced from the finest farms across India.',
+        image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=1200',
+        color: '#16a34a',
+        gradient: 'from-green-900 to-green-700',
+    },
+    {
+        id: 'woodcrafts',
+        title: 'Woodcrafts',
+        slug: 'woodcrafts',
+        description: 'Exquisitely handcrafted wooden furniture and decorative pieces reflecting India\'s rich artisan heritage.',
+        image: woodcraftsImg,
+        color: '#92400e',
+        gradient: 'from-amber-900 to-amber-700',
+    },
+    {
+        id: 'livestock',
+        title: 'Livestock',
+        slug: 'livestock',
+        description: 'Halal-certified premium frozen buffalo meat processed under international food safety standards.',
+        image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&q=80&w=1200',
+        color: '#b91c1c',
+        gradient: 'from-red-900 to-red-700',
+    },
+    {
+        id: 'beverages',
+        title: 'Beverages',
+        slug: 'beverages',
+        description: 'Ultra-purified, mineral-enriched drinking water packaged with advanced purification technology.',
+        image: waterImg,
+        color: '#0369a1',
+        gradient: 'from-sky-900 to-sky-700',
+    },
+];
 
 export const products = [
     {
         id: 'basmati-rice',
         title: 'Basmati Rice',
         category: 'Agro Products',
+        categorySlug: 'agro-products',
         image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=1200',
-        description: 'Long-grain, aromatic rice sourced from the foothills of the Himalayas. Known for its distinct fragrance and fluffy texture.',
-        longDescription: 'Our Basmati Rice is the pinnacle of aromatic grains, cultivated in the mineral-rich soil of the Himalayan foothills. Each grain is aged to perfection to ensure the characteristic nutty flavor and non-sticky, fluffy texture that Basmati is famous for worldwide. Perfect for biryanis, pulaos, and gourmet side dishes.',
-        specifications: [
-            { label: 'Grain Length', value: '8.35 mm+' },
-            { label: 'Moisture', value: '12% Max' },
-            { label: 'Broken', value: '1% Max' },
-            { label: 'Purity', value: '95%' }
-        ],
-        benefits: ['Extra Long Grain', 'Rich Aroma', 'Aged for 2 Years', 'Non-GMO'],
+        description: 'Long-grain, aromatic rice sourced from the foothills of the Himalayas.',
         varieties: [
-            {
-                title: "Premium Long Grain",
-                desc: "Extra-long grains that expand up to 2.5 times when cooked, providing a magnificent appearance to your dishes.",
-                img: basmati1
-            },
-            {
-                title: "Traditional Himalayan Aroma",
-                desc: "Sourced directly heightens your culinary experience with its natural fragrance and delicate taste.",
-                img: basmati2
-            }
+            { title: 'Premium Long Grain', desc: 'Extra-long grains that expand up to 2.5 times when cooked.', img: basmati1 },
+            { title: 'Traditional Himalayan Aroma', desc: 'Sourced directly from Himalayan farms with natural fragrance.', img: basmati2 }
         ]
     },
     {
         id: 'non-basmati-rice',
         title: 'Non-Basmati Rice',
         category: 'Agro Products',
+        categorySlug: 'agro-products',
         image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&q=80&w=1200',
-        description: 'High-quality Sona Masoori, Ponni, and IR64 varieties. Versatile and nutrition-rich grains for everyday consumption.',
-        longDescription: 'We provide a wide range of premium non-basmati rice varieties including Sona Masoori, Ponni, and IR64. These grains are carefully processed to retain their nutritional value and natural taste. Ideal for daily meals, these varieties offer excellent cooking results and are available in various polishing levels to meet global demands.',
-        specifications: [
-            { label: 'Varieties', value: 'Sona Masoori, Ponni, IR64' },
-            { label: 'Moisture', value: '14% Max' },
-            { label: 'Broken', value: '5% Max' },
-            { label: 'Shelf Life', value: '24 Months' }
-        ],
-        benefits: ['Pesticide Free', 'High Nutritional Value', 'Sorted and Cleaned', 'Bulk Packaging Available'],
+        description: 'High-quality Sona Masoori, Ponni, and IR64 varieties.',
         varieties: [
-            {
-                title: "Sona Masoori & Ponni",
-                desc: "Lightweight and aromatic medium-grain rice. Known for its low starch content and ease of digestion.",
-                img: nonBasmati1
-            }
+            { title: 'Sona Masoori & Ponni', desc: 'Lightweight and aromatic medium-grain rice.', img: nonBasmati1 }
         ]
+    },
+    {
+        id: 'turmeric',
+        title: 'Turmeric',
+        category: 'Agro Products',
+        categorySlug: 'agro-products',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNdGqBLaLcgceHppWww5JoO756aGlRWzVV1Q&s',
+        description: 'Vibrant, high-curcumin turmeric fingers and powder.',
+    },
+    {
+        id: 'black-white-pepper',
+        title: 'Black & White Pepper',
+        category: 'Agro Products',
+        categorySlug: 'agro-products',
+        image: 'https://images.unsplash.com/photo-1600728255690-edd070021d02?q=80&w=1163&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        description: 'Bold, aromatic black pepper and mild white pepper.',
+    },
+    {
+        id: 'dry-fruits-nuts',
+        title: 'Dry Fruits & Nuts',
+        category: 'Agro Products',
+        categorySlug: 'agro-products',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMsP3T4dVyy3DJv9JOevk9Le_2hRKuS0fNiA&s',
+        description: 'Premium quality cashews, almonds, raisins, walnuts and more.',
+    },
+    {
+        id: 'coconut',
+        title: 'Coconut',
+        category: 'Agro Products',
+        categorySlug: 'agro-products',
+        image: 'https://5.imimg.com/data5/NA/CB/MY-34697231/tender-coconut-500x500.jpg',
+        description: 'Fresh and processed coconuts sourced directly from Indian coastal farms.',
+    },
+    {
+        id: 'pappad-farfar',
+        title: 'Pappad & Far Far',
+        category: 'Agro Products',
+        categorySlug: 'agro-products',
+        image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=1200',
+        description: 'Traditional Indian pappad and far far snacks.',
+    },
+    {
+        id: 'jaggery',
+        title: 'Jaggery',
+        category: 'Agro Products',
+        categorySlug: 'agro-products',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfAaxY5K67vJxy_KqZsvVJJCuGXwDWEpkIsg&s',
+        description: 'Pure, natural jaggery made from fresh sugarcane juice.',
     },
     {
         id: 'buffalo-meat',
         title: 'Buffalo Meat',
         category: 'Livestock',
+        categorySlug: 'livestock',
         image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&q=80&w=1200',
-        description: 'Premium frozen boneless buffalo meat. Processed under strict hygienic conditions and international safety standards.',
-        longDescription: 'Dhuruvan Exports offers premium frozen boneless buffalo meat, sourced from healthy livestock and processed in state-of-the-art HACCP-certified facilities. Our meat is Halal certified and undergoes rigorous quality checks to ensure tenderness, flavor, and safety. We offer various cuts including silver side, top side, and knuckle.',
+        description: 'Premium frozen boneless buffalo meat.',
         isHalal: true,
-        specifications: [
-            { label: 'Freezing Type', value: 'I.Q.F. / Block Frozen' },
-            { label: 'Storage Temp', value: '-18°C or below' },
-            { label: 'Certification', value: 'Halal, ISO, HACCP' },
-            { label: 'Fat Content', value: 'Low Fat' }
-        ],
-        benefits: ['100% Halal Certified', 'Antibiotic Free', 'Vacuum Packed', 'Traceable Sourcing'],
         varieties: [
-            {
-                title: "Premium Boneless Cuts",
-                desc: "Selected lean cuts processed under strict Halal and hygienic standards, ensuring the highest meat quality for global export.",
-                img: buffalo1
-            }
+            { title: 'Premium Boneless Cuts', desc: 'Selected lean cuts processed under strict Halal standards.', img: buffalo1 }
         ]
     },
     {
         id: 'drinking-water',
         title: 'Drinking Water',
         category: 'Beverages',
+        categorySlug: 'beverages',
         image: waterImg,
-        description: 'Purified and mineral-enriched drinking water. Packaged with advanced purification technology for crystal clarity.',
-        longDescription: 'Our mineral water is sourced from pristine aquifers and undergoes a comprehensive 7-stage purification process including RO, UV sterilization, and Ozonization. Enriched with essential minerals like Magnesium and Potassium, it provides a refreshing taste and optimal hydration. Available in various sizes from 250ml to 20L.',
-        specifications: [
-            { label: 'PH Level', value: '7.2 - 7.8' },
-            { label: 'TDS', value: '80 - 120 ppm' },
-            { label: 'Purification', value: '7-Stage Process' },
-            { label: 'Packaging', value: 'BPA-Free PET' }
-        ],
-        benefits: ['Ultra Purified', 'Mineral Enriched', 'Eco-friendly Bottles', 'Strict Quality Control'],
+        description: 'Purified and mineral-enriched drinking water.',
         varieties: [
-            {
-                title: "7-Stage Purification",
-                desc: "Our mineral water is sourced from pristine aquifers and undergoes a comprehensive 7-stage purification process including RO, UV sterilization, and Ozonization.",
-                img: water1
-            },
-            {
-                title: "Mineral Enriched",
-                desc: "Enriched with essential minerals like Magnesium and Potassium, it provides a refreshing taste and optimal hydration. Available in various sizes from 250ml to 20L.",
-                img: water2
-            }
+            { title: '7-Stage Purification', desc: 'Our mineral water undergoes RO, UV sterilization, and Ozonization.', img: water1 },
+            { title: 'Mineral Enriched', desc: 'Enriched with Magnesium and Potassium.', img: water2 }
         ]
     },
     {
         id: 'woodcrafts',
         title: 'Woodcrafts',
-        category: 'Handicrafts',
+        category: 'Woodcrafts',
+        categorySlug: 'woodcrafts',
         image: woodcraftsImg,
-        description: 'Exquisitely carved wooden furniture and decorative items. Reflecting India\'s rich cultural heritage and craftsmanship.',
-        longDescription: 'Our Woodcraft collection showcases the artistic brilliance of Indian artisans. From intricate Rattan furniture to hand-carved mahogany decor, each piece is a masterpiece of sustainable craftsmanship. We specialize in export-quality wicker and bamboo products that blend traditional designs with modern aesthetics.',
-        specifications: [
-            { label: 'Material', value: 'Rattan, Bamboo, Mahogany' },
-            { label: 'Finish', value: 'Premium Lacquer/Wax' },
-            { label: 'Type', value: 'Indoor & Outdoor' },
-            { label: 'Customization', value: 'Available for Bulk' }
-        ],
-        benefits: ['Eco-friendly Materials', 'Handcrafted by Artisans', 'Durable and Aesthetic', 'Global Export Grade'],
+        description: 'Exquisitely carved wooden furniture and decorative items.',
         link: '/wood-crafts'
     }
 ];

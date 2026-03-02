@@ -1,9 +1,48 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { NavHashLink } from 'react-router-hash-link';
-import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin, ShieldCheck, ShoppingBag, Info, Zap, MessageSquare, Package, Compass, Truck } from 'lucide-react';
+import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin, Youtube, ShieldCheck, ShoppingBag, Info, Zap, MessageSquare, Package, Compass, Truck, Share2 } from 'lucide-react';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from '../firebase';
+import { categories as staticCategories } from '../data/products';
+
+const SocialIconMap = {
+    Facebook: Facebook,
+    Twitter: Twitter,
+    Instagram: Instagram,
+    Linkedin: Linkedin,
+    Youtube: Youtube,
+    WhatsApp: MessageSquare
+};
 
 const Footer = () => {
+    const [socialLinks, setSocialLinks] = useState([]);
+    const [allCategories, setAllCategories] = useState([]);
+
+    useEffect(() => {
+        return onSnapshot(query(collection(db, 'social_links')), (snap) => {
+            const links = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            setSocialLinks(links);
+        });
+    }, []);
+
+    // Merge static + Firestore categories
+    useEffect(() => {
+        const q = query(collection(db, 'categories'), orderBy('order', 'asc'));
+        return onSnapshot(q, (snap) => {
+            const firestoreCats = snap.docs.map(d => ({ docId: d.id, ...d.data(), isFirestore: true }));
+            // Start with static, then override/append Firestore ones
+            const merged = staticCategories.map(c => ({ ...c }));
+            firestoreCats.forEach(fc => {
+                const idx = merged.findIndex(s => s.slug === fc.slug);
+                if (idx !== -1) merged[idx] = { ...merged[idx], ...fc };
+                else merged.push(fc);
+            });
+            setAllCategories(merged);
+        });
+    }, []);
+
     const quickLinks = [
         { name: 'Home Catalog', href: '/#' },
         { name: 'Our Services', href: '/services' },
@@ -11,14 +50,6 @@ const Footer = () => {
         { name: 'Our Certificates', href: '/certificates' },
         { name: 'Company Story', href: '/about' },
         { name: 'Quality Standards', href: '/#why-choose' },
-    ];
-
-    const categories = [
-        { name: 'Premium Basmati', href: '/#products' },
-        { name: 'Agro Commodities', href: '/#products' },
-
-        { name: 'Handcrafted Wood', href: '/wood-crafts' },
-        { name: 'Global Logistics', href: '/#contact' },
     ];
 
     return (
@@ -46,16 +77,29 @@ const Footer = () => {
                             A government registered premier merchant export house. We bridge Indian quality with global markets through excellence, transparency, and reliable logistics.
                         </motion.p>
                         <div className="flex gap-4">
-                            {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
-                                <motion.a
-                                    key={i}
-                                    href="#"
-                                    whileHover={{ y: -4, backgroundColor: 'var(--color-primary)', color: 'white' }}
-                                    className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 transition-all duration-300 shadow-sm"
-                                >
-                                    <Icon size={18} />
-                                </motion.a>
-                            ))}
+                            {socialLinks.length > 0 ? (
+                                socialLinks.map((link) => {
+                                    const Icon = SocialIconMap[link.platform] || Share2;
+                                    return (
+                                        <motion.a
+                                            key={link.id}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            whileHover={{ y: -4, backgroundColor: 'var(--color-primary)', color: 'white' }}
+                                            className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 transition-all duration-300 shadow-sm"
+                                        >
+                                            <Icon size={18} />
+                                        </motion.a>
+                                    );
+                                })
+                            ) : (
+                                [Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
+                                    <div key={i} className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-200">
+                                        <Icon size={18} />
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
 
@@ -91,18 +135,18 @@ const Footer = () => {
                     >
                         <h4 className="text-primary text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2">
                             <ShoppingBag size={12} className="text-secondary" />
-                            Portfolio
+                            Products
                         </h4>
                         <ul className="flex flex-col gap-3">
-                            {categories.map((link) => (
-                                <li key={link.name}>
-                                    <NavHashLink
-                                        smooth
-                                        to={link.href}
-                                        className="text-slate-500 font-bold text-sm hover:text-secondary transition-colors"
+                            {allCategories.map((cat) => (
+                                <li key={cat.slug || cat.id}>
+                                    <Link
+                                        to={`/category/${cat.slug || cat.id}`}
+                                        className="text-slate-500 font-bold text-sm hover:text-secondary transition-colors flex items-center gap-1.5 group"
                                     >
-                                        {link.name}
-                                    </NavHashLink>
+                                        <span className="w-1 h-1 rounded-full bg-secondary/40 group-hover:bg-secondary transition-colors" />
+                                        {cat.title}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

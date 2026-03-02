@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Award, CheckCircle, ShieldCheck, Lock, ChevronLeft, ChevronRight, BookOpen, X, Maximize2 } from 'lucide-react';
+import { Award, CheckCircle, ShieldCheck, Lock, ChevronLeft, ChevronRight, BookOpen, X, Maximize2, Plus } from 'lucide-react';
 import HTMLFlipBook from 'react-pageflip';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db } from '../firebase';
 
 // Import images from organized folders
 import GST_P1 from '../assets/GST/gst_p1.png';
@@ -11,6 +13,16 @@ import MSME_P1 from '../assets/MSME/msme_p1.png';
 import MSME_P2 from '../assets/MSME/msme_p2.png';
 import MSME_P3 from '../assets/MSME/msme_p3.png';
 import MSME_P4 from '../assets/MSME/msme_p4.png';
+
+const Page = React.forwardRef((props, ref) => {
+    // Filter out props that HTMLFlipBook passes but shouldn't be added to DOM
+    const { isActive, flipping, ...domProps } = props;
+    return (
+        <div {...domProps} ref={ref}>
+            {props.children}
+        </div>
+    );
+});
 
 const FlipBookComponent = ({ images, name, index }) => {
     const book = useRef();
@@ -80,7 +92,7 @@ const FlipBookComponent = ({ images, name, index }) => {
                         style={{ background: 'transparent' }}
                     >
                         {images.map((img, i) => (
-                            <div key={i} className="relative bg-white overflow-hidden group/page">
+                            <Page key={i} className="relative bg-white overflow-hidden group/page">
                                 {/* Click to Zoom Layer - Middle Clickable Area */}
                                 <div
                                     className="absolute inset-10 z-30 cursor-zoom-in flex items-center justify-center opacity-0 group-hover/page:opacity-100 transition-opacity duration-300"
@@ -108,7 +120,7 @@ const FlipBookComponent = ({ images, name, index }) => {
                                 </div>
 
                                 <div className={`absolute top-0 w-12 h-full z-10 pointer-events-none opacity-[0.15] ${i % 2 === 0 ? 'right-0 bg-gradient-to-l from-black to-transparent' : 'left-0 bg-gradient-to-r from-black to-transparent'}`} />
-                            </div>
+                            </Page>
                         ))}
                     </HTMLFlipBook>
                 </motion.div>
@@ -143,7 +155,7 @@ const FlipBookComponent = ({ images, name, index }) => {
                         <motion.button
                             initial={{ y: -20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
-                            className="absolute top-10 right-10 flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-secondary backdrop-blur-md rounded-2xl border border-white/20 text-white transition-all duration-500 z-[100] group shadow-2xl"
+                            className="absolute top-24 right-10 flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-secondary backdrop-blur-md rounded-2xl border border-white/20 text-white transition-all duration-500 z-[100] group shadow-2xl"
                             onClick={() => setSelectedImage(null)}
                         >
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] font-inter">Exit Preview</span>
@@ -181,13 +193,22 @@ const FlipBookComponent = ({ images, name, index }) => {
 };
 
 const Certificates = () => {
+    const [dynamicCerts, setDynamicCerts] = useState([]);
+
     useEffect(() => {
         const handleContextMenu = (e) => e.preventDefault();
         document.addEventListener('contextmenu', handleContextMenu);
         return () => document.removeEventListener('contextmenu', handleContextMenu);
     }, []);
 
-    const certificates = [
+    useEffect(() => {
+        const q = query(collection(db, 'certificates'), orderBy('createdAt', 'desc'));
+        return onSnapshot(q, (snap) => {
+            setDynamicCerts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        });
+    }, []);
+
+    const staticCertificates = [
         {
             name: 'GST Registration',
             description: 'GOVERNMENT OF INDIA • TAX REGISTRATION',
@@ -201,6 +222,8 @@ const Certificates = () => {
             icon: <CheckCircle className="text-secondary" size={24} />,
         }
     ];
+
+    const certificates = staticCertificates;
 
     return (
         <div className="pt-32 pb-40 min-h-screen bg-[#f8fafc] select-none overflow-x-hidden relative">
@@ -251,6 +274,46 @@ const Certificates = () => {
                         </div>
                     ))}
                 </div>
+
+                {/* Dynamic Certificates from Admin */}
+                {dynamicCerts.length > 0 && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="mt-24 mb-16 text-center"
+                        >
+                            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white shadow-lg rounded-full text-secondary text-[9px] font-black uppercase tracking-[0.3em] mb-6 border border-slate-50">
+                                <Plus size={12} />
+                                Additional Certificates
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter uppercase">
+                                More <span className="text-secondary italic">Credentials</span>
+                            </h2>
+                        </motion.div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-[1300px] mx-auto items-start">
+                            {dynamicCerts.map((cert, index) => (
+                                <div key={cert.id} className="flex flex-col items-center">
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 15 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        className="mb-8 flex flex-col items-center text-center group"
+                                    >
+                                        <div className="w-14 h-14 rounded-[1.2rem] bg-white shadow-xl flex items-center justify-center border border-slate-50 text-secondary mb-4 group-hover:bg-secondary group-hover:text-white transition-all duration-700 transform group-hover:rotate-[360deg] group-hover:scale-110">
+                                            <Award className="text-secondary group-hover:text-white transition-colors" size={24} />
+                                        </div>
+                                        <h3 className="text-2xl font-black text-primary uppercase tracking-tighter group-hover:text-secondary transition-colors duration-500">{cert.name}</h3>
+                                        {cert.description && <p className="text-slate-400 font-black text-[9px] tracking-[0.3em] uppercase mt-2">{cert.description}</p>}
+                                    </motion.div>
+
+                                    <FlipBookComponent images={cert.pages || []} name={cert.name} index={certificates.length + index} />
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
 
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
