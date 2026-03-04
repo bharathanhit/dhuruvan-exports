@@ -562,6 +562,8 @@ const ProductManager = () => {
         categorySlug: '',
         imageUrl: '',
         isHalal: false,
+        status: 'Ready for Export',
+        badgeNote: 'Premium Selection',
         specifications: [{ label: '', value: '' }],
         benefits: [''],
         varieties: [{ title: '', desc: '', imageUrl: '' }]
@@ -612,6 +614,8 @@ const ProductManager = () => {
             categorySlug: '',
             imageUrl: '',
             isHalal: false,
+            status: 'Ready for Export',
+            badgeNote: 'Premium Selection',
             specifications: [{ label: '', value: '' }],
             benefits: [''],
             varieties: [{ title: '', desc: '', imageUrl: '' }]
@@ -631,6 +635,8 @@ const ProductManager = () => {
             categorySlug: form.categorySlug,
             isHalal: form.isHalal,
             imageUrl: form.imageUrl,
+            status: form.status,
+            badgeNote: form.badgeNote,
             specifications: form.specifications.filter(s => s.label && s.value),
             benefits: form.benefits.filter(b => b.trim()),
             varieties: form.varieties.filter(v => v.title).map(v => ({
@@ -675,6 +681,8 @@ const ProductManager = () => {
             categorySlug: prod.categorySlug,
             imageUrl: prod.imageUrl || prod.image || '',
             isHalal: !!prod.isHalal,
+            status: prod.status || 'Ready for Export',
+            badgeNote: prod.badgeNote || 'Premium Selection',
             specifications: prod.specifications && prod.specifications.length ? prod.specifications : [{ label: '', value: '' }],
             benefits: prod.benefits && prod.benefits.length ? prod.benefits : [''],
             varieties: prod.varieties && prod.varieties.length ? prod.varieties.map(v => ({
@@ -716,7 +724,7 @@ const ProductManager = () => {
                     <Modal title={editing ? 'Edit Product' : 'New Product'} onClose={() => { setShowForm(false); reset(); }}
                         onSave={handleSave} saving={saving} valid={!!(form.title && form.categorySlug)}>
                         <Field label="Product Name *">
-                            <TextInput value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="e.g. Turmeric Powder" />
+                            <TextInput value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Turmeric Powder" />
                         </Field>
                         <Field label="Category *">
                             <div className="relative">
@@ -733,10 +741,10 @@ const ProductManager = () => {
                             </div>
                         </Field>
                         <Field label="Short Description">
-                            <TextArea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Brief product description for the grid..." />
+                            <TextArea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Brief product description for the grid..." />
                         </Field>
                         <Field label="Long Description (Detail Page)">
-                            <TextArea value={form.longDescription} onChange={e => setForm({ ...form, longDescription: e.target.value })} placeholder="Detailed story for the product page..." rows={5} />
+                            <TextArea value={form.longDescription} onChange={e => setForm(f => ({ ...f, longDescription: e.target.value }))} placeholder="Detailed story for the product page..." rows={5} />
                         </Field>
 
                         <Field label="Specifications">
@@ -746,24 +754,35 @@ const ProductManager = () => {
                                         <input value={spec.label} onChange={e => {
                                             const newSpecs = [...form.specifications];
                                             newSpecs[idx].label = e.target.value;
-                                            setForm({ ...form, specifications: newSpecs });
+                                            setForm(f => ({ ...f, specifications: newSpecs }));
                                         }} placeholder="Label (e.g. Moisture)" className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none" />
                                         <input value={spec.value} onChange={e => {
                                             const newSpecs = [...form.specifications];
                                             newSpecs[idx].value = e.target.value;
-                                            setForm({ ...form, specifications: newSpecs });
+                                            setForm(f => ({ ...f, specifications: newSpecs }));
                                         }} placeholder="Value (e.g. 12% Max)" className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none" />
                                         <button onClick={() => {
                                             const newSpecs = form.specifications.filter((_, i) => i !== idx);
-                                            setForm({ ...form, specifications: newSpecs.length ? newSpecs : [{ label: '', value: '' }] });
+                                            setForm(f => ({ ...f, specifications: newSpecs.length ? newSpecs : [{ label: '', value: '' }] }));
                                         }} className="p-2 text-red-400 hover:text-red-500"><Trash2 size={16} /></button>
                                     </div>
                                 ))}
-                                <button onClick={() => setForm({ ...form, specifications: [...form.specifications, { label: '', value: '' }] })} className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1">+ Add Spec</button>
+                                <button onClick={() => setForm(f => ({ ...f, specifications: [...f.specifications, { label: '', value: '' }] }))} className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1">+ Add Spec</button>
                             </div>
                         </Field>
+                        <div className="grid grid-cols-2 gap-4">
+                            <Field label="Availability Status">
+                                <TextInput value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} placeholder="e.g. Set Available" />
+                            </Field>
+                            <Field label="Display Badge">
+                                <TextInput value={form.badgeNote} onChange={e => setForm(f => ({ ...f, badgeNote: e.target.value }))} placeholder="e.g. Handcrafted Product" />
+                            </Field>
+                        </div>
 
-                        <Field label="Benefits">
+                        <Field label="Product Highlights / Benefits">
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-2">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight italic">ℹ️ These are key selling points that appear in the product highlights section.</p>
+                            </div>
                             <div className="space-y-3">
                                 {form.benefits.map((benefit, idx) => (
                                     <div key={idx} className="flex gap-2">
@@ -1190,15 +1209,25 @@ const DashboardOverview = () => {
     const [inquiryCount, setInquiryCount] = useState(0);
     const [socialCount, setSocialCount] = useState(0);
     const [certCount, setCertCount] = useState(0);
+    const [allProducts, setAllProducts] = useState([]);
 
     useEffect(() => {
         const u1 = onSnapshot(collection(db, 'categories'), s => {
             const firestoreCount = s.docs.filter(d => !staticCategories.some(sc => sc.slug === d.data().slug)).length;
             setCatCount(staticCategories.length + firestoreCount);
         });
-        const u2 = onSnapshot(collection(db, 'products'), s => {
-            const firestoreCount = s.docs.filter(d => !staticProducts.some(sp => sp.title === d.data().title)).length;
-            setProdCount(staticProducts.length + firestoreCount);
+        const u2 = onSnapshot(query(collection(db, 'products'), orderBy('order', 'asc')), s => {
+            const firestoreProds = s.docs.map(d => ({ docId: d.id, ...d.data(), isFirestore: true }));
+            const merged = staticProducts.map(p => ({ ...p, isStatic: true }));
+
+            firestoreProds.forEach(fp => {
+                const idx = merged.findIndex(p => p.title === fp.title);
+                if (idx !== -1) merged[idx] = { ...merged[idx], ...fp, isStatic: false };
+                else merged.push(fp);
+            });
+            merged.sort((a, b) => (a.order || 0) - (b.order || 0));
+            setAllProducts(merged);
+            setProdCount(merged.length);
         });
         const u3 = onSnapshot(collection(db, 'inquiries'), s => setInquiryCount(s.size));
         const u5 = onSnapshot(collection(db, 'social_links'), s => setSocialCount(s.size));
@@ -1224,8 +1253,8 @@ const DashboardOverview = () => {
     };
 
     return (
-        <div>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="space-y-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
                 {stats.map((s, i) => (
                     <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
                         className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all">
@@ -1237,6 +1266,47 @@ const DashboardOverview = () => {
                     </motion.div>
                 ))}
             </div>
+
+            <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 className="font-black text-slate-900 text-xl tracking-tight uppercase">Global Product Inventory</h3>
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Live tracking of all export items</p>
+                    </div>
+                    <div className="px-5 py-2 bg-slate-50 border border-slate-100 rounded-full">
+                        <span className="text-xs font-black text-primary uppercase tracking-widest">{allProducts.length} Items Total</span>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {allProducts.map((prod, idx) => (
+                        <motion.div
+                            key={prod.docId || prod.id || idx}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="group p-4 bg-white border border-slate-50 rounded-2xl hover:border-secondary/20 hover:shadow-lg hover:shadow-secondary/5 transition-all flex items-center gap-4"
+                        >
+                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-50 flex-shrink-0">
+                                <img src={prod.imageUrl || prod.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="font-black text-slate-800 text-xs truncate uppercase tracking-tight group-hover:text-secondary transition-colors">{prod.title}</h4>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate max-w-[80px]">{prod.category}</span>
+                                    <div className="w-1 h-1 rounded-full bg-slate-200" />
+                                    {prod.isFirestore ? (
+                                        <span className="text-[8px] font-black text-secondary uppercase tracking-widest px-1.5 py-0.5 bg-secondary/5 rounded-md">Live</span>
+                                    ) : (
+                                        <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest px-1.5 py-0.5 bg-slate-50 rounded-md">Static</span>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+
             <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
                 <h3 className="font-black text-slate-900 mb-2">Quick Guide</h3>
                 <ul className="space-y-3 text-sm text-slate-500 font-medium">

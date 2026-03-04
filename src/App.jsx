@@ -11,6 +11,8 @@ import AdminPanel from './components/AdminPanel';
 import AboutPage from './components/AboutPage';
 import CategoryPage from './components/CategoryPage';
 import ServicesPage from './components/ServicesPage';
+import PaymentTerms from './components/PaymentTerms';
+import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import FloatingEnquiry from './components/FloatingEnquiry';
 
@@ -41,6 +43,8 @@ function App() {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/category/:slug" element={<CategoryPage />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/payment-terms" element={<PaymentTerms />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="*" element={<div className="pt-40 pb-24 min-h-screen flex items-center justify-center"><h1 className="text-4xl text-primary font-black">404 - Page Not Found</h1></div>} />
       </Routes>

@@ -18,8 +18,8 @@ const CategoryCard = ({ title, description, image, imageUrl, slug, color, index 
             className="group relative"
         >
             <Link to={`/category/${slug}`} className="block no-underline">
-                <div className="relative rounded-[2rem] overflow-hidden bg-[#0D1B2A] shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:shadow-[0_40px_100px_rgba(0,0,0,0.35)] transition-all duration-700 border border-white/5">
-                    <div className="relative h-64 overflow-hidden">
+                <div className="relative rounded-[1.5rem] md:rounded-[2rem] overflow-hidden bg-[#0D1B2A] shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:shadow-[0_40px_100px_rgba(0,0,0,0.35)] transition-all duration-700 border border-white/5">
+                    <div className="relative h-48 md:h-64 overflow-hidden">
                         <motion.img
                             src={imgSrc}
                             alt={title}
@@ -30,26 +30,26 @@ const CategoryCard = ({ title, description, image, imageUrl, slug, color, index 
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0D1B2A] via-[#0D1B2A]/30 to-transparent" />
                         <motion.div
                             whileHover={{ scale: 1.1 }}
-                            className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white border border-white/20 backdrop-blur-md bg-white/10"
+                            className="absolute top-3 right-3 md:top-4 md:right-4 px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest text-white border border-white/20 backdrop-blur-md bg-white/10"
                         >
                             View All
                         </motion.div>
                     </div>
-                    <div className="p-7">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <h3 className="text-2xl font-black text-white tracking-tight mb-2 group-hover:text-secondary transition-colors duration-300">
+                    <div className="p-5 md:p-7">
+                        <div className="flex items-start justify-between gap-3 md:gap-4">
+                            <div className="min-w-0">
+                                <h3 className="text-lg md:text-2xl font-black text-white tracking-tight mb-1 md:mb-2 group-hover:text-secondary transition-colors duration-300 truncate">
                                     {title}
                                 </h3>
-                                <p className="text-slate-400 text-sm leading-relaxed font-medium line-clamp-2 group-hover:text-slate-300 transition-colors">
+                                <p className="text-slate-400 text-xs md:text-sm leading-relaxed font-medium line-clamp-2 group-hover:text-slate-300 transition-colors">
                                     {description}
                                 </p>
                             </div>
                             <motion.div
                                 whileHover={{ scale: 1.2, x: 4 }}
-                                className="flex-shrink-0 w-10 h-10 rounded-xl bg-white/5 group-hover:bg-secondary flex items-center justify-center text-white transition-all duration-500 border border-white/10 mt-1"
+                                className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white/5 group-hover:bg-secondary flex items-center justify-center text-white transition-all duration-500 border border-white/10 mt-1"
                             >
-                                <ArrowRight size={18} />
+                                <ArrowRight size={14} className="md:w-[18px]" />
                             </motion.div>
                         </div>
                         <motion.div
@@ -57,7 +57,7 @@ const CategoryCard = ({ title, description, image, imageUrl, slug, color, index 
                             whileInView={{ width: '40%' }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, delay: index * 0.12 + 0.4 }}
-                            className="h-0.5 rounded-full mt-5"
+                            className="h-0.5 rounded-full mt-4 md:mt-5"
                             style={{ backgroundColor: color || '#1e9e54' }}
                         />
                     </div>

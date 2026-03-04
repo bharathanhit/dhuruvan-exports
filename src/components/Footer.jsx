@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { NavHashLink } from 'react-router-hash-link';
-import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin, Youtube, ShieldCheck, ShoppingBag, Info, Zap, MessageSquare, Package, Compass, Truck, Share2 } from 'lucide-react';
+import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin, Youtube, ShieldCheck, ShoppingBag, Info, Zap, MessageSquare, Package, Compass, Truck, Share2, HelpCircle } from 'lucide-react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
 import { categories as staticCategories } from '../data/products';
+import BixsolPopup from './BixsolPopup';
 
 const SocialIconMap = {
     Facebook: Facebook,
@@ -19,6 +20,7 @@ const SocialIconMap = {
 const Footer = () => {
     const [socialLinks, setSocialLinks] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
+    const [isBixsolOpen, setIsBixsolOpen] = useState(false);
 
     useEffect(() => {
         return onSnapshot(query(collection(db, 'social_links')), (snap) => {
@@ -49,11 +51,12 @@ const Footer = () => {
         { name: 'Our Products', href: '/#products' },
         { name: 'Our Certificates', href: '/certificates' },
         { name: 'Company Story', href: '/about' },
+        { name: 'FAQ Support', href: '/faq' },
         { name: 'Quality Standards', href: '/#why-choose' },
     ];
 
     return (
-        <footer className="bg-white border-t border-slate-100 pt-20 pb-10 overflow-hidden relative">
+        <footer className="bg-white border-t border-slate-100 pt-20 pb-32 overflow-hidden relative">
             {/* Subtle background flair */}
             <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/[0.02] rounded-full blur-[100px] translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
@@ -183,7 +186,10 @@ const Footer = () => {
                 <div className="flex flex-col gap-8 relative z-10">
 
                     {/* Highly Visible Legal Links */}
-                    <div className="flex flex-wrap justify-center lg:justify-end gap-4">
+                    <div className="flex flex-wrap justify-center lg:justify-end gap-3 md:gap-4">
+                        <Link to="/faq" onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-2 text-primary hover:text-white font-black text-[11px] uppercase tracking-widest transition-all duration-300 px-5 py-2.5 rounded-xl border border-primary/10 bg-slate-50 hover:bg-primary shadow-sm">
+                            <HelpCircle size={14} /> FAQ
+                        </Link>
                         <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-2 text-primary hover:text-white font-black text-[11px] uppercase tracking-widest transition-all duration-300 px-5 py-2.5 rounded-xl border border-primary/10 bg-slate-50 hover:bg-primary shadow-sm">
                             <ShieldCheck size={14} /> Privacy Policy
                         </Link>
@@ -194,25 +200,38 @@ const Footer = () => {
 
                     {/* Legacy & Compliance Bar */}
                     <div className="flex flex-col lg:flex-row justify-between items-center gap-6 pt-6 border-t border-slate-100">
-                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                        <div className="flex flex-wrap items-center justify-center lg:justify-end gap-4 order-last lg:order-none">
                             <div className="flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-primary/[0.05] to-secondary/[0.05] rounded-full border border-slate-100 shadow-sm animate-pulse-slow">
                                 <ShieldCheck size={14} className="text-secondary" />
                                 <span className="text-primary font-black text-[9px] uppercase tracking-[0.2em]">Govt. Certified</span>
                             </div>
-                            <div className="flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-secondary/[0.05] to-primary/[0.05] rounded-full border border-slate-100 shadow-sm">
-                                <Zap size={14} className="text-secondary" />
-                                <span className="text-primary font-black text-[9px] uppercase tracking-[0.2em]">Award Winning Export</span>
-                            </div>
+
                         </div>
 
-                        <div className="flex flex-wrap items-center justify-center">
-                            <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest">
+                        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 lg:justify-start">
+                            <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest text-center">
                                 © {new Date().getFullYear()} DHURUVAN EXPORTS
                             </p>
+                            <div className="hidden md:block w-px h-4 bg-slate-100" />
+                            <motion.button
+                                onClick={() => setIsBixsolOpen(true)}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex items-center gap-2 cursor-pointer bg-primary/5 px-4 py-2 rounded-full border border-primary/10 transition-all ml-4"
+                            >
+                                <span className="text-primary font-black text-[9px] uppercase tracking-[0.2em]">
+                                    Build by <motion.span
+                                        animate={{ scale: [1, 1.4, 1] }}
+                                        transition={{ duration: 0.8, repeat: Infinity }}
+                                        className="inline-block text-red-500"
+                                    >♥</motion.span> <span className="text-secondary italic">BIXSOL</span>
+                                </span>
+                            </motion.button>
                         </div>
                     </div>
                 </div>
             </div>
+            <BixsolPopup isOpen={isBixsolOpen} onClose={() => setIsBixsolOpen(false)} />
         </footer >
     );
 };

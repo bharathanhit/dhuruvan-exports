@@ -204,7 +204,7 @@ const Contact = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Logistics Preference</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Logistics</label>
                                         <div className="relative group">
                                             <Globe size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors z-10" />
                                             <select

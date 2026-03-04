@@ -38,7 +38,7 @@ const TermsAndConditions = () => {
                         </div>
                         <div className="space-y-6 text-slate-500 font-medium leading-relaxed text-lg">
                             <p>All export operations are strictly governed by the Republic of India's foreign trade policies and the destination port's regulatory frameworks.</p>
-                            <p>Dhuruvan Exports operates under INCOTERMS 2020 protocols. Unless explicitly documented, all baseline valuations are provided on an FOB (Free On Board) basis.</p>
+                            <p>Dhuruvan Exports operates under INCOTERMS 2020 protocols. Unless explicitly documented, all baseline valuations are provided on an FOB (Freight On Board) basis.</p>
                         </div>
                     </motion.div>
 

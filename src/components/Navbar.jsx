@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShieldCheck } from 'lucide-react';
+import { Menu, X, ShieldCheck, ChevronDown, Package, Leaf, Award, ShoppingBag } from 'lucide-react';
 import { NavHashLink } from 'react-router-hash-link';
 import { Link, useLocation } from 'react-router-dom';
 import logoImg from '../assets/logo.png';
@@ -26,12 +26,22 @@ const Navbar = () => {
 
     const navLinks = [
         { name: 'Home', href: '/#' },
-        { name: 'Products', href: '/#products' },
         { name: 'Services', href: '/services' },
         { name: 'Certificates', href: '/certificates' },
+        { name: 'Payments', href: '/payment-terms' },
         { name: 'About', href: '/about' },
-        { name: 'Terms', href: '/terms' },
+        { name: 'FAQ', href: '/faq' },
     ];
+
+    const productCategories = [
+        { name: 'Agro Products', slug: 'agro-products', icon: Leaf, desc: 'Premium Grains & Spices' },
+        { name: 'Woodcrafts', slug: 'woodcrafts', icon: Package, desc: 'Artisanal Furniture' },
+        { name: 'Livestock', slug: 'livestock', icon: Award, desc: 'Halal Certified Meat' },
+        { name: 'Beverages', slug: 'beverages', icon: ShoppingBag, desc: 'Purified Mineral Water' },
+    ];
+
+    const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
+    const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
 
     const isLight = isScrolled || location.pathname !== '/';
 
@@ -46,16 +56,62 @@ const Navbar = () => {
             <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
 
                 {/* ── Brand ── */}
-                <NavHashLink smooth to="/#" className="flex items-center gap-2 shrink-0">
+                <NavHashLink smooth to="/#" className="flex items-center gap-1.5 shrink-0">
                     <img src={logoImg} alt="Logo"
-                        className={`h-16 w-auto transition-all duration-300 ${isLight ? '' : 'brightness-200'}`} />
+                        className={`h-11 lg:h-16 w-auto transition-all duration-300 ${isLight ? '' : 'brightness-200'}`} />
                     <img src={logoTextImg} alt="Dhuruvan Exports"
-                        className="h-8 w-auto" />
+                        className="h-5 lg:h-8 w-auto" />
                 </NavHashLink>
 
                 {/* ── Desktop links ── */}
                 <div className="hidden lg:flex items-center gap-7">
-                    {navLinks.map(link => (
+                    <NavHashLink
+                        smooth to="/#"
+                        className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-300 hover:text-secondary ${isLight ? 'text-slate-500' : 'text-white/70'}`}
+                    >
+                        Home
+                    </NavHashLink>
+
+                    {/* Desktop Products Dropdown */}
+                    <div
+                        className="relative group py-4"
+                        onMouseEnter={() => setIsProductDropdownOpen(true)}
+                        onMouseLeave={() => setIsProductDropdownOpen(false)}
+                    >
+                        <button className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest transition-colors duration-300 group-hover:text-secondary ${isLight ? 'text-slate-500' : 'text-white/70'}`}>
+                            Products
+                            <ChevronDown size={12} className={`transition-transform duration-300 ${isProductDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        <AnimatePresence>
+                            {isProductDropdownOpen && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute top-full -left-10 w-[240px] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden p-2"
+                                >
+                                    {productCategories.map((cat) => (
+                                        <Link
+                                            key={cat.slug}
+                                            to={`/category/${cat.slug}`}
+                                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 group/item transition-all"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary group-hover/item:bg-primary group-hover/item:text-white transition-all">
+                                                <cat.icon size={14} />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-slate-900 uppercase tracking-tighter group-hover/item:text-secondary transition-colors">{cat.name}</p>
+                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">{cat.desc}</p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    {navLinks.slice(1).map(link => (
                         <NavHashLink
                             key={link.name}
                             smooth to={link.href}
@@ -105,7 +161,49 @@ const Navbar = () => {
                     >
                         {/* Nav links */}
                         <div className="py-2">
-                            {navLinks.map((link, i) => (
+                            {/* Mobile Home */}
+                            <NavHashLink
+                                smooth to="/#"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:text-secondary hover:bg-slate-50 transition-all"
+                            >
+                                Home
+                            </NavHashLink>
+
+                            {/* Mobile Products Accordion */}
+                            <div className="border-b border-slate-50">
+                                <button
+                                    onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
+                                    className="w-full flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all"
+                                >
+                                    <span className={isMobileProductsOpen ? 'text-secondary' : ''}>Explore Products</span>
+                                    <ChevronDown size={14} className={`transition-transform duration-300 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                <AnimatePresence>
+                                    {isMobileProductsOpen && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            className="overflow-hidden bg-slate-50/50"
+                                        >
+                                            {productCategories.map(cat => (
+                                                <Link
+                                                    key={cat.slug}
+                                                    to={`/category/${cat.slug}`}
+                                                    onClick={() => setIsMenuOpen(false)}
+                                                    className="flex items-center gap-3 px-8 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-all"
+                                                >
+                                                    <cat.icon size={12} className="text-secondary" />
+                                                    {cat.name}
+                                                </Link>
+                                            ))}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+
+                            {navLinks.slice(1).map((link, i) => (
                                 <motion.div
                                     key={link.name}
                                     initial={{ opacity: 0, x: -6 }}
