@@ -320,128 +320,6 @@ const InquiryManager = () => {
     );
 };
 
-// ─── Service Manager ───────────────────────────────────────────────
-const ServiceManager = () => {
-    const [services, setServices] = useState([]);
-    const [showForm, setShowForm] = useState(false);
-    const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ title: '', desc: '', features: '', color: 'bg-blue-500', icon: 'Package' });
-    const [saving, setSaving] = useState(false);
-
-    const iconOptions = ['Package', 'Truck', 'ShieldCheck', 'Globe', 'Zap', 'Search', 'Layout', 'Compass', 'BarChart3'];
-
-    useEffect(() => {
-        const q = query(collection(db, 'services'), orderBy('order', 'asc'));
-        return onSnapshot(q, (snap) => {
-            const list = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
-            setServices(list);
-        });
-    }, []);
-
-    const reset = () => { setForm({ title: '', desc: '', features: '', color: 'bg-blue-500', icon: 'Package' }); setEditing(null); };
-
-    const handleSave = async () => {
-        if (!form.title) return;
-        setSaving(true);
-        const featureList = form.features.split(',').map(f => f.trim()).filter(f => f);
-        const payload = {
-            ...form,
-            features: featureList,
-            order: editing ? editing.order : services.length,
-            updatedAt: serverTimestamp()
-        };
-        try {
-            if (editing && editing.docId) {
-                await updateDoc(doc(db, 'services', editing.docId), payload);
-            } else {
-                await addDoc(collection(db, 'services'), { ...payload, createdAt: serverTimestamp() });
-            }
-            reset(); setShowForm(false);
-        } catch (e) {
-            console.error(e);
-            alert("Error saving service: " + e.message);
-        }
-        setSaving(false);
-    };
-
-    const handleDelete = async (docId) => {
-        if (!window.confirm("Delete this service?")) return;
-        await deleteDoc(doc(db, 'services', docId));
-    };
-
-    return (
-        <div>
-            <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Company Services</h2>
-                    <p className="text-slate-400 text-sm font-medium">Manage what you offer to global clients</p>
-                </div>
-                <button onClick={() => { reset(); setShowForm(true); }}
-                    className="flex items-center gap-2 px-5 py-3 bg-secondary text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-secondary/90 transition-all shadow-lg">
-                    <Plus size={16} /> Add Service
-                </button>
-            </div>
-
-            <AnimatePresence>
-                {showForm && (
-                    <Modal title={editing ? 'Edit Service' : 'New Service'} onClose={() => { setShowForm(false); reset(); }}
-                        onSave={handleSave} saving={saving} valid={!!form.title}>
-                        <Field label="Service Title *">
-                            <TextInput value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="e.g. Warehousing" />
-                        </Field>
-                        <Field label="Description">
-                            <TextArea value={form.desc} onChange={e => setForm({ ...form, desc: e.target.value })} placeholder="Service details..." />
-                        </Field>
-                        <Field label="Features (Comma separated)">
-                            <TextInput value={form.features} onChange={e => setForm({ ...form, features: e.target.value })} placeholder="Fast Delivery, 24/7 Support, ISO certified" />
-                        </Field>
-                        <div className="grid grid-cols-2 gap-4">
-                            <Field label="Icon Type">
-                                <select value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })}
-                                    className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-secondary">
-                                    {iconOptions.map(opt => <option key={opt}>{opt}</option>)}
-                                </select>
-                            </Field>
-                            <Field label="Accent Color">
-                                <select value={form.color} onChange={e => setForm({ ...form, color: e.target.value })}
-                                    className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-secondary">
-                                    <option value="bg-blue-500">Blue</option>
-                                    <option value="bg-secondary">Green (Secondary)</option>
-                                    <option value="bg-primary">Navy (Primary)</option>
-                                    <option value="bg-emerald-500">Emerald</option>
-                                    <option value="bg-orange-500">Orange</option>
-                                </select>
-                            </Field>
-                        </div>
-                    </Modal>
-                )}
-            </AnimatePresence>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {services.map((svc) => (
-                    <div key={svc.docId} className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm flex items-start gap-6 relative group">
-                        <div className={`w-14 h-14 rounded-2xl ${svc.color} flex items-center justify-center text-white shrink-0`}>
-                            <Zap size={20} />
-                        </div>
-                        <div className="flex-1">
-                            <h4 className="font-black text-slate-900 text-lg uppercase tracking-tight">{svc.title}</h4>
-                            <p className="text-xs text-slate-400 mt-1 line-clamp-2">{svc.desc}</p>
-                            <div className="flex flex-wrap gap-2 mt-3">
-                                {svc.features?.slice(0, 3).map((f, i) => (
-                                    <span key={i} className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded text-[8px] font-black text-slate-400 uppercase tracking-widest">{f}</span>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="absolute top-4 right-4 flex gap-1 opacity-10 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => { setEditing(svc); setForm({ ...svc, features: svc.features.join(', ') }); setShowForm(true); }} className="p-2 hover:text-secondary"><Edit2 size={16} /></button>
-                            <button onClick={() => handleDelete(svc.docId)} className="p-2 hover:text-red-500"><Trash2 size={16} /></button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
 
 // ─── Social Media Manager ──────────────────────────────────────────
 const SocialMediaManager = () => {
@@ -1310,25 +1188,28 @@ const DashboardOverview = () => {
     const [catCount, setCatCount] = useState(0);
     const [prodCount, setProdCount] = useState(0);
     const [inquiryCount, setInquiryCount] = useState(0);
-    const [serviceCount, setServiceCount] = useState(0);
     const [socialCount, setSocialCount] = useState(0);
     const [certCount, setCertCount] = useState(0);
 
     useEffect(() => {
-        const u1 = onSnapshot(collection(db, 'categories'), s => setCatCount(s.size));
-        const u2 = onSnapshot(collection(db, 'products'), s => setProdCount(s.size));
+        const u1 = onSnapshot(collection(db, 'categories'), s => {
+            const firestoreCount = s.docs.filter(d => !staticCategories.some(sc => sc.slug === d.data().slug)).length;
+            setCatCount(staticCategories.length + firestoreCount);
+        });
+        const u2 = onSnapshot(collection(db, 'products'), s => {
+            const firestoreCount = s.docs.filter(d => !staticProducts.some(sp => sp.title === d.data().title)).length;
+            setProdCount(staticProducts.length + firestoreCount);
+        });
         const u3 = onSnapshot(collection(db, 'inquiries'), s => setInquiryCount(s.size));
-        const u4 = onSnapshot(collection(db, 'services'), s => setServiceCount(s.size));
         const u5 = onSnapshot(collection(db, 'social_links'), s => setSocialCount(s.size));
         const u6 = onSnapshot(collection(db, 'certificates'), s => setCertCount(s.size));
-        return () => { u1(); u2(); u3(); u4(); u5(); u6(); };
+        return () => { u1(); u2(); u3(); u5(); u6(); };
     }, []);
 
     const stats = [
         { icon: FolderOpen, label: 'Categories', value: catCount, color: 'purple' },
         { icon: Package, label: 'Products', value: prodCount, color: 'green' },
         { icon: Mail, label: 'Inquiries', value: inquiryCount, color: 'orange' },
-        { icon: Truck, label: 'Services', value: serviceCount, color: 'blue' },
         { icon: Award, label: 'Certificates', value: certCount, color: 'amber' },
         { icon: Share2, label: 'Social', value: socialCount, color: 'indigo' },
     ];
@@ -1375,7 +1256,6 @@ const Dashboard = ({ onLogout }) => {
         { id: 'overview', label: 'Overview', icon: BarChart3 },
         { id: 'categories', label: 'Categories', icon: FolderOpen },
         { id: 'products', label: 'Products', icon: Package },
-        { id: 'services', label: 'Services', icon: Truck },
         { id: 'certificates', label: 'Certificates', icon: Award },
         { id: 'social', label: 'Social', icon: Share2 },
         { id: 'inquiries', label: 'Inquiries', icon: Mail },
@@ -1416,7 +1296,6 @@ const Dashboard = ({ onLogout }) => {
                     {tab === 'overview' && <DashboardOverview />}
                     {tab === 'categories' && <CategoryManager />}
                     {tab === 'products' && <ProductManager />}
-                    {tab === 'services' && <ServiceManager />}
                     {tab === 'certificates' && <CertificateManager />}
                     {tab === 'social' && <SocialMediaManager />}
                     {tab === 'inquiries' && <InquiryManager />}

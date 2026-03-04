@@ -55,7 +55,7 @@ const Footer = () => {
     return (
         <footer className="bg-white border-t border-slate-100 pt-20 pb-10 overflow-hidden relative">
             {/* Subtle background flair */}
-            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/[0.02] rounded-full blur-[100px] translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/[0.02] rounded-full blur-[100px] translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
             <div className="container px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16 border-b border-slate-100 pb-16">
@@ -179,27 +179,37 @@ const Footer = () => {
                     </motion.div>
                 </div>
 
-                {/* Legacy & Compliance Bar */}
-                <div className="flex flex-col lg:flex-row justify-between items-center gap-8">
-                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                        <div className="flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-primary/[0.05] to-secondary/[0.05] rounded-full border border-slate-100 shadow-sm animate-pulse-slow">
-                            <ShieldCheck size={14} className="text-secondary" />
-                            <span className="text-primary font-black text-[9px] uppercase tracking-[0.2em]">Govt. Certified</span>
-                        </div>
-                        <div className="flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-secondary/[0.05] to-primary/[0.05] rounded-full border border-slate-100 shadow-sm">
-                            <Zap size={14} className="text-secondary" />
-                            <span className="text-primary font-black text-[9px] uppercase tracking-[0.2em]">Award Winning Export House</span>
-                        </div>
+                {/* Bottom Footer Area */}
+                <div className="flex flex-col gap-8 relative z-10">
+
+                    {/* Highly Visible Legal Links */}
+                    <div className="flex flex-wrap justify-center lg:justify-end gap-4">
+                        <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-2 text-primary hover:text-white font-black text-[11px] uppercase tracking-widest transition-all duration-300 px-5 py-2.5 rounded-xl border border-primary/10 bg-slate-50 hover:bg-primary shadow-sm">
+                            <ShieldCheck size={14} /> Privacy Policy
+                        </Link>
+                        <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-2 text-primary hover:text-white font-black text-[11px] uppercase tracking-widest transition-all duration-300 px-5 py-2.5 rounded-xl border border-primary/10 bg-slate-50 hover:bg-primary shadow-sm">
+                            <Info size={14} /> Terms & Conditions
+                        </Link>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-center gap-8">
-                        <div className="flex gap-6">
-                            <Link to="/privacy" className="text-slate-400 hover:text-primary font-black text-[9px] uppercase tracking-widest transition-colors">Privacy</Link>
-                            <Link to="/terms" className="text-slate-400 hover:text-primary font-black text-[9px] uppercase tracking-widest transition-colors">Terms</Link>
+                    {/* Legacy & Compliance Bar */}
+                    <div className="flex flex-col lg:flex-row justify-between items-center gap-6 pt-6 border-t border-slate-100">
+                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                            <div className="flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-primary/[0.05] to-secondary/[0.05] rounded-full border border-slate-100 shadow-sm animate-pulse-slow">
+                                <ShieldCheck size={14} className="text-secondary" />
+                                <span className="text-primary font-black text-[9px] uppercase tracking-[0.2em]">Govt. Certified</span>
+                            </div>
+                            <div className="flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-secondary/[0.05] to-primary/[0.05] rounded-full border border-slate-100 shadow-sm">
+                                <Zap size={14} className="text-secondary" />
+                                <span className="text-primary font-black text-[9px] uppercase tracking-[0.2em]">Award Winning Export</span>
+                            </div>
                         </div>
-                        <p className="text-slate-300 font-black text-[9px] uppercase tracking-widest">
-                            © {new Date().getFullYear()} DHURUVAN EXPORTS
-                        </p>
+
+                        <div className="flex flex-wrap items-center justify-center">
+                            <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest">
+                                © {new Date().getFullYear()} DHURUVAN EXPORTS
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

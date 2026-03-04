@@ -1,14 +1,9 @@
 import { motion } from 'framer-motion';
-import { Quote, Star, Sparkles, Building2 } from 'lucide-react';
+import { Quote, Star, Sparkles } from 'lucide-react';
 
 const TestimonialCard = ({ quote, name, position, company, image, index }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: index * 0.1, duration: 0.8 }}
-        whileHover={{ y: -10 }}
-        className="group relative m-2 p-8 md:p-10 rounded-[3rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,43,88,0.12)] transition-all duration-700 flex flex-col h-full"
+    <div
+        className="group relative px-8 py-10 rounded-[3rem] bg-white border border-slate-100 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,43,88,0.12)] hover:-translate-y-2 transition-all duration-700 flex flex-col h-full w-full"
     >
         {/* Subtle Background Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-[3rem]" />
@@ -29,7 +24,7 @@ const TestimonialCard = ({ quote, name, position, company, image, index }) => (
         {/* Author Info */}
         <div className="mt-auto flex items-center gap-5 relative z-10 pt-8 border-t border-slate-50">
             <div className="relative">
-                <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg border-2 border-white group-hover:border-secondary transition-colors duration-500">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg border-2 border-white group-hover:border-secondary transition-colors duration-500 shrink-0">
                     <img src={image} alt={name} className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-secondary text-white rounded-lg flex items-center justify-center shadow-lg">
@@ -38,17 +33,17 @@ const TestimonialCard = ({ quote, name, position, company, image, index }) => (
             </div>
             <div className="flex flex-col">
                 <h4 className="font-black text-primary text-lg tracking-tight">{name}</h4>
-                <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
+                <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-widest flex-wrap">
                     <span>{position}</span>
-                    <span className="w-1 h-1 bg-slate-200 rounded-full" />
+                    <span className="w-1 h-1 bg-slate-200 rounded-full shrink-0" />
                     <span className="text-secondary">{company}</span>
                 </div>
             </div>
         </div>
 
         {/* Decorative corner accent */}
-        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl" />
-    </motion.div>
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl pointer-events-none" />
+    </div>
 );
 
 const Testimonials = () => {
@@ -73,8 +68,25 @@ const Testimonials = () => {
             position: "Chief Curator",
             company: "Oriental Designs SG",
             image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&h=200&auto=format&fit=crop"
+        },
+        {
+            quote: "The dedication to delivering on time without compromising on quality is what sets Dhuruvan Operations apart. We consider them a vital partner.",
+            name: "Alexander Patel",
+            position: "Operations Manager",
+            company: "Spice Routes Intl.",
+            image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=200&h=200&auto=format&fit=crop"
+        },
+        {
+            quote: "Exceptional service and communication throughout every shipment. It's rare to find an exporter that truly values long-term relationships like they do.",
+            name: "Nadia Hassan",
+            position: "Director of Buying",
+            company: "EuroAsia Imports",
+            image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&h=200&auto=format&fit=crop"
         }
     ];
+
+    // Duplicate testimonials for seamless marquee effect
+    const duplicatedTestimonials = [...testimonials, ...testimonials];
 
     return (
         <section className="py-24 md:py-32 bg-white relative overflow-hidden">
@@ -116,14 +128,21 @@ const Testimonials = () => {
                         Join the expanding network of global partners who experience the Dhuruvan advantage every day through quality and trust.
                     </motion.p>
                 </div>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-6">
-                    {testimonials.map((testimonial, idx) => (
-                        <TestimonialCard key={idx} index={idx} {...testimonial} />
+            {/* Infinite Marquee Container */}
+            <div className="relative w-full overflow-hidden flex" style={{ maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}>
+                <motion.div
+                    className="flex gap-6 md:gap-8 px-4 w-max"
+                    animate={{ x: ["0%", "-50%"] }}
+                    transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
+                >
+                    {duplicatedTestimonials.map((testimonial, idx) => (
+                        <div key={idx} className="w-[300px] md:w-[450px] shrink-0">
+                            <TestimonialCard index={idx} {...testimonial} />
+                        </div>
                     ))}
-                </div>
-
-                {/* Removed Partner Organization placeholder list */}
+                </motion.div>
             </div>
         </section>
     );

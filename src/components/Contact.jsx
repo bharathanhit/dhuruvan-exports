@@ -1,20 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Send, Users, Award, Briefcase, Clock, Calendar, Sparkles, ChevronDown, Phone, Mail, MessageCircle, CheckCircle, Globe } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { MapPin, Send, Users, Award, Briefcase, Clock, Calendar, Sparkles, ChevronDown, Phone, Mail, MessageCircle, CheckCircle, Globe, Search } from 'lucide-react';
+import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
+import { categories as staticCategories } from '../data/products';
 import flightImg from '../assets/flight.jpeg';
 
 const Contact = () => {
+    const [categories, setCategories] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         industry: 'Importer / Buyer',
         destination: '',
-        product: 'Premium Basmati Rice',
-        logistics: 'Sea Freight (FCL/LCL)'
+        product: 'Agro Products',
+        logistics: 'FOB - Freight on board'
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [actionType, setActionType] = useState(null); // 'whatsapp', 'email', 'call'
+
+    // Fetch Categories Dynamicially
+    useEffect(() => {
+        const q = query(collection(db, 'categories'), orderBy('order', 'asc'));
+        const unsubscribe = onSnapshot(q, (snap) => {
+            const firestoreCats = snap.docs.map(d => ({ docId: d.id, ...d.data(), isFirestore: true }));
+            const merged = [...staticCategories];
+
+            firestoreCats.forEach(fc => {
+                const idx = merged.findIndex(s => s.slug === fc.slug);
+                if (idx !== -1) merged[idx] = { ...merged[idx], ...fc };
+                else merged.push(fc);
+            });
+
+            merged.sort((a, b) => (a.order || 0) - (b.order || 0));
+            setCategories(merged);
+
+            // Set default if not set
+            if (merged.length > 0 && !formData.product) {
+                setFormData(prev => ({ ...prev, product: merged[0].title }));
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
     const handleAction = async (type) => {
         if (!formData.name || !formData.destination) {
@@ -161,18 +187,18 @@ const Contact = () => {
                                 {/* Product & Logistics Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Product Inquiry</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Category Selection</label>
                                         <div className="relative group">
-                                            <Award size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors z-10" />
+                                            <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors z-10" />
                                             <select
                                                 value={formData.product}
                                                 onChange={(e) => setFormData({ ...formData, product: e.target.value })}
                                                 className="w-full bg-[#F8FAFC] border border-[#F1F5F9] py-4 pl-14 pr-10 rounded-xl text-sm font-bold text-[#1E293B] outline-none focus:bg-white focus:border-[#3B82F6]/30 transition-all appearance-none cursor-pointer relative z-0"
                                             >
-                                                <option>Premium Basmati Rice</option>
-                                                <option>Halal Certified Commodities</option>
-                                                <option>Sustainable Textiles</option>
-                                                <option>Handcrafted Woodwork</option>
+                                                {categories.map((cat, idx) => (
+                                                    <option key={idx} value={cat.title}>{cat.title}</option>
+                                                ))}
+                                                {categories.length === 0 && <option>Agro Products</option>}
                                             </select>
                                             <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                         </div>
@@ -186,9 +212,10 @@ const Contact = () => {
                                                 onChange={(e) => setFormData({ ...formData, logistics: e.target.value })}
                                                 className="w-full bg-[#F8FAFC] border border-[#F1F5F9] py-4 pl-14 pr-10 rounded-xl text-sm font-bold text-[#1E293B] outline-none focus:bg-white focus:border-[#3B82F6]/30 transition-all appearance-none cursor-pointer relative z-0"
                                             >
-                                                <option>Sea Freight</option>
-                                                <option>Air Freight</option>
-                                                <option>Undecided / Need Advice</option>
+                                                <option>FOB - Freight on board</option>
+                                                <option>CIF - Cost insurance and Freight</option>
+                                                <option>DOD - Door to door</option>
+                                                <option>DTP - Door to door duty paid</option>
                                             </select>
                                             <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                         </div>

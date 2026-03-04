@@ -14,7 +14,7 @@ import water1 from '../assets/water/2bd373bf4e9c47df0a817b9638a0eb06.jpg';
 import water2 from '../assets/water/ce394517e738cbb4b992acac7dff0e30.jpg';
 
 export const categories = [
-    {
+    {                                              
         id: 'agro-products',
         title: 'Agro Products',
         slug: 'agro-products',

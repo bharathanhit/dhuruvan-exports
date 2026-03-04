@@ -30,6 +30,7 @@ const Navbar = () => {
         { name: 'Services', href: '/services' },
         { name: 'Certificates', href: '/certificates' },
         { name: 'About', href: '/about' },
+        { name: 'Terms', href: '/terms' },
     ];
 
     const isLight = isScrolled || location.pathname !== '/';
@@ -47,9 +48,9 @@ const Navbar = () => {
                 {/* ── Brand ── */}
                 <NavHashLink smooth to="/#" className="flex items-center gap-2 shrink-0">
                     <img src={logoImg} alt="Logo"
-                        className={`h-12 w-auto transition-all duration-300 ${isLight ? '' : 'brightness-200'}`} />
+                        className={`h-16 w-auto transition-all duration-300 ${isLight ? '' : 'brightness-200'}`} />
                     <img src={logoTextImg} alt="Dhuruvan Exports"
-                        className="h-6 w-auto" />
+                        className="h-8 w-auto" />
                 </NavHashLink>
 
                 {/* ── Desktop links ── */}

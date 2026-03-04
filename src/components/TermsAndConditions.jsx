@@ -74,9 +74,16 @@ const TermsAndConditions = () => {
                             </div>
                             <h2 className="text-3xl font-black text-primary tracking-tight">3. Strategic Payment Structures</h2>
                         </div>
-                        <p className="text-slate-500 font-medium text-lg leading-relaxed">
-                            Standard international settlement follows: 30% Initial T/T (Transfer) and 70% against verified Scanned Bill of Lading (B/L) or Irrevocable Confirmed Letter of Credit (L/C) at sight.
-                        </p>
+                        <div className="text-slate-500 font-medium text-lg leading-relaxed space-y-4">
+                            <p>Our approved payment types for international settlement include:</p>
+                            <ul className="list-decimal pl-6 space-y-2">
+                                <li>100% irrevocable and confirmation LC</li>
+                                <li>50% advance and 50% LC</li>
+                                <li>100% Advance</li>
+                                <li>50% advance and 50% onsite LC</li>
+                                <li>50% Advance and 50% TT</li>
+                            </ul>
+                        </div>
                     </motion.div>
 
                     {/* Section 4 */}
@@ -98,21 +105,6 @@ const TermsAndConditions = () => {
                     </motion.div>
                 </div>
 
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    className="mt-32 text-center p-16 bg-primary rounded-[4rem] text-white shadow-2xl relative overflow-hidden"
-                >
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-                    <h3 className="text-3xl md:text-4xl font-black mb-6 tracking-tighter">Legal Inquiries</h3>
-                    <p className="font-medium text-white/60 mb-12 text-lg max-w-xl mx-auto">
-                        Our legal and logistics intelligence team is available for global partner consultation.
-                    </p>
-                    <a href="mailto:info@dhuruvanexports.com" className="btn bg-white text-primary hover:bg-slate-100 px-12 py-5 text-sm uppercase tracking-[0.2em]">
-                        Consult Legal Team
-                    </a>
-                </motion.div>
             </div>
         </div>
     );

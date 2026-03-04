@@ -33,6 +33,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/wood-crafts" element={<WoodCrafts />} />
         <Route path="/certificates" element={<Certificates />} />
@@ -41,6 +42,7 @@ function App() {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="*" element={<div className="pt-40 pb-24 min-h-screen flex items-center justify-center"><h1 className="text-4xl text-primary font-black">404 - Page Not Found</h1></div>} />
       </Routes>
       <FloatingEnquiry />
       <Footer />

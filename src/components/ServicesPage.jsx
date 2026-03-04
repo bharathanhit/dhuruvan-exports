@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Package, Truck, ShieldCheck, Search, Zap, Globe, Layout, Compass,
     CheckCircle2, ArrowRight, BarChart3, Phone, Clock, ChevronLeft,
-    ChevronRight, Calendar, Check, X, User, Mail
+    ChevronRight, Calendar, Check, X, User, Mail, MessageCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -64,63 +64,59 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
 // ─── Booking Widget ─────────────────────────────────────────────────
+// ─── Booking Widget (Mobile Native Style) ───────────────────────────
 const BookingWidget = () => {
     const today = new Date();
     const [year, setYear] = useState(today.getFullYear());
     const [month, setMonth] = useState(today.getMonth());
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
-    const [step, setStep] = useState('calendar'); // calendar | time | form | done
+    const [step, setStep] = useState('landing'); // landing | calendar | time | form | done
     const [form, setForm] = useState({ name: '', email: '', note: '' });
     const [saving, setSaving] = useState(false);
 
-    const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+    const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    // offset so Monday is col 0
     const startOffset = (firstDay + 6) % 7;
 
     const prevMonth = () => {
         if (month === 0) { setMonth(11); setYear(y => y - 1); }
         else setMonth(m => m - 1);
-        setSelectedDate(null); setSelectedTime(null); setStep('calendar');
+        setSelectedDate(null);
     };
     const nextMonth = () => {
         if (month === 11) { setMonth(0); setYear(y => y + 1); }
         else setMonth(m => m + 1);
-        setSelectedDate(null); setSelectedTime(null); setStep('calendar');
+        setSelectedDate(null);
     };
 
     const isAvailable = (d) => {
         const date = new Date(year, month, d);
         const day = date.getDay();
         const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        return day !== 0 && !isPast; // no Sundays, no past
-    };
-
-    const handleDateClick = (d) => {
-        if (!isAvailable(d)) return;
-        setSelectedDate(d);
-        setSelectedTime(null);
-        setStep('time');
-    };
-
-    const handleTimeClick = (t) => {
-        setSelectedTime(t);
-        setStep('form');
+        return day !== 0 && !isPast;
     };
 
     const handleSubmit = async () => {
         if (!form.name || !form.email) return;
         setSaving(true);
         try {
+            const dateStr = `${MONTHS[month]} ${selectedDate}, ${year}`;
             await addDoc(collection(db, 'appointments'), {
                 name: form.name,
                 email: form.email,
                 note: form.note,
-                date: `${MONTHS[month]} ${selectedDate}, ${year}`,
+                date: dateStr,
                 time: selectedTime,
                 createdAt: serverTimestamp()
             });
+
+            // Constructing the Message for WhatsApp
+            const body = `🤝 *Dhuruvan Exports - Discovery Call Scheduled* 🤝\n\n🎯 *Confirmed:* ${dateStr} @ ${selectedTime}\n👤 *Client:* ${form.name}\n✉️ *Email:* ${form.email}\n📝 *Note:* ${form.note || "N/A"}\n\nPlease confirm our meeting invitation.`;
+
+            // Auto-open WhatsApp
+            window.open(`https://wa.me/919952777973?text=${encodeURIComponent(body)}`, '_blank');
+
             setStep('done');
         } catch (e) { alert('Error: ' + e.message); }
         setSaving(false);
@@ -132,192 +128,269 @@ const BookingWidget = () => {
         setStep('calendar');
     };
 
-    // Build calendar grid
     const cells = [];
     for (let i = 0; i < startOffset; i++) cells.push(null);
     for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
     return (
-        <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-primary/10 border border-slate-100 overflow-hidden flex flex-col lg:flex-row">
-
-            {/* ── Left Panel ── */}
-            <div className="lg:w-72 shrink-0 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-100 p-8 flex flex-col gap-6">
-                <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Dhuruvan Exports</p>
-                    <h3 className="text-2xl font-black text-primary leading-tight">Schedule a<br /><span className="text-secondary italic">Discovery Call</span></h3>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-2.5 text-slate-500">
-                        <div className="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0">
-                            <Clock size={13} className="text-slate-400" />
-                        </div>
-                        <span className="text-sm font-bold">30 min</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 text-slate-500">
-                        <div className="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0">
-                            <Phone size={13} className="text-slate-400" />
-                        </div>
-                        <span className="text-sm font-bold">Phone / Video Call</span>
-                    </div>
-                </div>
-
-                <p className="text-sm text-slate-400 font-medium leading-relaxed">
-                    Connect with our trade specialists to discuss sourcing, packaging, logistics, and export planning tailored to your business.
-                </p>
-
-                {selectedDate && (
-                    <div className="mt-auto p-4 bg-secondary/5 border border-secondary/20 rounded-2xl">
-                        <p className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Selected</p>
-                        <p className="text-sm font-black text-primary">{MONTHS[month]} {selectedDate}, {year}</p>
-                        {selectedTime && <p className="text-sm font-bold text-slate-500 mt-0.5">{selectedTime}</p>}
-                    </div>
-                )}
+        <div className="relative mx-auto w-[260px] h-[520px] md:w-[300px] md:h-[600px] bg-slate-900 rounded-[2.5rem] p-2 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)] border-[6px] border-slate-900 border-x-slate-800 relative z-20 overflow-hidden ring-1 ring-white/10">
+            {/* Mobile Ear Speaker */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-40 flex items-end justify-center pb-1">
+                <div className="w-10 h-1 bg-slate-800 rounded-full" />
             </div>
 
-            {/* ── Right Panel ── */}
-            <div className="flex-1 p-6 md:p-10">
-                <AnimatePresence mode="wait">
+            {/* Mobile Screen */}
+            <div className="w-full h-full bg-[#F8FAFC] rounded-[2.5rem] overflow-hidden flex flex-col relative">
+                {/* Status Bar */}
+                <div className="h-12 shrink-0 px-8 pt-4 flex items-center justify-between text-slate-400 z-30">
+                    <span className="text-[10px] font-black">9:41</span>
+                    <div className="flex items-center gap-1.5 opacity-60">
+                        <Zap size={10} />
+                        <div className="w-4 h-2 rounded-[2px] border border-current" />
+                    </div>
+                </div>
 
-                    {/* Calendar */}
-                    {step === 'calendar' && (
-                        <motion.div key="cal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                            <div className="flex items-center justify-between mb-8">
-                                <button onClick={prevMonth} className="w-9 h-9 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:border-secondary hover:text-secondary transition-all">
-                                    <ChevronLeft size={18} />
-                                </button>
-                                <h4 className="font-black text-slate-900 text-lg">{MONTHS[month]} {year}</h4>
-                                <button onClick={nextMonth} className="w-9 h-9 rounded-full border border-slate-200 flex items-center justify-center bg-primary text-white hover:bg-secondary transition-all">
-                                    <ChevronRight size={18} />
-                                </button>
-                            </div>
+                <div className="flex-1 flex flex-col relative overflow-hidden">
+                    <div className="p-6 pt-2">
+                        <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg mb-4">
+                            <Phone size={20} />
+                        </div>
+                    </div>
 
-                            <div className="grid grid-cols-7 gap-1 mb-2">
-                                {DAYS.map(d => (
-                                    <div key={d} className="text-center text-[10px] font-black text-slate-400 uppercase py-1">{d}</div>
-                                ))}
-                            </div>
+                    <AnimatePresence mode="wait">
+                        {/* Step: Landing / Intro */}
+                        {step === 'landing' && (
+                            <motion.div
+                                key="landing"
+                                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                                className="flex-1 flex flex-col p-5"
+                            >
+                                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-5">
+                                    <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20 shadow-inner">
+                                        <Globe size={32} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h3 className="text-xl md:text-2xl font-black text-primary leading-none uppercase tracking-tighter">
+                                            Ready to Scale Your<br />
+                                            <span className="text-secondary italic">Global Reach?</span>
+                                        </h3>
+                                        <p className="text-[9px] font-bold text-slate-400 leading-relaxed max-w-[200px] mx-auto">
+                                            Our specialists are ready to handle your sourcing, logistics, and private labeling needs.
+                                        </p>
+                                    </div>
 
-                            <div className="grid grid-cols-7 gap-1.5">
-                                {cells.map((d, i) => (
-                                    <div key={i}>
-                                        {d ? (
+                                    <div className="w-full space-y-3 pt-2">
+                                        <div className="grid grid-cols-2 gap-2">
                                             <button
-                                                onClick={() => handleDateClick(d)}
-                                                disabled={!isAvailable(d)}
-                                                className={`w-full aspect-square rounded-full text-sm font-black transition-all duration-200 
-                                                    ${d === selectedDate ? 'bg-primary text-white shadow-lg' :
-                                                        isAvailable(d) ? 'bg-blue-50 text-primary hover:bg-primary hover:text-white hover:shadow-md' :
-                                                            'text-slate-200 cursor-not-allowed'}`}
+                                                onClick={() => window.open('https://wa.me/919952777973', '_blank')}
+                                                className="py-3.5 bg-[#25D366] text-white rounded-2xl flex flex-col items-center justify-center gap-1 shadow-lg shadow-green-100/50 hover:scale-[1.02] transition-all"
                                             >
-                                                {d}
+                                                <MessageCircle size={18} />
+                                                <span className="text-[8px] font-black uppercase tracking-widest">WhatsApp</span>
                                             </button>
-                                        ) : <div />}
-                                    </div>
-                                ))}
-                            </div>
+                                            <button
+                                                onClick={() => window.location.href = 'mailto:Dhuruvanexports@gmail.com'}
+                                                className="py-3.5 bg-primary text-white rounded-2xl flex flex-col items-center justify-center gap-1 shadow-lg shadow-primary/10 hover:scale-[1.02] transition-all"
+                                            >
+                                                <Mail size={18} />
+                                                <span className="text-[8px] font-black uppercase tracking-widest">Gmail</span>
+                                            </button>
+                                        </div>
 
-                            <div className="mt-8 pt-6 border-t border-slate-100">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Time Zone</p>
-                                <div className="flex items-center gap-2 text-slate-600">
-                                    <Globe size={14} className="text-slate-400" />
-                                    <span className="text-sm font-bold">India Standard Time (IST)</span>
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Time Slots */}
-                    {step === 'time' && (
-                        <motion.div key="time" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                            <div className="flex items-center gap-3 mb-8">
-                                <button onClick={() => setStep('calendar')} className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-all">
-                                    <ChevronLeft size={16} />
-                                </button>
-                                <div>
-                                    <h4 className="font-black text-slate-900">{MONTHS[month]} {selectedDate}, {year}</h4>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select a time slot</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                {TIME_SLOTS.map(t => (
-                                    <button
-                                        key={t}
-                                        onClick={() => handleTimeClick(t)}
-                                        className="py-3 px-4 rounded-xl border border-slate-200 text-sm font-black text-primary hover:border-primary hover:bg-primary hover:text-white transition-all duration-200 text-center"
-                                    >
-                                        {t}
-                                    </button>
-                                ))}
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Details Form */}
-                    {step === 'form' && (
-                        <motion.div key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                            <div className="flex items-center gap-3 mb-8">
-                                <button onClick={() => setStep('time')} className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-all">
-                                    <ChevronLeft size={16} />
-                                </button>
-                                <div>
-                                    <h4 className="font-black text-slate-900">Enter Your Details</h4>
-                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{MONTHS[month]} {selectedDate} · {selectedTime}</p>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-4">
-                                <div>
-                                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Your Name *</label>
-                                    <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden focus-within:border-primary transition-all">
-                                        <div className="px-3 py-3 bg-slate-50 border-r border-slate-200"><User size={14} className="text-slate-400" /></div>
-                                        <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                                            placeholder="John Smith" className="flex-1 px-4 py-3 text-sm font-bold outline-none bg-white" />
+                                        <button
+                                            onClick={() => setStep('calendar')}
+                                            className="w-full py-4 bg-white border border-slate-200 text-primary rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:border-secondary transition-all shadow-sm"
+                                        >
+                                            Schedule a Call <Calendar size={12} className="text-secondary" />
+                                        </button>
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Email Address *</label>
-                                    <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden focus-within:border-primary transition-all">
-                                        <div className="px-3 py-3 bg-slate-50 border-r border-slate-200"><Mail size={14} className="text-slate-400" /></div>
-                                        <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                                            type="email" placeholder="john@company.com" className="flex-1 px-4 py-3 text-sm font-bold outline-none bg-white" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Additional Note</label>
-                                    <textarea value={form.note} onChange={e => setForm({ ...form, note: e.target.value })}
-                                        placeholder="What would you like to discuss?" rows={3}
-                                        className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-primary transition-all resize-none" />
-                                </div>
-
-                                <button onClick={handleSubmit} disabled={saving || !form.name || !form.email}
-                                    className="w-full py-4 bg-primary text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-secondary transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
-                                    {saving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Booking...</> : <><Calendar size={16} /> Confirm Booking</>}
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Success */}
-                    {step === 'done' && (
-                        <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-16 text-center gap-6">
-                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                                className="w-20 h-20 rounded-full bg-secondary/10 flex items-center justify-center">
-                                <Check size={36} className="text-secondary" />
                             </motion.div>
-                            <div>
-                                <h4 className="text-2xl font-black text-primary mb-2">Booking Confirmed!</h4>
-                                <p className="text-slate-500 font-medium">{MONTHS[month]} {selectedDate}, {year} · {selectedTime}</p>
-                                <p className="text-sm text-slate-400 mt-2">A confirmation will be sent to <strong>{form.email}</strong></p>
-                            </div>
-                            <button onClick={reset} className="px-6 py-3 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-widest text-slate-500 hover:border-primary hover:text-primary transition-all">
-                                Schedule Another
-                            </button>
-                        </motion.div>
-                    )}
+                        )}
 
-                </AnimatePresence>
+                        {/* Step: Calendar (The Drawer Style) */}
+                        {step === 'calendar' && (
+                            <motion.div
+                                key="cal"
+                                initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+                                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                                className="absolute inset-0 top-32 bg-white rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.05)] z-20 flex flex-col p-6"
+                            >
+                                {/* Drawer Handle */}
+                                <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6 shrink-0" />
+
+                                <div className="mb-4">
+                                    <h5 className="text-sm font-black text-primary uppercase tracking-widest pl-1">Select Date</h5>
+                                </div>
+
+                                <div className="flex-1 bg-slate-50 rounded-[2rem] p-4 border border-slate-100 mb-4 overflow-y-auto">
+                                    <div className="flex items-center justify-between mb-4 border-b border-slate-200/50 pb-3">
+                                        <button onClick={prevMonth} className="p-1 text-slate-400 hover:text-primary"><ChevronLeft size={18} /></button>
+                                        <span className="font-black text-primary text-[10px] uppercase tracking-widest">{MONTHS[month]} {year}</span>
+                                        <button onClick={nextMonth} className="p-1 text-slate-400 hover:text-primary"><ChevronRight size={18} /></button>
+                                    </div>
+                                    <div className="grid grid-cols-7 gap-1 mb-2">
+                                        {DAYS.map(d => <div key={d} className="text-center text-[7px] font-black text-slate-300">{d}</div>)}
+                                    </div>
+                                    <div className="grid grid-cols-7 gap-1">
+                                        {cells.map((d, i) => (
+                                            <div key={i} className="aspect-square">
+                                                {d ? (
+                                                    <button
+                                                        onClick={() => isAvailable(d) && setSelectedDate(d)}
+                                                        disabled={!isAvailable(d)}
+                                                        className={`w-full h-full rounded-xl text-[10px] font-black transition-all
+                                                            ${d === selectedDate ? 'bg-secondary text-white shadow-lg' :
+                                                                isAvailable(d) ? 'bg-white text-primary border border-slate-100 shadow-sm' : 'text-slate-100'}`}
+                                                    >
+                                                        {d}
+                                                    </button>
+                                                ) : null}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <button
+                                    disabled={!selectedDate}
+                                    onClick={() => setStep('time')}
+                                    className="w-full py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-2"
+                                >
+                                    Choose Time <ArrowRight size={14} />
+                                </button>
+                            </motion.div>
+                        )}
+
+                        {/* Step: Time Slots */}
+                        {step === 'time' && (
+                            <motion.div
+                                key="time"
+                                initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+                                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                                className="absolute inset-0 top-32 bg-white rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.05)] z-20 flex flex-col p-6"
+                            >
+                                <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6 shrink-0" />
+
+                                <div className="mb-6 flex items-center justify-between">
+                                    <h5 className="text-sm font-black text-primary uppercase tracking-widest">Available Slots</h5>
+                                    <button onClick={() => setStep('calendar')} className="text-[9px] font-black text-secondary uppercase underline tracking-widest">Change Date</button>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2 overflow-y-auto pr-1 pb-4">
+                                    {TIME_SLOTS.map(t => (
+                                        <button
+                                            key={t}
+                                            onClick={() => { setSelectedTime(t); setStep('form'); }}
+                                            className="py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black text-primary hover:bg-white hover:shadow-md hover:border-secondary transition-all text-center"
+                                        >
+                                            {t}
+                                        </button>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* Step: Details Form */}
+                        {step === 'form' && (
+                            <motion.div
+                                key="form"
+                                initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ scale: 0.9, opacity: 0 }}
+                                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                                className="absolute inset-0 top-20 bg-white rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.05)] z-30 flex flex-col p-6 overflow-hidden"
+                            >
+                                <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6 shrink-0" />
+
+                                <div className="mb-6">
+                                    <h4 className="text-xl font-black text-primary uppercase tracking-tighter">Your Details</h4>
+                                    <div className="mt-2 py-2 px-3 bg-secondary/5 rounded-xl border border-secondary/10 inline-flex items-center gap-2">
+                                        <Calendar size={12} className="text-secondary" />
+                                        <span className="text-[9px] font-black text-primary uppercase tracking-widest">{MONTHS[month]} {selectedDate} · {selectedTime}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto pr-1 space-y-4 pb-6">
+                                    <div className="space-y-1">
+                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Name</label>
+                                        <input
+                                            value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
+                                            className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-primary focus:border-secondary transition-all outline-none"
+                                            placeholder="Enter your name"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Email</label>
+                                        <input
+                                            value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+                                            className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-primary focus:border-secondary transition-all outline-none"
+                                            placeholder="you@example.com"
+                                            type="email"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Requirements</label>
+                                        <textarea
+                                            value={form.note} onChange={e => setForm({ ...form, note: e.target.value })}
+                                            className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium text-slate-600 focus:border-secondary transition-all outline-none resize-none"
+                                            placeholder="Briefly mention your needs..."
+                                            rows={2}
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    disabled={saving || !form.name || !form.email}
+                                    onClick={handleSubmit}
+                                    className="w-full py-4 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-secondary/20 transition-all flex items-center justify-center gap-3"
+                                >
+                                    {saving ? 'Scheduling...' : 'Confirm Strategy Call'}
+                                </button>
+                                <button onClick={() => setStep('time')} className="w-full mt-3 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors">Cancel</button>
+                            </motion.div>
+                        )}
+
+                        {/* Step: Success */}
+                        {step === 'done' && (
+                            <motion.div
+                                key="done"
+                                initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                                className="absolute inset-0 bg-white z-40 flex flex-col items-center justify-center p-6 text-center"
+                            >
+                                <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-4 shadow-sm border border-emerald-100">
+                                    <Check size={28} />
+                                </div>
+                                <h3 className="text-xl font-black text-primary uppercase tracking-tighter mb-2 leading-none">All Set!</h3>
+                                <p className="text-[9px] text-slate-500 font-medium mb-10 leading-relaxed px-4">
+                                    Your call for <span className="text-primary font-black underline decoration-secondary/30">{MONTHS[month]} {selectedDate}</span> is booked. We've opened WhatsApp to confirm.
+                                </p>
+
+                                <div className="w-full space-y-2 mt-auto">
+                                    <button
+                                        onClick={() => {
+                                            const subject = `Discovery Call Confirmation: ${form.name}`;
+                                            const body = `Dhuruvan Exports Discovery Call\n\nClient: ${form.name}\nEmail: ${form.email}\nScheduled: ${MONTHS[month]} ${selectedDate}, ${year} at ${selectedTime}\nNote: ${form.note || "N/A"}`;
+                                            window.location.href = `mailto:Dhuruvanexports@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                                        }}
+                                        className="w-full py-4 bg-primary text-white rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] shadow-lg shadow-primary/10 flex items-center justify-center gap-2"
+                                    >
+                                        Open in Gmail <Mail size={14} />
+                                    </button>
+
+                                    <button
+                                        onClick={reset}
+                                        className="w-full py-3 text-[8px] font-black text-slate-400 uppercase tracking-widest transition-all hover:text-primary"
+                                    >
+                                        Back to Home
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {/* Mobile Bottom Indicator */}
+                <div className="h-4 pb-2 shrink-0 flex items-center justify-center z-50">
+                    <div className="w-24 h-1 bg-slate-200 rounded-full" />
+                </div>
             </div>
         </div>
     );
@@ -432,22 +505,60 @@ const ServicesPage = () => {
 
             {/* ── Booking / Schedule Call Section ── */}
             <section className="py-24 bg-white relative overflow-hidden">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-secondary/[0.03] rounded-full blur-[100px] pointer-events-none" />
-                <div className="container px-6">
-                    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/5 border border-secondary/20 rounded-full mb-5">
-                            <Calendar size={12} className="text-secondary" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Book a Call</span>
-                        </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-primary uppercase tracking-tighter leading-tight">
-                            Schedule Your <br /><span className="text-secondary italic">Discovery Call</span>
-                        </h2>
-                        <p className="text-slate-400 font-medium mt-4 max-w-xl mx-auto">Pick a date and time that works for you. Our trade specialists will call you to discuss your requirements.</p>
+                {/* Background Spices Illustration (Generated Asset) */}
+                <div className="absolute inset-x-0 top-0 h-full pointer-events-none opacity-80 lg:opacity-100">
+                    <motion.div
+                        initial={{ x: -100, rotate: -20, opacity: 0 }}
+                        whileInView={{ x: 0, rotate: -15, opacity: 1 }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className="absolute top-10 -left-10 md:left-20 w-48 h-auto hidden md:block"
+                    >
+                        <img src="/discovery_call_bg_elements.png" alt="" className="w-full h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)] saturate-[1.25]" />
                     </motion.div>
 
-                    <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-4xl mx-auto">
-                        <BookingWidget />
+                    <motion.div
+                        initial={{ x: 100, y: -50, opacity: 0 }}
+                        whileInView={{ x: 0, y: 0, opacity: 1 }}
+                        transition={{ duration: 1.2, delay: 0.2 }}
+                        className="absolute top-20 right-10 md:right-40 w-56 h-auto"
+                    >
+                        <img src="/discovery_call_bg_elements.png" alt="" className="w-full h-auto drop-shadow-[0_25px_50px_rgba(0,0,0,0.35)] saturate-150 rotate-45 scale-75" />
                     </motion.div>
+
+                    <motion.div
+                        initial={{ y: 100, opacity: 0 }}
+                        whileInView={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 1.5, delay: 0.4 }}
+                        className="absolute bottom-10 left-1/2 -translate-x-1/2 w-64 h-auto hidden md:block"
+                    >
+                        <img src="/discovery_call_bg_elements.png" alt="" className="w-full h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.4)] brightness-110 saturate-125 -rotate-12" />
+                    </motion.div>
+                </div>
+
+                <div className="container px-6 relative z-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start max-w-6xl mx-auto">
+
+                        {/* Left Side: Brand Coloured Title */}
+                        <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="text-center lg:text-left pt-10">
+                            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary/10 border border-secondary/20 rounded-full mb-8">
+                                <Calendar size={14} className="text-secondary" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Book a Call</span>
+                            </div>
+                            <h2 className="text-5xl md:text-7xl font-black text-primary mb-8 leading-[0.9] tracking-tighter">
+                                SCHEDULE <br />
+                                YOUR <br />
+                                <span className="text-secondary italic">DISCOVERY</span> <br />
+                                CALL
+                            </h2>
+                            <p className="text-slate-500 font-bold text-lg mb-4 max-w-md">Pick a date and time that works for you.</p>
+                            <p className="text-slate-400 font-medium max-w-md text-sm">Our trade specialists will call you locally or via Video Call to discuss your global export requirements.</p>
+                        </motion.div>
+
+                        {/* Right Side: Existing Interactive Booking Widget */}
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
+                            <BookingWidget />
+                        </motion.div>
+                    </div>
                 </div>
             </section>
 
