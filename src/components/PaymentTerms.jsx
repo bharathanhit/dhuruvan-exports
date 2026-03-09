@@ -18,11 +18,7 @@ const PaymentTerms = () => {
             desc: "The fastest processing route, ideal for urgent shipments and establishing trust.",
             icon: DollarSign
         },
-        {
-            title: "50% Advance & 50% On-Site L/C",
-            desc: "Ensures immediate dispatch while maintaining secure payment visibility.",
-            icon: Briefcase
-        },
+
         {
             title: "50% Advance & 50% T/T Transfer",
             desc: "A streamlined process for recurring global trade partners.",

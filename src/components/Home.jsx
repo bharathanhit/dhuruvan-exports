@@ -3,7 +3,7 @@ import Hero from './Hero';
 import Products from './Products';
 import About from './About';
 import WhyChooseUs from './WhyChooseUs';
-import Testimonials from './Testimonials';
+
 import Contact from './Contact';
 
 const Home = () => {
@@ -13,7 +13,7 @@ const Home = () => {
             <Products />
             <About />
             <WhyChooseUs />
-            <Testimonials />
+
             <Contact />
         </main>
     );

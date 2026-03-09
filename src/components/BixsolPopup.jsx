@@ -25,27 +25,29 @@ const BixsolPopup = ({ isOpen, onClose }) => {
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full relative border border-blue-100"
+                        className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden overflow-y-auto max-h-[92vh] max-w-md w-full relative border border-blue-100"
                     >
                         {/* Header with Gradient */}
-                        <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white relative">
+                        <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-4 sm:p-6 text-white relative">
                             <button
                                 onClick={onClose}
-                                className="absolute top-4 right-4 p-1 hover:bg-white/20 rounded-full transition-colors"
+                                className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1 hover:bg-white/20 rounded-full transition-colors"
                             >
-                                <X size={24} />
+                                <X size={20} className="sm:hidden" />
+                                <X size={24} className="hidden sm:block" />
                             </button>
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="p-2 bg-white/20 rounded-xl">
-                                    <Globe size={28} className="text-white" />
+                            <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                                <div className="p-1.5 sm:p-2 bg-white/20 rounded-xl">
+                                    <Globe size={22} className="sm:hidden text-white" />
+                                    <Globe size={28} className="hidden sm:block text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-bold leading-tight">Need a Website?</h2>
+                                    <h2 className="text-xl sm:text-2xl font-bold leading-tight">Need a Website?</h2>
                                     <motion.a
                                         href="https://bixsolution.site"
                                         target="_blank"
@@ -72,20 +74,20 @@ const BixsolPopup = ({ isOpen, onClose }) => {
                                     </motion.a>
                                 </div>
                             </div>
-                            <p className="text-blue-100 text-sm mt-2">
+                            <p className="text-blue-100 text-xs sm:text-sm mt-1 sm:mt-2">
                                 Get a premium, high-performance website build by BIXSOL.
                             </p>
                         </div>
 
                         {/* Form Body */}
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-white">
-                            <div className="space-y-4">
+                        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-3 sm:space-y-4 bg-white">
+                            <div className="space-y-3 sm:space-y-4">
                                 {/* Name Field */}
                                 <div className="relative">
                                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block ml-1">
                                         Your Name
                                     </label>
-                                    <div className="flex items-center bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                                    <div className="flex items-center bg-gray-50 border border-gray-200 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
                                         <User size={18} className="text-gray-400 mr-2" />
                                         <input
                                             required
@@ -103,7 +105,7 @@ const BixsolPopup = ({ isOpen, onClose }) => {
                                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block ml-1">
                                         Phone Number
                                     </label>
-                                    <div className="flex items-center bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                                    <div className="flex items-center bg-gray-50 border border-gray-200 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
                                         <Phone size={18} className="text-gray-400 mr-2" />
                                         <input
                                             required
@@ -123,7 +125,7 @@ const BixsolPopup = ({ isOpen, onClose }) => {
                                     </label>
                                     <select
                                         name="websiteType"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-gray-800 appearance-none cursor-pointer"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-gray-800 appearance-none cursor-pointer"
                                         onChange={handleChange}
                                     >
                                         <option>Business Website</option>
@@ -139,13 +141,13 @@ const BixsolPopup = ({ isOpen, onClose }) => {
                                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block ml-1">
                                         Tell us your vision
                                     </label>
-                                    <div className="flex bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-                                        <MessageSquare size={18} className="text-gray-400 mr-2 mt-1" />
+                                    <div className="flex bg-gray-50 border border-gray-200 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                                        <MessageSquare size={16} className="text-gray-400 mr-2 mt-1" />
                                         <textarea
                                             name="message"
-                                            rows="3"
+                                            rows="2"
                                             placeholder="Briefly describe your project..."
-                                            className="bg-transparent border-none outline-none w-full text-gray-800 placeholder:text-gray-400 resize-none"
+                                            className="bg-transparent border-none outline-none w-full text-gray-800 placeholder:text-gray-400 resize-none text-sm"
                                             onChange={handleChange}
                                         ></textarea>
                                     </div>
@@ -155,14 +157,14 @@ const BixsolPopup = ({ isOpen, onClose }) => {
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 transform transition-all active:scale-95 group"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 transform transition-all active:scale-95 group text-sm sm:text-base"
                             >
                                 Submit on WhatsApp
-                                <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                             </button>
                         </form>
 
-                        <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+                        <div className="bg-gray-50 px-4 sm:px-6 py-2.5 sm:py-4 border-t border-gray-100">
                             <p className="text-[10px] text-center text-gray-400 uppercase tracking-widest font-bold">
                                 Premium Solutions By Bixsol
                             </p>

@@ -16,7 +16,7 @@ import MSME_P4 from '../assets/MSME/msme_p4.png';
 
 const Page = React.forwardRef((props, ref) => {
     // Filter out props that HTMLFlipBook passes but shouldn't be added to DOM
-    const { isActive, flipping, ...domProps } = props;
+    const { isActive, flipping, isChanging, ...domProps } = props;
     return (
         <div {...domProps} ref={ref}>
             {props.children}

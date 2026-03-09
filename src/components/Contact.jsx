@@ -10,6 +10,8 @@ const Contact = () => {
     const [categories, setCategories] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
+        email: '',
+        phone: '',
         industry: 'Importer / Buyer',
         destination: '',
         product: 'Agro Products',
@@ -43,8 +45,8 @@ const Contact = () => {
     }, []);
 
     const handleAction = async (type) => {
-        if (!formData.name || !formData.destination) {
-            alert("Please provide your name and destination port to continue.");
+        if (!formData.name || !formData.destination || !formData.phone) {
+            alert("Please provide your name, phone number, and destination port to continue.");
             return;
         }
 
@@ -64,6 +66,8 @@ const Contact = () => {
             const subject = `New Export Inquiry [${formData.product}] from ${formData.name}`;
             const body = `📦 *New Export Inquiry - Dhuruvan Exports* 📦\n\n` +
                 `👤 *Name:* ${formData.name}\n` +
+                `📧 *Email:* ${formData.email || 'N/A'}\n` +
+                `📱 *Phone:* ${formData.phone}\n` +
                 `🏢 *Business Type:* ${formData.industry}\n` +
                 `🎯 *Purpose:* Purchasing ${formData.product}\n` +
                 `📍 *Destination:* ${formData.destination}\n` +
@@ -134,19 +138,53 @@ const Contact = () => {
                             </p>
 
                             <div className="space-y-6">
-                                {/* Full Name Field */}
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
-                                    <div className="relative group">
-                                        <Users size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors" />
-                                        <input
-                                            type="text"
-                                            required
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            placeholder="Ex: John Doe"
-                                            className="w-full bg-[#F8FAFC] border border-[#F1F5F9] py-4 pl-14 pr-5 rounded-xl text-sm font-bold text-[#1E293B] outline-none focus:bg-white focus:border-[#3B82F6]/30 transition-all"
-                                        />
+                                {/* Name, Email, Phone Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {/* Full Name Field */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+                                        <div className="relative group">
+                                            <Users size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors" />
+                                            <input
+                                                type="text"
+                                                required
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                placeholder="Ex: John Doe"
+                                                className="w-full bg-[#F8FAFC] border border-[#F1F5F9] py-4 pl-14 pr-5 rounded-xl text-sm font-bold text-[#1E293B] outline-none focus:bg-white focus:border-[#3B82F6]/30 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Email Field */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Work Email</label>
+                                        <div className="relative group">
+                                            <Mail size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors" />
+                                            <input
+                                                type="email"
+                                                value={formData.email}
+                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                placeholder="john@company.com"
+                                                className="w-full bg-[#F8FAFC] border border-[#F1F5F9] py-4 pl-14 pr-5 rounded-xl text-sm font-bold text-[#1E293B] outline-none focus:bg-white focus:border-[#3B82F6]/30 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Phone Field */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Number</label>
+                                        <div className="relative group">
+                                            <Phone size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#3B82F6] transition-colors" />
+                                            <input
+                                                type="tel"
+                                                required
+                                                value={formData.phone}
+                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                placeholder="+1 234 567 890"
+                                                className="w-full bg-[#F8FAFC] border border-[#F1F5F9] py-4 pl-14 pr-5 rounded-xl text-sm font-bold text-[#1E293B] outline-none focus:bg-white focus:border-[#3B82F6]/30 transition-all"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 

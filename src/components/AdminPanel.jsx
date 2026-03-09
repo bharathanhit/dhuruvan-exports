@@ -5,7 +5,8 @@ import {
     Activity, AlertCircle, Bell, Calendar, BarChart3,
     Plus, Trash2, Edit2, X, Check, FolderOpen, ChevronDown, Link, Mail,
     MessageSquare, Facebook, Twitter, Instagram, Linkedin, Youtube,
-    Truck, Search, Settings, Share2, Award, Zap, FileImage, UploadCloud
+    Truck, Search, Settings, Award, Zap, FileImage, UploadCloud,
+    MessageCircle, Phone, Clock
 } from 'lucide-react';
 import {
     collection, addDoc, updateDoc, deleteDoc, doc,
@@ -228,10 +229,30 @@ const ImageUploader = ({ value, onChange, label = "Image" }) => {
     );
 };
 
-// ─── Category Manager ──────────────────────────────────────────────
+// ─── Inquiry Manager ───────────────────────────────────────────────
+const StatusBadge = ({ status }) => {
+    const styles = {
+        new: 'bg-blue-50 text-blue-600 border-blue-100',
+        read: 'bg-slate-50 text-slate-500 border-slate-100',
+        completed: 'bg-emerald-50 text-emerald-600 border-emerald-100'
+    };
+    return (
+        <span className={`px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border ${styles[status] || styles.new}`}>
+            {status}
+        </span>
+    );
+};
+
+const ContactIcon = ({ method }) => {
+    if (method === 'whatsapp') return <MessageCircle size={14} className="text-green-500" />;
+    if (method === 'email') return <Mail size={14} className="text-blue-500" />;
+    if (method === 'call') return <Phone size={14} className="text-orange-500" />;
+    return <Globe size={14} className="text-slate-400" />;
+};
 const InquiryManager = () => {
     const [inquiries, setInquiries] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [filter, setFilter] = useState('all'); // all, new, read
 
     useEffect(() => {
         const q = query(collection(db, 'inquiries'), orderBy('createdAt', 'desc'));
@@ -246,73 +267,171 @@ const InquiryManager = () => {
         return () => unsubscribe();
     }, []);
 
+    const toggleStatus = async (docId, currentStatus) => {
+        const newStatus = currentStatus === 'new' ? 'read' : 'new';
+        await updateDoc(doc(db, 'inquiries', docId), { status: newStatus });
+    };
+
     const handleDelete = async (docId) => {
-        if (window.confirm('Archive this inquiry?')) {
+        if (window.confirm('Delete this inquiry permanently?')) {
             await deleteDoc(doc(db, 'inquiries', docId));
         }
     };
 
-    if (loading) return <div>Loading Inquiries...</div>;
+    const filtered = filter === 'all' ? inquiries : inquiries.filter(iq => iq.status === filter);
+
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[3rem] border border-slate-100">
+            <div className="w-10 h-10 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin mb-4" />
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Loading business leads...</p>
+        </div>
+    );
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
-            <div className="flex justify-between items-end">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
                     <h2 className="text-4xl font-black text-primary tracking-tighter uppercase">Inquiry Dashboard</h2>
-                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2 px-1">Manage global business leads</p>
+                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2 px-1">Manage global business leads from forms</p>
                 </div>
-                <div className="bg-secondary/10 px-4 py-2 rounded-xl border border-secondary/20">
-                    <span className="text-secondary font-black text-xs uppercase tracking-widest">{inquiries.length} Total Leads</span>
+                <div className="flex bg-slate-100 p-1 rounded-xl w-fit">
+                    {['all', 'new', 'read'].map((f) => (
+                        <button
+                            key={f}
+                            onClick={() => setFilter(f)}
+                            className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-white text-secondary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            {f}
+                        </button>
+                    ))}
                 </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4">
-                {inquiries.map((iq) => (
-                    <div key={iq.docId} className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-6 text-slate-50 font-black text-6xl pointer-events-none group-hover:text-slate-100 transition-colors">
-                            {new Date(iq.createdAt?.toDate()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                {filtered.map((iq) => (
+                    <div key={iq.docId} className={`bg-white border rounded-[2rem] p-8 transition-all group relative overflow-hidden ${iq.status === 'new' ? 'border-blue-100 shadow-[0_10px_30px_-5px_rgba(59,130,246,0.05)]' : 'border-slate-100 opacity-80'}`}>
+                        {iq.status === 'new' && <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500" />}
+
+                        <div className="absolute top-0 right-0 p-8 text-slate-50 font-black text-7xl pointer-events-none group-hover:text-slate-100/50 transition-colors">
+                            {iq.createdAt?.toDate() ? new Date(iq.createdAt.toDate()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                         </div>
 
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <h3 className="text-xl font-black text-primary">{iq.name}</h3>
-                                    <span className="px-3 py-1 bg-blue-50 text-[9px] font-black text-blue-600 uppercase tracking-widest rounded-md border border-blue-100">{iq.industry}</span>
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
+                            <div className="space-y-6 flex-1">
+                                <div className="flex flex-wrap items-center gap-4">
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm ${iq.status === 'new' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                        <Mail size={24} />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-1">
+                                            <h3 className="text-2xl font-black text-primary tracking-tight">{iq.name}</h3>
+                                            <StatusBadge status={iq.status} />
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{iq.industry}</span>
+                                            <div className="w-1 h-1 rounded-full bg-slate-200" />
+                                            <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                                <ContactIcon method={iq.contactMethod} />
+                                                <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{iq.contactMethod}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                    <div>
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Product</p>
-                                        <p className="text-sm font-bold text-slate-700">{iq.product}</p>
+                                <div className="grid grid-cols-2 md:grid-cols-6 gap-6 pt-6 border-t border-slate-50">
+                                    <div className="md:col-span-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Target Product</p>
+                                        <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                            <Package size={14} className="text-secondary" /> {iq.product}
+                                        </p>
                                     </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</p>
-                                        <p className="text-sm font-bold text-slate-700">{iq.destination}</p>
+                                    <div className="md:col-span-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Contact Info</p>
+                                        <div className="space-y-1">
+                                            {iq.phone && (
+                                                <a href={`tel:${iq.phone}`} className="text-sm font-bold text-slate-700 flex items-center gap-2 hover:text-secondary group/link">
+                                                    <Phone size={12} className="text-secondary group-hover/link:animate-pulse" /> {iq.phone}
+                                                </a>
+                                            )}
+                                            {iq.email && iq.email !== 'N/A' && (
+                                                <a href={`mailto:${iq.email}`} className="text-[11px] font-bold text-slate-400 flex items-center gap-2 hover:text-secondary truncate">
+                                                    <Mail size={12} className="shrink-0" /> {iq.email}
+                                                </a>
+                                            )}
+                                            {(!iq.phone && (!iq.email || iq.email === 'N/A')) && <span className="text-xs text-slate-300 italic">No direct contact</span>}
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Logistics</p>
-                                        <p className="text-sm font-bold text-slate-700">{iq.logistics}</p>
+                                    <div className="md:col-span-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Business / Source</p>
+                                        <p className="text-sm font-bold text-slate-700 truncate" title={iq.industry}>
+                                            {iq.company && iq.company !== 'N/A' ? iq.company : iq.industry}
+                                        </p>
+                                        {iq.company && iq.company !== 'N/A' && iq.industry && (
+                                            <p className="text-[9px] text-slate-400 font-medium truncate mt-0.5">{iq.industry}</p>
+                                        )}
                                     </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date</p>
-                                        <p className="text-sm font-bold text-slate-700">{iq.createdAt?.toDate()?.toLocaleString()}</p>
+                                    <div className="md:col-span-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Destination Port</p>
+                                        <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                            <Globe size={14} className="text-blue-400" /> {iq.destination}
+                                        </p>
+                                    </div>
+                                    <div className="md:col-span-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Logistics</p>
+                                        <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                            <Truck size={14} className="text-secondary" /> {iq.logistics}
+                                        </p>
+                                    </div>
+                                    <div className="md:col-span-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Date & Time</p>
+                                        <p className="text-sm font-bold text-slate-700">
+                                            {iq.createdAt?.toDate() ? new Date(iq.createdAt.toDate()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Pending'}
+                                        </p>
+                                        <p className="text-[10px] font-medium text-slate-400 font-mono mt-0.5">
+                                            {iq.createdAt?.toDate() ? new Date(iq.createdAt.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                        </p>
                                     </div>
                                 </div>
+
+                                {(iq.message || iq.note) && (
+                                    <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 italic text-slate-500 text-xs leading-relaxed">
+                                        <div className="flex items-center gap-2 mb-2 not-italic">
+                                            <MessageSquare size={12} className="text-slate-400" />
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Client Message / Note</span>
+                                        </div>
+                                        "{iq.message || iq.note}"
+                                    </div>
+                                )}
                             </div>
 
-                            <button
-                                onClick={() => handleDelete(iq.docId)}
-                                className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all border border-slate-100"
-                            >
-                                <Trash2 size={18} />
-                            </button>
+                            <div className="flex lg:flex-col gap-3">
+                                <button
+                                    onClick={() => toggleStatus(iq.docId, iq.status)}
+                                    title={iq.status === 'new' ? 'Mark as Read' : 'Mark as New'}
+                                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all border shadow-sm ${iq.status === 'new' ? 'bg-secondary/10 border-secondary/20 text-secondary hover:bg-secondary hover:text-white' : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100'}`}
+                                >
+                                    {iq.status === 'new' ? <Check size={20} /> : <MessageSquare size={20} />}
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(iq.docId)}
+                                    className="w-12 h-12 rounded-2xl bg-white border border-red-100 text-red-200 hover:bg-red-500 hover:text-white hover:border-red-500 flex items-center justify-center transition-all shadow-sm"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ))}
 
-                {inquiries.length === 0 && (
-                    <div className="py-20 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
-                        <p className="text-slate-400 font-bold uppercase tracking-[0.2em]">No inquiries found yet.</p>
+                {filtered.length === 0 && (
+                    <div className="py-24 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-200">
+                            <Mail size={32} />
+                        </div>
+                        <div>
+                            <p className="text-slate-400 font-black uppercase tracking-[0.2em]">No {filter !== 'all' ? filter : ''} inquiries found</p>
+                            <p className="text-slate-300 text-xs font-bold uppercase tracking-widest mt-1 italic">Waiting for new partnerships...</p>
+                        </div>
                     </div>
                 )}
             </div>
@@ -320,84 +439,112 @@ const InquiryManager = () => {
     );
 };
 
-
-// ─── Social Media Manager ──────────────────────────────────────────
-const SocialMediaManager = () => {
-    const [links, setLinks] = useState([]);
-    const [showForm, setShowForm] = useState(false);
-    const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ platform: 'Facebook', url: '' });
-    const [saving, setSaving] = useState(false);
-
-    const platforms = ['Facebook', 'Twitter', 'Instagram', 'Linkedin', 'Youtube', 'WhatsApp'];
+// ─── Appointment Manager ──────────────────────────────────────────
+const AppointmentManager = () => {
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const q = query(collection(db, 'social_links'));
-        return onSnapshot(q, (snap) => setLinks(snap.docs.map(d => ({ docId: d.id, ...d.data() }))));
+        const q = query(collection(db, 'appointments'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setAppointments(snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() })));
+            setLoading(false);
+        });
+        return () => unsubscribe();
     }, []);
 
-    const handleSave = async () => {
-        if (!form.url) return;
-        setSaving(true);
-        try {
-            if (editing) await updateDoc(doc(db, 'social_links', editing.docId), form);
-            else await addDoc(collection(db, 'social_links'), form);
-            setShowForm(false); setEditing(null); setForm({ platform: 'Facebook', url: '' });
-        } catch (e) { alert(e.message); }
-        setSaving(false);
+    const handleDelete = async (id) => {
+        if (window.confirm('Remove this appointment recording?')) {
+            await deleteDoc(doc(db, 'appointments', id));
+        }
     };
 
+    if (loading) return (
+        <div className="flex items-center justify-center py-20 bg-white rounded-[3rem] border border-slate-100">
+            <div className="w-10 h-10 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin mr-4" />
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Syncing schedules...</p>
+        </div>
+    );
+
     return (
-        <div>
-            <div className="flex items-center justify-between mb-8">
+        <div className="space-y-8 animate-in fade-in duration-700 mt-4">
+            <div className="flex justify-between items-end">
                 <div>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Social Profiles</h2>
-                    <p className="text-slate-400 text-sm font-medium">Your global digital footprint</p>
+                    <h2 className="text-4xl font-black text-primary tracking-tighter uppercase">Scheduled Calls</h2>
+                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2 px-1">Global Discovery Call Bookings</p>
                 </div>
-                <button onClick={() => setShowForm(true)}
-                    className="flex items-center gap-2 px-5 py-3 bg-secondary text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-secondary/90 transition-all shadow-lg">
-                    <Plus size={16} /> Add Profile
-                </button>
+                <div className="bg-primary px-5 py-2 rounded-xl flex items-center gap-3">
+                    <Calendar size={14} className="text-secondary" />
+                    <span className="text-white font-black text-xs uppercase tracking-widest">{appointments.length} Total Booked</span>
+                </div>
             </div>
 
-            <AnimatePresence>
-                {showForm && (
-                    <Modal title="Social Link" onClose={() => setShowForm(false)} onSave={handleSave} saving={saving} valid={!!form.url}>
-                        <Field label="Platform">
-                            <select value={form.platform} onChange={e => setForm({ ...form, platform: e.target.value })}
-                                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-secondary">
-                                {platforms.map(p => <option key={p} value={p}>{p}</option>)}
-                            </select>
-                        </Field>
-                        <Field label="URL">
-                            <TextInput value={form.url} onChange={e => setForm({ ...form, url: e.target.value })} placeholder="https://facebook.com/..." />
-                        </Field>
-                    </Modal>
-                )}
-            </AnimatePresence>
+            <div className="grid grid-cols-1 gap-5">
+                {appointments.map((app) => (
+                    <div key={app.docId} className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl transition-all group">
+                        <div className="flex flex-col lg:flex-row gap-8 items-start lg:items-center">
+                            {/* Date Block */}
+                            <div className="flex flex-col items-center justify-center w-24 h-24 rounded-3xl bg-secondary/5 border-2 border-secondary/10 shrink-0">
+                                <span className="text-[10px] font-black text-secondary uppercase tracking-[0.2em]">Scheduled</span>
+                                <div className="text-2xl font-black text-primary leading-none mt-1">{app.date.split(' ')[1].replace(',', '')}</div>
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{app.date.split(' ')[0]}</div>
+                            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {links.map(l => (
-                    <div key={l.docId} className="bg-white border border-slate-100 rounded-2xl p-5 flex items-center justify-between group">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-primary">
-                                <Share2 size={18} />
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <h3 className="text-2xl font-black text-primary truncate tracking-tight uppercase">{app.name}</h3>
+                                    <div className="px-3 py-1 bg-white border border-slate-200 rounded-full flex items-center gap-1.5 shadow-sm">
+                                        <Clock size={12} className="text-secondary" />
+                                        <span className="text-[10px] font-black text-primary italic uppercase tracking-widest">{app.time}</span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="flex items-center gap-4 group/item">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover/item:bg-primary/5 group-hover/item:text-primary transition-colors">
+                                            <Mail size={18} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Contact Email</p>
+                                            <a href={`mailto:${app.email}`} className="text-sm font-bold text-slate-700 hover:text-secondary hover:underline underline-offset-4 decoration-2">{app.email}</a>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4 group/item">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover/item:bg-primary/5 group-hover/item:text-primary transition-colors">
+                                            <MessageSquare size={18} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Client Note / Requirements</p>
+                                            <p className="text-sm font-bold text-slate-600 line-clamp-1 italic">"{app.note || 'No special requirements provided'}"</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="font-black text-slate-900 text-xs uppercase tracking-widest">{l.platform}</h4>
-                                <p className="text-[10px] text-slate-400 truncate max-w-[120px]">{l.url}</p>
+
+                            <div className="flex gap-3 shrink-0 self-center">
+                                <button
+                                    onClick={() => handleDelete(app.docId)}
+                                    className="w-12 h-12 rounded-2xl bg-white border border-red-100 text-red-200 hover:bg-red-500 hover:text-white hover:border-red-500 flex items-center justify-center transition-all shadow-sm"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => { setEditing(l); setForm(l); setShowForm(true); }} className="p-2 hover:text-secondary"><Edit2 size={14} /></button>
-                            <button onClick={() => deleteDoc(doc(db, 'social_links', l.docId))} className="p-2 hover:text-red-500"><Trash2 size={14} /></button>
                         </div>
                     </div>
                 ))}
+
+                {appointments.length === 0 && (
+                    <div className="py-24 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                        <Calendar size={40} className="text-slate-200 mx-auto mb-4" />
+                        <p className="text-slate-400 font-black uppercase tracking-[0.2em]">No discovery calls booked yet</p>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
+
+
 const CategoryManager = () => {
     const [categories, setCategories] = useState([]);
     const [showForm, setShowForm] = useState(false);
@@ -1207,7 +1354,9 @@ const DashboardOverview = () => {
     const [catCount, setCatCount] = useState(0);
     const [prodCount, setProdCount] = useState(0);
     const [inquiryCount, setInquiryCount] = useState(0);
-    const [socialCount, setSocialCount] = useState(0);
+    const [newInquiryCount, setNewInquiryCount] = useState(0);
+    const [appointmentCount, setAppointmentCount] = useState(0);
+
     const [certCount, setCertCount] = useState(0);
     const [allProducts, setAllProducts] = useState([]);
 
@@ -1229,18 +1378,22 @@ const DashboardOverview = () => {
             setAllProducts(merged);
             setProdCount(merged.length);
         });
-        const u3 = onSnapshot(collection(db, 'inquiries'), s => setInquiryCount(s.size));
-        const u5 = onSnapshot(collection(db, 'social_links'), s => setSocialCount(s.size));
-        const u6 = onSnapshot(collection(db, 'certificates'), s => setCertCount(s.size));
-        return () => { u1(); u2(); u3(); u5(); u6(); };
+        const u3 = onSnapshot(collection(db, 'inquiries'), s => {
+            setInquiryCount(s.size);
+            setNewInquiryCount(s.docs.filter(d => d.data().status === 'new').length);
+        });
+        const u4 = onSnapshot(collection(db, 'appointments'), s => setAppointmentCount(s.size));
+        const u5 = onSnapshot(collection(db, 'certificates'), s => setCertCount(s.size));
+        return () => { u1(); u2(); u3(); u4(); u5(); };
     }, []);
 
     const stats = [
         { icon: FolderOpen, label: 'Categories', value: catCount, color: 'purple' },
         { icon: Package, label: 'Products', value: prodCount, color: 'green' },
-        { icon: Mail, label: 'Inquiries', value: inquiryCount, color: 'orange' },
+        { icon: Mail, label: 'Inquiries', value: inquiryCount, color: 'orange', sub: `${newInquiryCount} New` },
+        { icon: Calendar, label: 'Scheduled', value: appointmentCount, color: 'emerald' },
         { icon: Award, label: 'Certificates', value: certCount, color: 'amber' },
-        { icon: Share2, label: 'Social', value: socialCount, color: 'indigo' },
+
     ];
     const colorMap = {
         blue: 'bg-blue-50 text-blue-600',
@@ -1257,11 +1410,14 @@ const DashboardOverview = () => {
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
                 {stats.map((s, i) => (
                     <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                        className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all">
+                        className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
                         <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${colorMap[s.color]}`}>
                             <s.icon size={20} />
                         </div>
-                        <div className="text-3xl font-black text-slate-900 tracking-tight">{s.value}</div>
+                        <div className="flex items-baseline gap-2">
+                            <div className="text-3xl font-black text-slate-900 tracking-tight">{s.value}</div>
+                            {s.sub && <span className="text-[10px] font-black text-secondary uppercase animate-pulse shrink-0">{s.sub}</span>}
+                        </div>
                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{s.label}</div>
                     </motion.div>
                 ))}
@@ -1326,9 +1482,10 @@ const Dashboard = ({ onLogout }) => {
         { id: 'overview', label: 'Overview', icon: BarChart3 },
         { id: 'categories', label: 'Categories', icon: FolderOpen },
         { id: 'products', label: 'Products', icon: Package },
-        { id: 'certificates', label: 'Certificates', icon: Award },
-        { id: 'social', label: 'Social', icon: Share2 },
         { id: 'inquiries', label: 'Inquiries', icon: Mail },
+        { id: 'appointments', label: 'Call Bookings', icon: Calendar },
+        { id: 'certificates', label: 'Certificates', icon: Award },
+
     ];
     return (
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-10 md:py-14">
@@ -1367,8 +1524,9 @@ const Dashboard = ({ onLogout }) => {
                     {tab === 'categories' && <CategoryManager />}
                     {tab === 'products' && <ProductManager />}
                     {tab === 'certificates' && <CertificateManager />}
-                    {tab === 'social' && <SocialMediaManager />}
+
                     {tab === 'inquiries' && <InquiryManager />}
+                    {tab === 'appointments' && <AppointmentManager />}
                 </motion.div>
             </AnimatePresence>
         </div>

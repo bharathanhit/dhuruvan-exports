@@ -1,3 +1,5 @@
+
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -75,7 +77,9 @@ const ProductDetail = () => {
                         Back to Catalog
                     </button>
                     <div className="flex items-center gap-4">
-                        <span className="text-slate-300 text-[10px] font-bold uppercase tracking-widest hidden md:block">SKU: DE-{product.id?.substring(0, 4).toUpperCase()}</span>
+                        <div className="flex items-center gap-4 text-slate-400 font-bold uppercase tracking-widest text-[9px]">
+                            Quality Grade: {product.category}
+                        </div>
                         <div className="flex gap-2">
                             <GlobalInquiryButtons productTitle={product.title} className="!grid-cols-3 !gap-2 !py-0 sm:!grid-cols-3" />
                         </div>
@@ -285,3 +289,15 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
+
+
+
+
+
+
+
+
+
+
+
+

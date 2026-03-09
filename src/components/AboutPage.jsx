@@ -217,6 +217,7 @@ const AboutPage = () => {
                                     productTitle="Exploring Strategic Export Partnership"
                                     context="About Us Page"
                                     className="max-w-2xl mx-auto"
+                                    isDark={true}
                                 />
                             </div>
 

@@ -58,9 +58,9 @@ const Navbar = () => {
                 {/* ── Brand ── */}
                 <NavHashLink smooth to="/#" className="flex items-center gap-1.5 shrink-0">
                     <img src={logoImg} alt="Logo"
-                        className={`h-11 lg:h-16 w-auto transition-all duration-300 ${isLight ? '' : 'brightness-200'}`} />
+                        className={`h-11 lg:h-16 w-auto transition-all duration-300 ${isLight ? '' : '[filter:drop-shadow(0_1px_0.5px_#fff)_drop-shadow(0_-1px_0.5px_#fff)_drop-shadow(1px_0_0.5px_#fff)_drop-shadow(-1px_0_0.5px_#fff)]'}`} />
                     <img src={logoTextImg} alt="Dhuruvan Exports"
-                        className="h-5 lg:h-8 w-auto" />
+                        className={`h-5 lg:h-8 w-auto transition-all duration-300 ${isLight ? '' : '[filter:drop-shadow(0_1px_0.5px_#fff)_drop-shadow(0_-1px_0.5px_#fff)_drop-shadow(1px_0_0.5px_#fff)_drop-shadow(-1px_0_0.5px_#fff)]'}`} />
                 </NavHashLink>
 
                 {/* ── Desktop links ── */}
@@ -124,10 +124,16 @@ const Navbar = () => {
 
                 {/* ── Desktop CTA ── */}
                 <div className="hidden lg:flex items-center gap-3">
-                    <NavHashLink smooth to="/#contact"
-                        className={`text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-full transition-all duration-300 ${isLight ? 'bg-primary text-white hover:bg-secondary' : 'bg-white text-primary hover:bg-secondary hover:text-white'}`}>
+                    <a
+                        href="#contact"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            window.dispatchEvent(new CustomEvent('openInquiryPopup'));
+                        }}
+                        className={`text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-full transition-all duration-300 ${isLight ? 'bg-primary text-white hover:bg-secondary' : 'bg-white text-primary hover:bg-secondary hover:text-white'}`}
+                    >
                         Get Quote
-                    </NavHashLink>
+                    </a>
                     <Link to="/admin" title="Admin"
                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isLight ? 'text-slate-300 hover:text-secondary hover:bg-slate-50' : 'text-white/20 hover:text-white/60'}`}>
                         <ShieldCheck size={15} />
@@ -223,13 +229,15 @@ const Navbar = () => {
 
                         {/* CTA footer */}
                         <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center gap-3">
-                            <NavHashLink
-                                smooth to="/#contact"
-                                onClick={() => setIsMenuOpen(false)}
+                            <button
+                                onClick={() => {
+                                    setIsMenuOpen(false);
+                                    window.dispatchEvent(new CustomEvent('openInquiryPopup'));
+                                }}
                                 className="flex-1 bg-primary text-white text-center text-[10px] font-black uppercase tracking-widest py-2.5 rounded-xl hover:bg-secondary transition-all"
                             >
                                 Get Quote
-                            </NavHashLink>
+                            </button>
                             <Link
                                 to="/admin"
                                 onClick={() => setIsMenuOpen(false)}

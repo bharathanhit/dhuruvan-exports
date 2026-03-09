@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, ArrowLeft, Leaf, Sparkles, TrendingUp, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import GlobalInquiryButtons from './GlobalInquiryButtons';
 
 // Import all wood craft images
 import img1 from '../assets/wood/WhatsApp Image 2026-02-22 at 5.57.59 PM.jpeg';
@@ -91,12 +92,6 @@ const woodProducts = [
 
 const WoodCrafts = () => {
     const [selected, setSelected] = useState(null);
-
-    const handleEmail = (product) => {
-        const subject = encodeURIComponent(`Inquiry for ${product.name}`);
-        const body = encodeURIComponent(`Hello Dhuruvan Exports,\n\nI am interested in the following wood craft product:\n\n*${product.name}*\nCategory: ${product.category}\n\nPlease share pricing and export details.\n\nThank you.`);
-        window.location.href = `mailto:Dhuruvanexports@gmail.com?subject=${subject}&body=${body}`;
-    };
 
     return (
         <div className="min-h-screen bg-white">
@@ -236,15 +231,11 @@ const WoodCrafts = () => {
                                     <p className="text-slate-500 text-sm font-medium leading-relaxed line-clamp-2 mb-8">
                                         {product.description}
                                     </p>
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={(e) => { e.stopPropagation(); handleEmail(product); }}
-                                        className="w-full btn btn-primary py-4 text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 group-hover:shadow-xl transition-all"
-                                    >
-                                        <Send size={16} />
-                                        Send Inquiry
-                                    </motion.button>
+                                    {/* Inquiry Section - Swapped for Global Component */}
+                                    <div className="pt-4 border-t border-slate-50">
+                                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Start Inquiry</p>
+                                        <GlobalInquiryButtons productTitle={product.name} context={`WoodCrafts: ${product.category}`} />
+                                    </div>
                                 </div>
                             </motion.div>
                         ))}
@@ -278,9 +269,9 @@ const WoodCrafts = () => {
                             <div className="flex-1 p-10 lg:p-16 flex flex-col justify-center">
                                 <button
                                     onClick={() => setSelected(null)}
-                                    className="absolute top-8 right-8 w-12 h-12 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all duration-300"
+                                    className="absolute top-8 right-8 w-12 h-12 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:text-red-500 transition-all hover:scale-110 hover:rotate-90 z-50 shadow-sm"
                                 >
-                                    <X size={24} />
+                                    <X size={24} strokeWidth={2.5} />
                                 </button>
 
                                 <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-secondary/10 rounded-full text-secondary text-[10px] font-black uppercase tracking-[0.3em] mb-8">
@@ -295,19 +286,14 @@ const WoodCrafts = () => {
                                     {selected.description}
                                 </p>
 
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <button
-                                        onClick={() => handleEmail(selected)}
-                                        className="flex-[2] btn btn-primary py-5 text-[12px] font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl shadow-green-100"
-                                    >
-                                        <Send size={18} />
-                                        Request Global Quote
-                                    </button>
+                                <div className="space-y-6">
+                                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest text-center">Select Inquiry Method</p>
+                                    <GlobalInquiryButtons productTitle={selected.name} context={`WoodCrafts Lightbox: ${selected.category}`} />
                                     <button
                                         onClick={() => setSelected(null)}
-                                        className="flex-1 bg-slate-100 text-slate-400 font-black py-5 rounded-2xl text-[11px] uppercase tracking-widest hover:bg-slate-200 hover:text-slate-600 transition-all"
+                                        className="w-full bg-slate-100 text-slate-400 font-black py-4 rounded-2xl text-[11px] uppercase tracking-widest hover:bg-slate-200 hover:text-slate-600 transition-all mt-4"
                                     >
-                                        Close
+                                        Close Window
                                     </button>
                                 </div>
                             </div>

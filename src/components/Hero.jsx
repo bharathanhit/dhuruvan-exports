@@ -109,29 +109,7 @@ const Hero = () => {
                         </motion.a>
                     </motion.div>
 
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1, duration: 1 }}
-                        className="flex flex-wrap items-center gap-10 md:gap-20"
-                    >
-                        {[
-                            { label: 'Countries Served', value: '15+' },
-                            { label: 'Global Partnerships', value: '25+' },
-                            { label: 'Quality Rating', value: '4.9/5' },
-                        ].map((stat, i) => (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 1.2 + (i * 0.1), duration: 0.8 }}
-                                key={i}
-                                className="flex flex-col border-l-2 border-secondary/30 pl-8"
-                            >
-                                <span className="text-4xl md:text-5xl font-black text-white tabular-nums tracking-tighter">{stat.value}</span>
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mt-2">{stat.label}</span>
-                            </motion.div>
-                        ))}
-                    </motion.div>
+
                 </div>
             </div>
 

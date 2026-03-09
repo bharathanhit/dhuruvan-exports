@@ -72,7 +72,7 @@ const BookingWidget = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     const [step, setStep] = useState('landing'); // landing | calendar | time | form | done
-    const [form, setForm] = useState({ name: '', email: '', note: '' });
+    const [form, setForm] = useState({ name: '', email: '', phone: '', note: '' });
     const [saving, setSaving] = useState(false);
 
     const firstDay = new Date(year, month, 1).getDay();
@@ -102,17 +102,35 @@ const BookingWidget = () => {
         setSaving(true);
         try {
             const dateStr = `${MONTHS[month]} ${selectedDate}, ${year}`;
-            await addDoc(collection(db, 'appointments'), {
+            const appointmentData = {
                 name: form.name,
                 email: form.email,
+                phone: form.phone,
                 note: form.note,
                 date: dateStr,
                 time: selectedTime,
                 createdAt: serverTimestamp()
+            };
+
+            // Save to appointments collection (Original)
+            await addDoc(collection(db, 'appointments'), appointmentData);
+
+            // Save to inquiries collection (For unified dashboard view)
+            await addDoc(collection(db, 'inquiries'), {
+                name: form.name,
+                email: form.email,
+                phone: form.phone,
+                product: "Discovery Call",
+                industry: `Scheduled: ${dateStr} @ ${selectedTime}`,
+                destination: "Virtual (Consultation)",
+                logistics: "N/A",
+                contactMethod: 'call',
+                createdAt: serverTimestamp(),
+                status: 'new'
             });
 
             // Constructing the Message for WhatsApp
-            const body = `🤝 *Dhuruvan Exports - Discovery Call Scheduled* 🤝\n\n🎯 *Confirmed:* ${dateStr} @ ${selectedTime}\n👤 *Client:* ${form.name}\n✉️ *Email:* ${form.email}\n📝 *Note:* ${form.note || "N/A"}\n\nPlease confirm our meeting invitation.`;
+            const body = `🤝 *Dhuruvan Exports - Discovery Call Scheduled* 🤝\n\n🎯 *Confirmed:* ${dateStr} @ ${selectedTime}\n👤 *Client:* ${form.name}\n📱 *Phone:* ${form.phone}\n✉️ *Email:* ${form.email}\n📝 *Note:* ${form.note || "N/A"}\n\nPlease confirm our meeting invitation.`;
 
             // Auto-open WhatsApp
             window.open(`https://wa.me/919952777973?text=${encodeURIComponent(body)}`, '_blank');
@@ -124,7 +142,7 @@ const BookingWidget = () => {
 
     const reset = () => {
         setSelectedDate(null); setSelectedTime(null);
-        setForm({ name: '', email: '', note: '' });
+        setForm({ name: '', email: '', phone: '', note: '' });
         setStep('calendar');
     };
 
@@ -318,6 +336,15 @@ const BookingWidget = () => {
                                         />
                                     </div>
                                     <div className="space-y-1">
+                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Phone Number</label>
+                                        <input
+                                            value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
+                                            className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-primary focus:border-secondary transition-all outline-none"
+                                            placeholder="+91 00000 00000"
+                                            type="tel"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
                                         <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Email</label>
                                         <input
                                             value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
@@ -338,7 +365,7 @@ const BookingWidget = () => {
                                 </div>
 
                                 <button
-                                    disabled={saving || !form.name || !form.email}
+                                    disabled={saving || !form.name || !form.email || !form.phone}
                                     onClick={handleSubmit}
                                     className="w-full py-4 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-secondary/20 transition-all flex items-center justify-center gap-3"
                                 >

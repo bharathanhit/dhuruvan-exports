@@ -6,6 +6,11 @@ import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestor
 import { db } from '../firebase';
 import { products as staticProducts, categories as staticCategories } from '../data/products';
 import halalImg from '../assets/halal.png';
+import woodenBg from '../assets/wooden-background.jpg';
+import agriWallBg from '../assets/agri-wall.jpg';
+import waterBg from '../assets/water-bg.jpg';
+
+import GlobalInquiryButtons from './GlobalInquiryButtons';
 
 const ProductModal = ({ product, onClose }) => {
     if (!product) return null;
@@ -55,7 +60,7 @@ const ProductModal = ({ product, onClose }) => {
                 </div>
 
                 {/* Right Side: Content Area */}
-                <div className="md:w-1/2 p-6 md:p-10 flex flex-col gap-6 bg-white">
+                <div className="md:w-1/2 p-6 md:p-8 lg:p-10 flex flex-col gap-6 bg-white overflow-y-auto max-h-[90vh]">
                     {/* Badge */}
                     <div className="inline-flex items-center gap-2.5 px-4 py-1.5 bg-secondary/10 border border-secondary/20 rounded-full w-fit">
                         <Award size={12} className="text-secondary" />
@@ -63,86 +68,54 @@ const ProductModal = ({ product, onClose }) => {
                     </div>
 
                     <div className="space-y-3">
-                        <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter uppercase leading-[0.9]">
+                        <h2 className="text-3xl md:text-3xl font-black text-primary tracking-tighter uppercase leading-[0.9]">
                             {product.title}
                         </h2>
-                        <p className="text-slate-500 font-medium text-base leading-relaxed">
+                        <p className="text-slate-500 font-medium text-sm leading-relaxed">
                             {product.longDescription || product.description}
                         </p>
                     </div>
 
                     {/* Highlights/Benefits */}
                     {product.benefits && product.benefits.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-8">
+                        <div className="flex flex-wrap gap-2">
                             {product.benefits.filter(b => b.trim() !== '').map((benefit, i) => (
                                 <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-secondary/5 border border-secondary/10 rounded-lg text-secondary">
-                                    <CheckCircle2 size={12} className="shrink-0" />
-                                    <span className="text-[10px] font-black uppercase tracking-tight">{benefit}</span>
+                                    <CheckCircle2 size={10} className="shrink-0" />
+                                    <span className="text-[9px] font-black uppercase tracking-tight">{benefit}</span>
                                 </div>
                             ))}
                         </div>
                     )}
 
                     {/* Specs Section */}
-                    <div className="space-y-6 pt-8 border-t border-slate-100 min-h-[120px]">
+                    <div className="space-y-6 pt-6 border-t border-slate-100">
                         {product.specifications && product.specifications.length > 0 && product.specifications.some(s => s.label.trim() !== '') ? (
-                            <>
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-6 h-6 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
-                                        <Award size={14} />
+                            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+                                {product.specifications.filter(s => s.label.trim() !== '').map((spec, i) => (
+                                    <div key={i} className="flex flex-col gap-1 group/spec">
+                                        <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest group-hover/spec:text-secondary transition-colors">{spec.label}</span>
+                                        <span className="text-sm font-black text-primary leading-none uppercase italic border-b border-slate-50 pb-1 group-hover/spec:border-secondary/20 transition-all">{spec.value}</span>
                                     </div>
-                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Key Specifications</h4>
-                                </div>
-                                <div className="grid grid-cols-2 gap-x-12 gap-y-6">
-                                    {product.specifications.filter(s => s.label.trim() !== '').map((spec, i) => (
-                                        <div key={i} className="flex flex-col gap-1.5 group/spec">
-                                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest group-hover/spec:text-secondary transition-colors">{spec.label}</span>
-                                            <span className="text-base font-black text-primary leading-none uppercase italic border-b-2 border-slate-50 pb-2 group-hover/spec:border-secondary/20 transition-all">{spec.value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
+                                ))}
+                            </div>
                         ) : (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-5 bg-slate-50/50 rounded-2xl border border-slate-100 flex flex-col gap-2">
-                                    <CheckCircle2 size={18} className="text-secondary" />
-                                    <h5 className="text-[10px] font-black text-primary uppercase tracking-widest">Premium Export Grade</h5>
-                                    <p className="text-[11px] text-slate-400 font-medium">Quality tested for global standards.</p>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100 flex flex-col gap-1.5">
+                                    <CheckCircle2 size={16} className="text-secondary" />
+                                    <h5 className="text-[9px] font-black text-primary uppercase tracking-widest">Premium Grade</h5>
                                 </div>
-                                <div className="p-5 bg-slate-50/50 rounded-2xl border border-slate-100 flex flex-col gap-2">
-                                    <ShoppingBag size={18} className="text-secondary" />
-                                    <h5 className="text-[10px] font-black text-primary uppercase tracking-widest">Global Logistics</h5>
-                                    <p className="text-[11px] text-slate-400 font-medium">Available via FOB, CIF & DTP.</p>
+                                <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100 flex flex-col gap-1.5">
+                                    <ShoppingBag size={16} className="text-secondary" />
+                                    <h5 className="text-[9px] font-black text-primary uppercase tracking-widest">Global Logistics</h5>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <div className="mt-auto pt-6 space-y-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <a
-                                href={`https://wa.me/919952777973?text=Hello, I am interested in ${product.title} from your ${product.category} category.`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="sm:col-span-2 flex items-center justify-center gap-3 py-4 bg-primary text-white rounded-[1.2rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 hover:bg-secondary transition-all"
-                            >
-                                <Send size={15} /> Request Global Quote
-                            </a>
-
-                            <a
-                                href="tel:+919952777973"
-                                className="flex items-center justify-center gap-3 py-4 bg-slate-50 text-primary border border-slate-100 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.1em] hover:bg-white hover:border-primary transition-all group"
-                            >
-                                <Phone size={14} className="group-hover:animate-bounce" /> Direct Call
-                            </a>
-
-                            <a
-                                href="mailto:Dhuruvanexports@gmail.com"
-                                className="flex items-center justify-center gap-3 py-4 bg-slate-50 text-primary border border-slate-100 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.1em] hover:bg-white hover:border-primary transition-all group"
-                            >
-                                <Mail size={14} className="group-hover:animate-bounce" /> Email Inquiry
-                            </a>
-                        </div>
+                    <div className="mt-auto pt-6 border-t border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 text-center">Start Your Inquiry</p>
+                        <GlobalInquiryButtons productTitle={product.title} context={`Category Modal: ${product.categorySlug}`} />
                         <button
                             onClick={onClose}
                             className="w-full py-4 text-slate-300 font-black text-[9px] uppercase tracking-[0.3em] hover:text-red-400 transition-colors"
@@ -155,16 +128,16 @@ const ProductModal = ({ product, onClose }) => {
                 {/* Floating Close (Desktop) */}
                 <button
                     onClick={onClose}
-                    className="absolute top-8 right-8 hidden md:flex w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full items-center justify-center text-white transition-all hover:scale-110 hover:rotate-90"
+                    className="absolute top-8 right-8 hidden md:flex w-12 h-12 bg-slate-100 hover:bg-slate-200 rounded-full items-center justify-center text-slate-600 hover:text-red-500 transition-all hover:scale-110 hover:rotate-90 z-50 shadow-sm border border-slate-200"
                 >
-                    <X size={24} strokeWidth={3} />
+                    <X size={24} strokeWidth={2.5} />
                 </button>
             </motion.div>
         </motion.div>
     );
 };
 
-const ProductCard = ({ product, index, onOpen }) => {
+const ProductCard = ({ product, index, onOpen, themeColor }) => {
     const imgSrc = product.imageUrl || product.image;
     return (
         <motion.div
@@ -172,22 +145,29 @@ const ProductCard = ({ product, index, onOpen }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.7, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={{ y: -10 }}
-            className="group relative bg-[#0D1B2A] rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_40px_100px_rgba(30,158,84,0.15)] transition-all duration-700 border border-white/5 m-1 cursor-pointer"
+            whileHover={{ y: -12 }}
+            className="group relative bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)] hover:shadow-[0_40px_100px_rgba(0,0,0,0.6)] transition-all duration-700 m-1 cursor-pointer"
             onClick={() => onOpen(product)}
         >
-            <div className="relative h-64 overflow-hidden">
+            {/* Dynamic Glow Effect on Hover */}
+            <div 
+                className="absolute inset-x-0 bottom-0 h-1/2 opacity-0 group-hover:opacity-20 transition-opacity duration-700 blur-[80px] pointer-events-none z-0"
+                style={{ backgroundColor: themeColor || '#1e9e54' }}
+            />
+
+            <div className="relative h-64 overflow-hidden z-10">
                 <motion.img
                     src={imgSrc}
                     alt={product.title}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
-                    whileHover={{ scale: 1.12 }}
-                    transition={{ duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
+                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-1000"
+                    whileHover={{ scale: 1.15 }}
                 />
-                <div className="absolute inset-0 bg-primary/40 opacity-40 group-hover:opacity-20 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-700" />
 
-                <div className="absolute top-5 left-5 z-20 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                    <span className="text-[9px] font-black text-white uppercase tracking-widest">{product.status || 'Ready to Export'}</span>
+                <div className="absolute top-5 left-5 z-20">
+                    <div className="px-4 py-1.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10">
+                        <span className="text-[9px] font-black text-white uppercase tracking-widest">{product.status || 'Ready to Export'}</span>
+                    </div>
                 </div>
 
                 {product.isHalal && (
@@ -198,36 +178,52 @@ const ProductCard = ({ product, index, onOpen }) => {
                         transition={{ delay: index * 0.1 + 0.5, type: 'spring' }}
                         src={halalImg}
                         alt="Halal"
-                        className="absolute -top-6 -right-6 w-32 pointer-events-none z-20"
+                        className="absolute -top-4 -right-4 w-28 pointer-events-none z-20 drop-shadow-2xl"
                     />
                 )}
             </div>
-            <div className="p-8">
-                <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-xl md:text-2xl font-black text-white group-hover:text-secondary transition-colors duration-300 tracking-tight leading-tight uppercase">
+
+            <div className="p-8 relative z-10 bg-gradient-to-b from-transparent to-black/20">
+                <div className="flex justify-between items-start mb-5">
+                    <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none group-hover:translate-x-1 transition-transform duration-500 uppercase">
                         {product.title}
                     </h3>
-                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white group-hover:bg-secondary transition-all duration-500 border border-white/10 shrink-0">
-                        <ChevronRight size={18} />
+                    <div 
+                        className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-white transition-all duration-500 border border-white/10 shrink-0 group-hover:scale-110 shadow-lg"
+                        style={{ '--hover-bg': themeColor || '#1e9e54' }}
+                    >
+                        <ChevronRight size={18} className="group-hover:text-white" />
                     </div>
                 </div>
-                <p className="text-slate-400 mb-6 line-clamp-2 text-sm leading-relaxed font-medium group-hover:text-slate-300 transition-colors">
+                
+                <p className="text-slate-400 mb-8 line-clamp-2 text-sm leading-relaxed font-medium group-hover:text-slate-200 transition-colors">
                     {product.description}
                 </p>
-                <div className="pt-6 border-t border-white/10 flex items-center justify-between">
+
+                <div className="pt-6 border-t border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
-                            <Package size={14} />
+                        <div 
+                            className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
+                            style={{ backgroundColor: `${themeColor}20`, color: themeColor }}
+                        >
+                            <Package size={16} />
                         </div>
-                        <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">View Details</span>
+                        <span className="text-[10px] font-black text-white/90 uppercase tracking-widest leading-none">Export Details</span>
                     </div>
                     {product.specifications && (
-                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">
-                            {product.specifications.length} Specs
-                        </span>
+                        <div className="px-2.5 py-1 bg-white/5 rounded-lg border border-white/5">
+                            <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">
+                                {product.specifications.length} Attributes
+                            </span>
+                        </div>
                     )}
                 </div>
             </div>
+
+            {/* Hover Accent Border */}
+            <div 
+                className="absolute inset-0 border-2 border-transparent group-hover:border-white/10 transition-colors duration-700 pointer-events-none rounded-[2.5rem]"
+            />
         </motion.div>
     );
 };
@@ -293,7 +289,7 @@ const CategoryPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-[#050505]">
             <AnimatePresence>
                 {activeProduct && (
                     <ProductModal product={activeProduct} onClose={() => setActiveProduct(null)} />
@@ -301,78 +297,138 @@ const CategoryPage = () => {
             </AnimatePresence>
 
             {/* Hero Banner */}
-            <div className="relative h-[55vh] min-h-[380px] bg-[#0D1B2A] overflow-hidden flex items-end">
+            <div className={`relative h-[45vh] min-h-[340px] md:h-[50vh] overflow-hidden flex items-end bg-gradient-to-br ${category?.gradient || 'from-slate-900 to-slate-800'}`}>
                 {category && (
                     <motion.img
-                        initial={{ scale: 1.15, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 0.45 }}
-                        transition={{ duration: 1.5, ease: 'easeOut' }}
+                        initial={{ scale: 1.1, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 1.8, ease: 'easeOut' }}
                         src={category.imageUrl || category.image}
                         alt={category.title}
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover opacity-60"
                     />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0D1B2A] via-[#0D1B2A]/50 to-transparent" />
+                
+                {/* Subtle texture overlay for premium feel */}
+                <div className="absolute inset-0 bg-black/20 mix-blend-multiply z-0" />
+                <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-0" />
 
-                <div className="relative z-10 container pb-14 pt-36 px-6">
-                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
-                        <Link to="/#products" className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm font-bold transition-colors mb-6 group">
+                <div className="relative z-10 container pb-14 pt-32 px-6">
+                    <motion.div 
+                        initial={{ opacity: 0, y: 30 }} 
+                        animate={{ opacity: 1, y: 0 }} 
+                        transition={{ duration: 0.8, type: 'spring', damping: 25, stiffness: 200 }}
+                        className="max-w-4xl relative z-10"
+                    >
+                        <Link to="/#products" className="inline-flex items-center gap-2 text-white/70 hover:text-white text-xs font-bold transition-colors mb-8 group tracking-widest uppercase">
                             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                            Back to Categories
+                            Return to Catalog
                         </Link>
+
+                        <div className="block mb-5">
+                            <motion.span 
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.3 }}
+                                className="text-[10px] md:text-[11px] font-black text-white uppercase tracking-[0.4em] px-5 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl"
+                            >
+                                Premium Global Selection
+                            </motion.span>
+                        </div>
+                        
+                        <h1 className="text-5xl md:text-[6rem] font-black tracking-tighter leading-none text-white mb-6 drop-shadow-2xl uppercase">
+                            {category?.title || '...'}
+                        </h1>
+                        
+                        <p className="text-white/80 text-xl md:text-2xl font-medium leading-relaxed max-w-2xl drop-shadow-lg tracking-tight">
+                            {category?.description}
+                        </p>
                     </motion.div>
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-                        className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-5"
-                    >
-                        <Sparkles size={13} className="text-secondary" />
-                        <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Global Export Selection</span>
-                    </motion.div>
-                    <motion.h1
-                        initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[1] uppercase"
-                    >
-                        {category?.title || '...'}
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.35 }}
-                        className="text-white/60 text-lg max-w-xl mt-4 font-medium leading-relaxed"
-                    >
-                        {category?.description}
-                    </motion.p>
                 </div>
+
+                {/* Animated Background Element */}
+                <motion.div 
+                    animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.3, 0.5, 0.3],
+                    }}
+                    transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+                    className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"
+                />
             </div>
 
             {/* Products Grid */}
-            <section className="py-16 md:py-24 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-slate-50 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <section 
+                className="py-24 md:py-40 relative overflow-hidden bg-fixed bg-center bg-cover bg-[#050505]"
+                style={{ backgroundImage: `url(${slug === 'agro-products' ? agriWallBg : slug === 'beverages' ? waterBg : woodenBg})` }}
+            >
+                {/* Fixed Overlays for Image Clarity */}
+                {slug === 'woodcrafts' ? (
+                    <div className="absolute inset-0 bg-[#3a2012]/60 z-0" />
+                ) : (
+                    <div className="absolute inset-0 bg-black/40 z-0" />
+                )}
+
+                {/* Refined Mesh Glows (more subtle now cards have glows) */}
+                <div className="absolute inset-0 opacity-40 z-0 pointer-events-none">
+                    <div className="absolute top-0 right-0 w-[80%] h-[80%] rounded-full blur-[140px] -translate-y-1/2 translate-x-1/3" style={{ backgroundColor: `${category?.color}30` }} />
+                    <div className="absolute bottom-0 left-0 w-[60%] h-[60%] rounded-full blur-[120px] translate-y-1/3 -translate-x-1/4" style={{ backgroundColor: `${category?.color}20` }} />
+                </div>
+
                 <div className="container relative z-10 px-6">
-                    <div className="flex items-center justify-between mb-12">
-                        <div>
-                            <p className="text-[10px] font-black text-secondary uppercase tracking-[0.4em] mb-2">
+                    <div className="flex flex-col md:flex-row items-end justify-between mb-20 gap-8">
+                        <div className="max-w-2xl">
+                            <motion.p 
+                                initial={{ opacity: 0, x: -20 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                className="inline-block px-4 py-1.5 mb-6 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-white/60 uppercase tracking-[0.4em]"
+                            >
                                 {categoryProducts.length} Premium Collection{categoryProducts.length !== 1 ? 's' : ''}
-                            </p>
-                            <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tight">
-                                Explore <span className="text-secondary italic">{category?.title}</span>
-                            </h2>
+                            </motion.p>
+                            <motion.h2 
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.1 }}
+                                className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-[1.1]"
+                            >
+                                Explore Our <span style={{ color: category?.color || '#1e9e54' }}>{category?.title}</span>
+                            </motion.h2>
                         </div>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            className="hidden md:block"
+                        >
+                            <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center text-white/20 animate-spin-slow">
+                                <Sparkles size={32} />
+                            </div>
+                        </motion.div>
                     </div>
 
                     {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="rounded-[2.5rem] bg-slate-100 animate-pulse h-96" />
+                                <div key={i} className="rounded-[2.5rem] bg-white/5 border border-white/5 animate-pulse h-[500px]" />
                             ))}
                         </div>
                     ) : categoryProducts.length === 0 ? (
-                        <div className="text-center py-24 text-slate-400 font-medium">
-                            No products found in this category yet.
+                        <div className="text-center py-32 rounded-[3rem] border border-white/5 bg-white/5 backdrop-blur-sm">
+                            <div className="inline-flex p-5 rounded-3xl bg-white/5 text-white/20 mb-6 font-black uppercase text-xs">Empty Collection</div>
+                            <p className="text-white/40 text-lg font-medium">No products found in this category yet.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                             {categoryProducts.map((product, idx) => (
-                                <ProductCard key={product.id || product.docId} index={idx} product={product} onOpen={setActiveProduct} />
+                                <ProductCard 
+                                    key={product.id || product.docId} 
+                                    index={idx} 
+                                    product={product} 
+                                    onOpen={setActiveProduct} 
+                                    themeColor={category?.color}
+                                />
                             ))}
                         </div>
                     )}
@@ -383,3 +439,4 @@ const CategoryPage = () => {
 };
 
 export default CategoryPage;
+
