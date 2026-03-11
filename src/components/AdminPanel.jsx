@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import {
     Lock, Eye, EyeOff, LogOut, ShieldCheck, Package, Users, Globe,
     Activity, AlertCircle, Bell, Calendar, BarChart3,
-    Plus, Trash2, Edit2, X, Check, FolderOpen, ChevronDown, Link, Mail,
+    Plus, Trash2, Edit2, X, Check, FolderOpen, ChevronDown, ChevronUp, Link, Mail,
     MessageSquare, Facebook, Twitter, Instagram, Linkedin, Youtube,
     Truck, Search, Settings, Award, Zap, FileImage, UploadCloud,
-    MessageCircle, Phone, Clock
+    MessageCircle, Phone, Clock, GripVertical
 } from 'lucide-react';
 import {
     collection, addDoc, updateDoc, deleteDoc, doc,
-    onSnapshot, query, orderBy, serverTimestamp
+    onSnapshot, query, orderBy, serverTimestamp, writeBatch
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { categories as staticCategories, products as staticProducts } from '../data/products';
@@ -216,6 +216,53 @@ const ImageUploader = ({ value, onChange, label = "Image" }) => {
                 )}
             </div>
         </Field>
+    );
+};
+
+const CategoryItem = ({ cat, openEdit, handleDelete }) => {
+    const controls = useDragControls();
+    return (
+        <Reorder.Item 
+            value={cat} 
+            dragListener={false} 
+            dragControls={controls}
+            whileDrag={{ scale: 1.02, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+            className="flex items-center gap-4 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-default relative z-0"
+        >
+            <div className="flex items-center gap-3">
+                <div 
+                    onPointerDown={(e) => controls.start(e)}
+                    className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 cursor-grab active:cursor-grabbing hover:bg-secondary/10 hover:text-secondary transition-all"
+                >
+                    <GripVertical size={20} />
+                </div>
+                <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
+                    {(cat.imageUrl || cat.image) && <img src={cat.imageUrl || cat.image} alt={cat.title} className="w-full h-full object-cover" />}
+                </div>
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="font-black text-slate-900 truncate">{cat.title}</h4>
+                    {cat.isStatic && <span className="text-[8px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-slate-200">Static</span>}
+                    {cat.isFirestore && <span className="text-[8px] font-black bg-secondary/10 text-secondary px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-secondary/20">Live</span>}
+                    {cat.isFeatured && <span className="text-[8px] font-black bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-amber-200">Featured</span>}
+                </div>
+                <p className="text-xs text-slate-400 truncate font-medium">{cat.description}</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color }} />
+                    <span className="text-[10px] font-mono text-slate-400">/{cat.slug}</span>
+                </div>
+            </div>
+
+            <div className="flex gap-2 flex-shrink-0">
+                <button onClick={() => openEdit(cat)} className="w-9 h-9 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-secondary hover:border-secondary transition-all">
+                    <Edit2 size={15} />
+                </button>
+                <button onClick={() => handleDelete(cat)} className="w-9 h-9 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-200 transition-all">
+                    <Trash2 size={15} />
+                </button>
+            </div>
+        </Reorder.Item>
     );
 };
 
@@ -536,17 +583,18 @@ const AppointmentManager = () => {
 
 
 const CategoryManager = () => {
+    const [reordering, setReordering] = useState(false);
     const [categories, setCategories] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ title: '', description: '', imageUrl: '', color: '#16a34a', isFeatured: true });
+    const [form, setForm] = useState({ title: '', description: '', imageUrl: '', color: '#16a34a', isFeatured: true, order: 0 });
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const q = query(collection(db, 'categories'), orderBy('order', 'asc'));
         return onSnapshot(q, (snap) => {
+            if (reordering) return; // Don't snap-back while we are dragging
             const firestoreCats = snap.docs.map(d => ({ docId: d.id, ...d.data(), isFirestore: true }));
-            // Static ones are considered featured by default
             const merged = staticCategories.map(c => ({ ...c, isStatic: true, isFeatured: true }));
 
             firestoreCats.forEach(fc => {
@@ -560,15 +608,14 @@ const CategoryManager = () => {
             merged.sort((a, b) => (a.order || 0) - (b.order || 0));
             setCategories(merged);
         });
-    }, []);
+    }, [reordering]);
 
-    const reset = () => { setForm({ title: '', description: '', imageUrl: '', color: '#16a34a', isFeatured: true }); setEditing(null); };
+    const reset = () => { setForm({ title: '', description: '', imageUrl: '', color: '#16a34a', isFeatured: true, order: 0 }); setEditing(null); };
 
     const handleSave = async () => {
         if (!form.title) return;
         setSaving(true);
-        const rawOrder = typeof editing?.order === 'number' ? editing.order : (categories?.length || 0);
-        const safeOrder = parseInt(rawOrder);
+        const safeOrder = Number(form.order);
         const payload = {
             title: form.title,
             slug: slugify(form.title),
@@ -602,6 +649,32 @@ const CategoryManager = () => {
         await deleteDoc(doc(db, 'categories', cat.docId));
     };
 
+    const handleReorder = (newOrder) => {
+        setCategories(newOrder);
+        setReordering(true);
+    };
+
+    // Buffered sequence sync for smoothness
+    useEffect(() => {
+        if (!categories.length || !reordering) return;
+        const timeout = setTimeout(async () => {
+            const batch = writeBatch(db);
+            let changes = false;
+            categories.forEach((cat, i) => {
+                if (cat.isFirestore && cat.docId && cat.order !== i) {
+                    batch.update(doc(db, 'categories', cat.docId), { 
+                        order: i, 
+                        updatedAt: serverTimestamp() 
+                    });
+                    changes = true;
+                }
+            });
+            if (changes) await batch.commit();
+            setReordering(false);
+        }, 1500);
+        return () => clearTimeout(timeout);
+    }, [categories]);
+
     const openEdit = (cat) => {
         setEditing(cat);
         setForm({
@@ -609,7 +682,8 @@ const CategoryManager = () => {
             description: cat.description || '',
             imageUrl: cat.imageUrl || cat.image || '',
             color: cat.color || '#16a34a',
-            isFeatured: !!cat.isFeatured
+            isFeatured: !!cat.isFeatured,
+            order: typeof cat.order === 'number' ? cat.order : 0
         });
         setShowForm(true);
     };
@@ -619,7 +693,14 @@ const CategoryManager = () => {
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h2 className="text-2xl font-black text-slate-900 tracking-tight">Categories</h2>
-                    <p className="text-slate-400 text-sm font-medium">{categories.length} categories in Firestore</p>
+                    <div className="flex items-center gap-3">
+                        <p className="text-slate-400 text-sm font-medium">{categories.length} categories in Firestore</p>
+                        {reordering && (
+                            <span className="flex items-center gap-1.5 text-[10px] font-black text-secondary uppercase animate-pulse">
+                                <Activity size={12} /> Syncing sequence...
+                            </span>
+                        )}
+                    </div>
                 </div>
                 <button onClick={() => { reset(); setShowForm(true); }}
                     className="flex items-center gap-2 px-5 py-3 bg-secondary text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20">
@@ -652,53 +733,80 @@ const CategoryManager = () => {
                              </button>
                              <label className="text-sm font-black text-slate-600">Feature in Navbar & Footer</label>
                          </div>
+                        <Field label="Display Order (Priority)">
+                            <TextInput 
+                                type="number" 
+                                value={form.order} 
+                                onChange={e => setForm(f => ({ ...f, order: e.target.value }))} 
+                                placeholder="e.g. 1, 2, 10" 
+                            />
+                            <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter text-center">Lower numbers appear first in Navbar and Products Grid</p>
+                        </Field>
                         <ImageUploader label="Category Banner Image" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} />
                     </Modal>
                 )}
             </AnimatePresence>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Reorder.Group axis="y" values={categories} onReorder={handleReorder} className="space-y-4">
                 {categories.map((cat) => (
-                    <motion.div key={cat.slug} layout
-                        className="flex items-center gap-4 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                        <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
-                            {(cat.imageUrl || cat.image) && <img src={cat.imageUrl || cat.image} alt={cat.title} className="w-full h-full object-cover" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                                <h4 className="font-black text-slate-900 truncate">{cat.title}</h4>
-                                {cat.isStatic && <span className="text-[8px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-slate-200">Static</span>}
-                                {cat.isFirestore && <span className="text-[8px] font-black bg-secondary/10 text-secondary px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-secondary/20">Live</span>}
-                                {cat.isFeatured && <span className="text-[8px] font-black bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-amber-200">Featured</span>}
-                            </div>
-                            <p className="text-xs text-slate-400 truncate font-medium">{cat.description}</p>
-                            <div className="flex items-center gap-1.5 mt-1">
-                                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color }} />
-                                <span className="text-[10px] font-mono text-slate-400">/{cat.slug}</span>
-                            </div>
-                        </div>
-                        <div className="flex gap-2 flex-shrink-0">
-                            <button onClick={() => openEdit(cat)} className="w-9 h-9 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-secondary hover:border-secondary transition-all">
-                                <Edit2 size={15} />
-                            </button>
-                            <button onClick={() => handleDelete(cat)} className="w-9 h-9 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-200 transition-all">
-                                <Trash2 size={15} />
-                            </button>
-                        </div>
-                    </motion.div>
+                    <CategoryItem key={cat.docId || cat.slug} cat={cat} openEdit={openEdit} handleDelete={handleDelete} />
                 ))}
-                {categories.length === 0 && (
-                    <div className="col-span-2 py-16 text-center text-slate-400 font-medium">
-                        No categories yet. Click "Add Category" to get started.
-                    </div>
-                )}
-            </div>
+            </Reorder.Group>
         </div>
+    );
+};
+
+const ProductItem = ({ prod, openEdit, handleDelete }) => {
+    const controls = useDragControls();
+    return (
+        <Reorder.Item 
+            value={prod} 
+            dragListener={false} 
+            dragControls={controls}
+            whileDrag={{ scale: 1.02, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+            className="flex items-center gap-4 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-default relative z-0"
+        >
+            <div className="flex items-center gap-3">
+                <div 
+                    onPointerDown={(e) => controls.start(e)}
+                    className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 cursor-grab active:cursor-grabbing hover:bg-secondary/10 hover:text-secondary transition-all"
+                >
+                    <GripVertical size={20} />
+                </div>
+                <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
+                    {(prod.imageUrl || prod.image) && (
+                        <img src={prod.imageUrl || prod.image} alt={prod.title} className="w-full h-full object-cover" />
+                    )}
+                </div>
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="font-black text-slate-900">{prod.title}</h4>
+                    {prod.isStatic && <span className="text-[8px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-slate-200">Static</span>}
+                    {prod.isFirestore && <span className="text-[8px] font-black bg-secondary/10 text-secondary px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-secondary/20">Live</span>}
+                    {prod.isHalal && (
+                        <span className="text-[9px] font-black bg-green-50 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-widest">Halal</span>
+                    )}
+                </div>
+                <p className="text-xs text-slate-400 truncate font-medium">{prod.description}</p>
+                <span className="text-[10px] font-black text-secondary uppercase tracking-widest">{prod.category}</span>
+            </div>
+
+            <div className="flex gap-2 flex-shrink-0">
+                <button onClick={() => openEdit(prod)} className="w-9 h-9 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-secondary hover:border-secondary transition-all">
+                    <Edit2 size={15} />
+                </button>
+                <button onClick={() => handleDelete(prod)} className="w-9 h-9 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-200 transition-all">
+                    <Trash2 size={15} />
+                </button>
+            </div>
+        </Reorder.Item>
     );
 };
 
 // ─── Product Manager ───────────────────────────────────────────────
 const ProductManager = () => {
+    const [reordering, setReordering] = useState(false);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [showForm, setShowForm] = useState(false);
@@ -716,12 +824,14 @@ const ProductManager = () => {
         badgeNote: 'Premium Selection',
         specifications: [{ label: '', value: '' }],
         benefits: [''],
-        varieties: [{ title: '', desc: '', imageUrl: '' }]
+        varieties: [],
+        order: 0
     });  
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const unsub1 = onSnapshot(query(collection(db, 'products'), orderBy('order', 'asc')), (snap) => {
+            if (reordering) return;
             const firestoreProds = snap.docs.map(d => ({ docId: d.id, ...d.data(), isFirestore: true }));
             const merged = staticProducts.map(p => ({ ...p, isStatic: true }));
 
@@ -733,7 +843,14 @@ const ProductManager = () => {
                     merged.push(fp);
                 }
             });
-            merged.sort((a, b) => (a.order || 0) - (b.order || 0));
+            merged.sort((a, b) => {
+                const getOrder = (p) => {
+                    if (typeof p.order === 'number') return p.order;
+                    if (p.title?.toLowerCase().includes('rice')) return -1000;
+                    return 0;
+                };
+                return getOrder(a) - getOrder(b);
+            });
             setProducts(merged);
         });
 
@@ -753,7 +870,7 @@ const ProductManager = () => {
         });
 
         return () => { unsub1(); unsub2(); };
-    }, []);
+    }, [reordering]);
 
     const reset = () => {
         setForm({
@@ -768,7 +885,8 @@ const ProductManager = () => {
             badgeNote: 'Premium Selection',
             specifications: [{ label: '', value: '' }],
             benefits: [''],
-            varieties: [{ title: '', desc: '', imageUrl: '' }]
+            varieties: [],
+            order: 0
         });
         setEditing(null);
     };
@@ -776,8 +894,7 @@ const ProductManager = () => {
     const handleSave = async () => {
         if (!form.title || !form.categorySlug) return;
         setSaving(true);
-        const rawOrder = typeof editing?.order === 'number' ? editing.order : (products?.length || 0);
-        const safeOrder = Number(rawOrder); // Use Number() for robustness
+        const safeOrder = Number(form.order);
         const payload = {
             title: form.title,
             id: slugify(form.title),
@@ -841,10 +958,45 @@ const ProductManager = () => {
                 title: v.title,
                 desc: v.desc || '',
                 imageUrl: v.img || v.imageUrl || ''
-            })) : [{ title: '', desc: '', imageUrl: '' }]
+            })) : [],
+            order: typeof prod.order === 'number' ? prod.order : 0
         });
         setShowForm(true);
     };
+
+    const handleReorder = (reorderedSub) => {
+        let updatedFull;
+        if (filterCat === 'all') {
+            updatedFull = reorderedSub;
+        } else {
+            const others = products.filter(p => p.categorySlug !== filterCat);
+            updatedFull = [...reorderedSub, ...others];
+        }
+        setProducts(updatedFull);
+        setReordering(true);
+    };
+
+    // Buffered sequence sync for products
+    useEffect(() => {
+        if (!products.length || !reordering) return;
+        const timeout = setTimeout(async () => {
+            const batch = writeBatch(db);
+            let changes = false;
+            products.forEach((prod, i) => {
+                // Ensure we only update items that actually exist in firestore
+                if (prod.isFirestore && prod.docId && prod.order !== i) {
+                    batch.update(doc(db, 'products', prod.docId), { 
+                        order: i, 
+                        updatedAt: serverTimestamp() 
+                    });
+                    changes = true;
+                }
+            });
+            if (changes) await batch.commit();
+            setReordering(false);
+        }, 1500);
+        return () => clearTimeout(timeout);
+    }, [products]);
 
     const filtered = filterCat === 'all' ? products : products.filter(p => p.categorySlug === filterCat);
 
@@ -853,7 +1005,14 @@ const ProductManager = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h2 className="text-2xl font-black text-slate-900 tracking-tight">Products</h2>
-                    <p className="text-slate-400 text-sm font-medium">{products.length} products in Firestore</p>
+                    <div className="flex items-center gap-3">
+                        <p className="text-slate-400 text-sm font-medium">{products.length} products in Firestore</p>
+                        {reordering && (
+                            <span className="flex items-center gap-1.5 text-[10px] font-black text-secondary uppercase animate-pulse">
+                                <Activity size={12} /> Syncing sequence...
+                            </span>
+                        )}
+                    </div>
                 </div>
                 <div className="flex gap-3">
                     <div className="relative">
@@ -922,12 +1081,21 @@ const ProductManager = () => {
                                 <button onClick={() => setForm(f => ({ ...f, specifications: [...f.specifications, { label: '', value: '' }] }))} className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1">+ Add Spec</button>
                             </div>
                         </Field>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <Field label="Availability Status">
                                 <TextInput value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} placeholder="e.g. Set Available" />
                             </Field>
                             <Field label="Display Badge">
                                 <TextInput value={form.badgeNote} onChange={e => setForm(f => ({ ...f, badgeNote: e.target.value }))} placeholder="e.g. Handcrafted Product" />
+                            </Field>
+                            <Field label="Display Order (Priority)">
+                                <TextInput 
+                                    type="number" 
+                                    value={form.order} 
+                                    onChange={e => setForm(f => ({ ...f, order: e.target.value }))} 
+                                    placeholder="e.g. -10, 0, 10" 
+                                />
+                                <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Lower numbers appear first (e.g. -100 pins to top)</p>
                             </Field>
                         </div>
 
@@ -953,60 +1121,7 @@ const ProductManager = () => {
                             </div>
                         </Field>
 
-                        <Field label="Varieties">
-                            <div className="space-y-4">
-                                {form.varieties.map((v, idx) => (
-                                    <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-200">
-                                        <div className="flex justify-between items-center mb-3">
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Variety #{idx + 1}</span>
-                                            <button onClick={() => {
-                                                const newV = form.varieties.filter((_, i) => i !== idx);
-                                                setForm({ ...form, varieties: newV.length ? newV : [{ title: '', desc: '', imageUrl: '' }] });
-                                            }} className="text-red-400 hover:text-red-500"><Trash2 size={14} /></button>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <input value={v.title} onChange={e => {
-                                                const newV = [...form.varieties];
-                                                newV[idx].title = e.target.value;
-                                                setForm({ ...form, varieties: newV });
-                                            }} placeholder="Variety Title (e.g. Sona Masoori)" className="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none" />
-                                            <input value={v.desc} onChange={e => {
-                                                const newV = [...form.varieties];
-                                                newV[idx].desc = e.target.value;
-                                                setForm({ ...form, varieties: newV });
-                                            }} placeholder="Short Description..." className="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium outline-none" />
-                                            <div className="relative mt-2">
-                                                 <input type="file" accept="image/*" onChange={async (e) => {
-                                                     const file = e.target.files[0];
-                                                     if (!file) return;
-                                                     const dataUrl = await resizeImage(file, 600); // Varieties can be smaller
-                                                     const newV = [...form.varieties];
-                                                     newV[idx].imageUrl = dataUrl;
-                                                     setForm({ ...form, varieties: newV });
-                                                 }} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                                 <button type="button" className="w-full py-3 bg-secondary/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-secondary hover:bg-secondary/10 border border-secondary/10 flex items-center justify-center gap-2">
-                                                     <UploadCloud size={14} /> {v.imageUrl ? 'Change Variety Image' : 'Add Variety Image'}
-                                                 </button>
-                                             </div>
-                                             {v.imageUrl && (
-                                                 <div className="h-24 w-full rounded-xl overflow-hidden border border-slate-200 mt-2 relative group/var">
-                                                     <img src={v.imageUrl} className="w-full h-full object-cover" />
-                                                     <button onClick={() => {
-                                                         const newV = [...form.varieties];
-                                                         newV[idx].imageUrl = '';
-                                                         setForm({ ...form, varieties: newV });
-                                                     }} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover/var:opacity-100 transition-all">
-                                                         <X size={12} />
-                                                     </button>
-                                                 </div>
-                                             )}
-                                         </div>
-                                     </div>
-                                 ))}
-                                 <button onClick={() => setForm({ ...form, varieties: [...form.varieties, { title: '', desc: '', imageUrl: '' }] })}
-                                     className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1 group/btn"><Plus size={14} className="group-hover/btn:rotate-90 transition-transform"/> Add Variety Item</button>
-                            </div>
-                        </Field>
+
 
                         <div className="flex items-center gap-3">
                              <button type="button" onClick={() => setForm(f => ({ ...f, isHalal: !f.isHalal }))}
@@ -1021,44 +1136,12 @@ const ProductManager = () => {
                 }
             </AnimatePresence >
 
-            <div className="space-y-3">
+            <Reorder.Group axis="y" values={filtered} onReorder={handleReorder} className="space-y-3">
                 {filtered.map((prod) => (
-                    <motion.div key={prod.docId || prod.id} layout
-                        className="flex items-center gap-4 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
-                            {(prod.imageUrl || prod.image) && (
-                                <img src={prod.imageUrl || prod.image} alt={prod.title} className="w-full h-full object-cover" />
-                            )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="font-black text-slate-900">{prod.title}</h4>
-                                {prod.isStatic && <span className="text-[8px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-slate-200">Static</span>}
-                                {prod.isFirestore && <span className="text-[8px] font-black bg-secondary/10 text-secondary px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-secondary/20">Live</span>}
-                                {prod.isHalal && (
-                                    <span className="text-[9px] font-black bg-green-50 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-widest">Halal</span>
-                                )}
-                            </div>
-                            <p className="text-xs text-slate-400 truncate font-medium">{prod.description}</p>
-                            <span className="text-[10px] font-black text-secondary uppercase tracking-widest">{prod.category}</span>
-                        </div>
-                        <div className="flex gap-2 flex-shrink-0">
-                            <button onClick={() => openEdit(prod)} className="w-9 h-9 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-secondary hover:border-secondary transition-all">
-                                <Edit2 size={15} />
-                            </button>
-                            <button onClick={() => handleDelete(prod)} className="w-9 h-9 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-200 transition-all">
-                                <Trash2 size={15} />
-                            </button>
-                        </div>
-                    </motion.div>
+                    <ProductItem key={prod.docId || prod.id} prod={prod} openEdit={openEdit} handleDelete={handleDelete} />
                 ))}
-                {filtered.length === 0 && (
-                    <div className="py-16 text-center text-slate-400 font-medium">
-                        {products.length === 0 ? 'No products yet. Click "Add Product" to get started.' : 'No products in this category.'}
-                    </div>
-                )}
-            </div>
-        </div >
+            </Reorder.Group>
+        </div>
     );
 };
 
@@ -1368,7 +1451,14 @@ const DashboardOverview = () => {
                 if (idx !== -1) merged[idx] = { ...merged[idx], ...fp, isStatic: false };
                 else merged.push(fp);
             });
-            merged.sort((a, b) => (a.order || 0) - (b.order || 0));
+            merged.sort((a, b) => {
+                const getOrder = (p) => {
+                    if (typeof p.order === 'number') return p.order;
+                    if (p.title?.toLowerCase().includes('rice')) return -1000;
+                    return 0;
+                };
+                return getOrder(a) - getOrder(b);
+            });
             setAllProducts(merged);
             setProdCount(merged.length);
         });

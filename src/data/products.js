@@ -18,6 +18,7 @@ import tripeOmasum from '../assets/baffalo meat/tripe_omasum.png';
 import water1 from '../assets/water/2bd373bf4e9c47df0a817b9638a0eb06.jpg';
 import water2 from '../assets/water/ce394517e738cbb4b992acac7dff0e30.jpg';
 
+
 // Wood Images
 import wood1 from '../assets/wood/WhatsApp Image 2026-02-22 at 5.57.59 PM.jpeg';
 import wood2 from '../assets/wood/WhatsApp Image 2026-02-22 at 5.58.00 PM (1).jpeg';
@@ -72,6 +73,7 @@ export const products = [
     {
         id: 'basmati-rice',
         title: 'Basmati Rice',
+        order: -100,
         category: 'Agro Products',
         categorySlug: 'agro-products',
         image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=1200',
@@ -91,6 +93,7 @@ export const products = [
     {
         id: 'non-basmati-rice',
         title: 'Non-Basmati Rice',
+        order: -99,
         category: 'Agro Products',
         categorySlug: 'agro-products',
         image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&q=80&w=1200',
@@ -102,6 +105,7 @@ export const products = [
     {
         id: 'turmeric',
         title: 'Turmeric',
+        order: 100,
         category: 'Agro Products',
         categorySlug: 'agro-products',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNdGqBLaLcgceHppWww5JoO756aGlRWzVV1Q&s',
@@ -110,6 +114,7 @@ export const products = [
     {
         id: 'black-white-pepper',
         title: 'Black & White Pepper',
+        order: 101,
         category: 'Agro Products',
         categorySlug: 'agro-products',
         image: 'https://images.unsplash.com/photo-1600728255690-edd070021d02?q=80&w=1163&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -118,6 +123,7 @@ export const products = [
     {
         id: 'dry-fruits-nuts',
         title: 'Dry Fruits & Nuts',
+        order: 102,
         category: 'Agro Products',
         categorySlug: 'agro-products',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMsP3T4dVyy3DJv9JOevk9Le_2hRKuS0fNiA&s',
@@ -126,6 +132,7 @@ export const products = [
     {
         id: 'coconut',
         title: 'Coconut',
+        order: 103,
         category: 'Agro Products',
         categorySlug: 'agro-products',
         image: 'https://5.imimg.com/data5/NA/CB/MY-34697231/tender-coconut-500x500.jpg',
@@ -134,6 +141,7 @@ export const products = [
     {
         id: 'pappad-farfar',
         title: 'Pappad & Far Far',
+        order: 104,
         category: 'Agro Products',
         categorySlug: 'agro-products',
         image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=1200',
@@ -142,6 +150,7 @@ export const products = [
     {
         id: 'jaggery',
         title: 'Jaggery',
+        order: 105,
         category: 'Agro Products',
         categorySlug: 'agro-products',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfAaxY5K67vJxy_KqZsvVJJCuGXwDWEpkIsg&s',
@@ -364,3 +373,8 @@ export const products = [
         ]
     }
 ];
+
+
+
+
+

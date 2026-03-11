@@ -8,7 +8,7 @@ import { products as staticProducts, categories as staticCategories } from '../d
 import halalImg from '../assets/halal.png';
 import woodenBg from '../assets/wooden-background.jpg';
 import agriWallBg from '../assets/agri-wall.jpg';
-import waterBg from '../assets/water-bg.jpg';
+import waterBg from '../assets/children-water-bg.png';
 
 import GlobalInquiryButtons from './GlobalInquiryButtons';
 
@@ -138,8 +138,9 @@ const ProductModal = ({ product, onClose }) => {
     );
 };
 
-const ProductCard = ({ product, index, onOpen, themeColor }) => {
+const ProductCard = ({ product, index, onOpen, themeColor, slug }) => {
     const imgSrc = product.imageUrl || product.image;
+    const isBeverage = slug === 'beverages';
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -156,12 +157,12 @@ const ProductCard = ({ product, index, onOpen, themeColor }) => {
                 style={{ backgroundColor: themeColor || '#1e9e54' }}
             />
 
-            <div className="relative h-64 overflow-hidden z-10">
+            <div className={`relative h-64 overflow-hidden z-10 ${isBeverage ? 'bg-slate-50' : 'bg-[#0a0a0a]'}`}>
                 <motion.img
                     src={imgSrc}
                     alt={product.title}
-                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-1000"
-                    whileHover={{ scale: 1.15 }}
+                    className={`w-full h-full ${isBeverage ? 'object-contain p-4' : 'object-cover'} opacity-90 group-hover:opacity-100 transition-all duration-1000`}
+                    whileHover={{ scale: 1.08 }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-700" />
 
@@ -270,7 +271,14 @@ const CategoryPage = () => {
                     else merged.push(fp);
                 });
             }
-            merged.sort((a, b) => (a.order || 0) - (b.order || 0));
+            merged.sort((a, b) => {
+                const getOrder = (p) => {
+                    if (typeof p.order === 'number') return p.order;
+                    if (p.title?.toLowerCase().includes('rice')) return -1000; // Final safety for rice
+                    return 0;
+                };
+                return getOrder(a) - getOrder(b);
+            });
             setCategoryProducts(merged);
             setLoading(false);
         }, () => {
@@ -298,7 +306,7 @@ const CategoryPage = () => {
             </AnimatePresence>
 
             {/* Hero Banner */}
-            <div className={`relative h-[45vh] min-h-[340px] md:h-[50vh] overflow-hidden flex items-end bg-gradient-to-br ${category?.gradient || 'from-slate-900 to-slate-800'}`}>
+            <div className={`relative h-[55vh] min-h-[450px] md:h-[60vh] overflow-hidden flex items-end bg-gradient-to-br ${category?.gradient || 'from-slate-900 to-slate-800'}`}>
                 {category && (
                     <motion.img
                         initial={{ scale: 1.1, opacity: 0 }}
@@ -314,7 +322,7 @@ const CategoryPage = () => {
                 <div className="absolute inset-0 bg-black/20 mix-blend-multiply z-0" />
                 <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-0" />
 
-                <div className="relative z-10 container pb-14 pt-32 px-6">
+                <div className="relative z-10 container pb-20 pt-48 px-6">
                     <motion.div 
                         initial={{ opacity: 0, y: 30 }} 
                         animate={{ opacity: 1, y: 0 }} 
@@ -360,8 +368,11 @@ const CategoryPage = () => {
 
             {/* Products Grid */}
             <section 
-                className="py-24 md:py-40 relative overflow-hidden bg-fixed bg-center bg-cover bg-[#050505]"
-                style={{ backgroundImage: `url(${slug === 'agro-products' ? agriWallBg : slug === 'beverages' ? waterBg : woodenBg})` }}
+                className={`relative overflow-hidden bg-fixed bg-center bg-cover bg-[#050505] py-40 md:py-64 min-h-[100vh]`}
+                style={{ 
+                    backgroundImage: `url(${slug === 'agro-products' ? agriWallBg : slug === 'beverages' ? waterBg : woodenBg})`,
+                    backgroundPosition: 'center 30%'
+                }}
             >
                 {/* Fixed Overlays for Image Clarity */}
                 {slug === 'woodcrafts' ? (
@@ -397,16 +408,7 @@ const CategoryPage = () => {
                                 Explore Our <span style={{ color: category?.color || '#1e9e54' }}>{category?.title}</span>
                             </motion.h2>
                         </div>
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            className="hidden md:block"
-                        >
-                            <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center text-white/20 animate-spin-slow">
-                                <Sparkles size={32} />
-                            </div>
-                        </motion.div>
+
                     </div>
 
                     {loading ? (
@@ -429,6 +431,7 @@ const CategoryPage = () => {
                                     product={product} 
                                     onOpen={setActiveProduct} 
                                     themeColor={category?.color}
+                                    slug={slug}
                                 />
                             ))}
                         </div>

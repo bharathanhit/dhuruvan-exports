@@ -15,7 +15,7 @@ const iconMap = {
     'livestock': Award,
     'beverages': ShoppingBag
 };
-
+  
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -71,7 +71,8 @@ const Navbar = () => {
                 }
             });
 
-            setCategories(merged.filter(c => c.isFeatured));
+            const sorted = merged.filter(c => c.isFeatured).sort((a, b) => (a.order || 0) - (b.order || 0));
+            setCategories(sorted);
         });
         return () => unsubscribe();
     }, []);

@@ -4,6 +4,10 @@ import { X, Send, ArrowLeft, Leaf, Sparkles, TrendingUp, Package } from 'lucide-
 import { Link } from 'react-router-dom';
 import GlobalInquiryButtons from './GlobalInquiryButtons';
 
+
+
+
+
 // Import all wood craft images
 import img1 from '../assets/wood/WhatsApp Image 2026-02-22 at 5.57.59 PM.jpeg';
 import img2 from '../assets/wood/WhatsApp Image 2026-02-22 at 5.58.00 PM (1).jpeg';
