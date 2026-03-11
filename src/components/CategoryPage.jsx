@@ -22,7 +22,6 @@ const ProductModal = ({ product, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 bg-black/60 backdrop-blur-md"
-            onClick={onClose}
         >
             <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 30 }}
@@ -35,9 +34,10 @@ const ProductModal = ({ product, onClose }) => {
                 {/* Close Button Mobile */}
                 <button
                     onClick={onClose}
-                    className="absolute top-6 right-6 z-50 w-10 h-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white md:hidden"
+                    className="absolute top-6 right-6 z-[60] py-2 px-5 bg-white shadow-xl rounded-full flex items-center justify-center gap-2 text-primary border border-slate-100 md:hidden text-[10px] font-black uppercase tracking-widest"
                 >
-                    <X size={20} />
+                    <X size={14} />
+                    CLOSE
                 </button>
 
                 {/* Left Side: Image Area */}
@@ -128,9 +128,10 @@ const ProductModal = ({ product, onClose }) => {
                 {/* Floating Close (Desktop) */}
                 <button
                     onClick={onClose}
-                    className="absolute top-8 right-8 hidden md:flex w-12 h-12 bg-slate-100 hover:bg-slate-200 rounded-full items-center justify-center text-slate-600 hover:text-red-500 transition-all hover:scale-110 hover:rotate-90 z-50 shadow-sm border border-slate-200"
+                    className="absolute top-8 right-8 hidden md:flex items-center gap-3 px-6 py-2.5 bg-slate-100 hover:bg-red-50 rounded-full text-slate-400 hover:text-red-500 transition-all z-50 shadow-sm border border-slate-200 group font-black text-[10px] uppercase tracking-widest"
                 >
-                    <X size={24} strokeWidth={2.5} />
+                    <X size={16} className="group-hover:rotate-90 transition-transform" />
+                    CLOSE
                 </button>
             </motion.div>
         </motion.div>

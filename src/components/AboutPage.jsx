@@ -5,7 +5,7 @@ import GlobalInquiryButtons from './GlobalInquiryButtons';
 
 const AboutPage = () => {
     return (
-        <div className="pt-24 min-h-screen bg-white">
+        <div className="pt-44 min-h-screen bg-white">
             {/* Hero Section - Compact & Premium */}
             <section className="relative py-20 bg-slate-50 overflow-hidden border-b border-slate-100">
                 <div className="container px-6 relative z-10">

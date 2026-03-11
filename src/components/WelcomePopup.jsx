@@ -92,7 +92,6 @@ const WelcomePopup = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-[9999] flex items-center justify-center p-4 backdrop-blur-md bg-primary/40 overflow-y-auto"
-                    onClick={handleClose}
                 >
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -107,9 +106,10 @@ const WelcomePopup = () => {
 
                         <button
                             onClick={handleClose}
-                            className="absolute top-6 right-6 text-slate-300 hover:text-primary transition-colors z-10"
+                            className="absolute top-6 right-8 text-[10px] font-black text-slate-400 hover:text-red-500 uppercase tracking-[0.3em] transition-all flex items-center gap-2 group z-50 py-2 px-4 bg-slate-50 hover:bg-red-50 rounded-full border border-slate-100 hover:border-red-100"
                         >
-                            <X size={24} />
+                            <X size={14} className="group-hover:rotate-90 transition-transform" />
+                            CLOSE
                         </button>
 
                         {!isSubmitted ? (

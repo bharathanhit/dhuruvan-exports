@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { NavHashLink } from 'react-router-hash-link';
 import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin, Youtube, ShieldCheck, ShoppingBag, Info, Zap, MessageSquare, Package, Compass, Truck, Share2, HelpCircle } from 'lucide-react';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { categories as staticCategories } from '../data/products';
 import BixsolPopup from './BixsolPopup';
@@ -20,7 +20,17 @@ const SocialIconMap = {
 const Footer = () => {
     const [socialLinks, setSocialLinks] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
+    const [siteSettings, setSiteSettings] = useState({ email: 'Dhuruvanexports@gmail.com', phone: '+91 99527 77973' });
     const [isBixsolOpen, setIsBixsolOpen] = useState(false);
+
+
+    useEffect(() => {
+        return onSnapshot(doc(db, 'site_settings', 'contact'), (docSnap) => {
+            if (docSnap.exists()) {
+                setSiteSettings(docSnap.data());
+            }
+        });
+    }, []);
 
     useEffect(() => {
         return onSnapshot(query(collection(db, 'social_links')), (snap) => {
@@ -29,19 +39,27 @@ const Footer = () => {
         });
     }, []);
 
-    // Merge static + Firestore categories
+    // Merge static + Firestore categories and filter for featured
     useEffect(() => {
         const q = query(collection(db, 'categories'), orderBy('order', 'asc'));
         return onSnapshot(q, (snap) => {
             const firestoreCats = snap.docs.map(d => ({ docId: d.id, ...d.data(), isFirestore: true }));
             // Start with static, then override/append Firestore ones
-            const merged = staticCategories.map(c => ({ ...c }));
+            // Static ones are considered featured by default
+            const merged = staticCategories.map(c => ({ ...c, isFeatured: true }));
+            
             firestoreCats.forEach(fc => {
                 const idx = merged.findIndex(s => s.slug === fc.slug);
-                if (idx !== -1) merged[idx] = { ...merged[idx], ...fc };
-                else merged.push(fc);
+                if (idx !== -1) {
+                    merged[idx] = { ...merged[idx], ...fc };
+                } else {
+                    merged.push(fc);
+                }
             });
-            setAllCategories(merged);
+
+            // Filter for featured categories only
+            const featured = merged.filter(c => c.isFeatured);
+            setAllCategories(featured);
         });
     }, []);
 
@@ -58,9 +76,9 @@ const Footer = () => {
     return (
         <footer className="bg-white pt-24 pb-16 overflow-hidden relative text-primary border-t border-slate-100">
             <div className="container px-6 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 lg:gap-12 mb-20 pb-20 border-b border-slate-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-y-16 lg:gap-x-12 mb-20 pb-20 border-b border-slate-100 items-start">
                     {/* Brand Section */}
-                    <div className="lg:col-span-2 flex flex-col gap-8">
+                    <div className="lg:col-span-4 flex flex-col gap-8">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -79,7 +97,7 @@ const Footer = () => {
                         >
                             A government registered premier merchant export house. We bridge Indian quality with global markets through excellence, transparency, and reliable logistics.
                         </motion.p>
-                        <div className="flex gap-5">
+                        <div className="flex gap-4">
                             {socialLinks.length > 0 && socialLinks.map((link) => {
                                 const Icon = SocialIconMap[link.platform] || Share2;
                                 return (
@@ -89,9 +107,9 @@ const Footer = () => {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         whileHover={{ scale: 1.1, backgroundColor: 'var(--color-primary)', color: 'white' }}
-                                        className="w-12 h-12 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary transition-all duration-300 shadow-sm backdrop-blur-sm"
+                                        className="w-11 h-11 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary transition-all duration-300 shadow-sm backdrop-blur-sm"
                                     >
-                                        <Icon size={22} />
+                                        <Icon size={20} />
                                     </motion.a>
                                 );
                             })}
@@ -104,7 +122,7 @@ const Footer = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.2 }}
-                        className="flex flex-col gap-8"
+                        className="lg:col-span-2 flex flex-col gap-8"
                     >
                         <h4 className="text-secondary text-xs font-black uppercase tracking-[0.4em] flex items-center gap-3">
                             <Compass size={16} />
@@ -130,7 +148,7 @@ const Footer = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.3 }}
-                        className="flex flex-col gap-8"
+                        className="lg:col-span-2 flex flex-col gap-8"
                     >
                         <h4 className="text-secondary text-xs font-black uppercase tracking-[0.4em] flex items-center gap-3">
                             <ShoppingBag size={16} />
@@ -157,25 +175,31 @@ const Footer = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.4 }}
-                        className="flex flex-col gap-8"
+                        className="lg:col-span-4 flex flex-col gap-8"
                     >
                         <h4 className="text-secondary text-xs font-black uppercase tracking-[0.4em] flex items-center gap-3">
                             <MessageSquare size={16} />
                             Connect
                         </h4>
-                        <div className="flex flex-col gap-6">
-                            <a href="mailto:Dhuruvanexports@gmail.com" className="flex gap-4 items-center group cursor-pointer bg-primary/5 p-4 rounded-2xl border border-primary/10 hover:bg-white hover:shadow-xl hover:border-secondary transition-all">
-                                <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shadow-lg shadow-secondary/5 transition-all group-hover:bg-secondary group-hover:text-white">
-                                    <Mail size={18} />
+                        <div className="flex flex-col gap-4 max-w-sm ml-auto lg:ml-0">
+                            <a href={`mailto:${siteSettings.email}`} className="flex gap-4 items-center group cursor-pointer bg-slate-50 p-4 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-2xl hover:border-secondary transition-all overflow-hidden">
+                                <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0 group-hover:bg-secondary group-hover:text-white transition-all">
+                                    <Mail size={20} />
                                 </div>
-                                <span className="text-primary font-bold text-sm truncate uppercase tracking-tight">Dhuruvanexports @gmail.com</span>
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Official Email</span>
+                                    <span className="text-primary font-black text-xs md:text-sm lg:text-base uppercase tracking-tight break-all">{siteSettings.email}</span>
+                                </div>
                             </a>
-                            <div className="flex gap-4 items-center group cursor-pointer bg-primary/5 p-4 rounded-2xl border border-primary/10 hover:bg-white hover:shadow-xl hover:border-secondary transition-all">
-                                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-lg shadow-blue-500/5 transition-all group-hover:bg-blue-600 group-hover:text-white">
-                                    <Phone size={18} />
+                            <a href={`tel:${siteSettings.phone.replace(/\s+/g, '')}`} className="flex gap-4 items-center group cursor-pointer bg-slate-50 p-4 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-2xl hover:border-secondary transition-all">
+                                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                    <Phone size={20} />
                                 </div>
-                                <span className="text-primary font-bold text-sm md:text-lg whitespace-nowrap tracking-tight">+91 99527 77973</span>
-                            </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Direct Line</span>
+                                    <span className="text-primary font-black text-xs md:text-sm lg:text-base whitespace-nowrap tracking-tight">{siteSettings.phone}</span>
+                                </div>
+                            </a>
                         </div>
                     </motion.div>
                 </div>

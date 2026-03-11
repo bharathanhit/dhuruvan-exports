@@ -36,10 +36,10 @@ const BixsolPopup = ({ isOpen, onClose }) => {
                         <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-4 sm:p-6 text-white relative">
                             <button
                                 onClick={onClose}
-                                className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1 hover:bg-white/20 rounded-full transition-colors"
+                                className="absolute top-4 right-6 py-1.5 px-4 bg-white/20 hover:bg-white/40 rounded-full transition-all flex items-center gap-2 group border border-white/20 text-[10px] font-black uppercase tracking-widest"
                             >
-                                <X size={20} className="sm:hidden" />
-                                <X size={24} className="hidden sm:block" />
+                                <X size={14} className="group-hover:rotate-90 transition-transform" />
+                                CLOSE
                             </button>
                             <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
                                 <div className="p-1.5 sm:p-2 bg-white/20 rounded-xl">

@@ -226,7 +226,7 @@ const Certificates = () => {
     const certificates = staticCertificates;
 
     return (
-        <div className="pt-32 pb-40 min-h-screen bg-[#f8fafc] select-none overflow-x-hidden relative">
+        <div className="pt-40 pb-40 min-h-screen bg-[#f8fafc] select-none overflow-x-hidden relative">
             {/* Background Decorative Gradient */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] bg-gradient-to-b from-secondary/[0.07] to-transparent pointer-events-none" />
 

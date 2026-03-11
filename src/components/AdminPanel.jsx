@@ -14,10 +14,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { categories as staticCategories, products as staticProducts } from '../data/products';
-
 const ADMIN_PASSWORD = 'dhuruvan2026';
 const slugify = (str) => str.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
 const resizeImage = (file, maxWidth = 800) => {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -176,51 +174,43 @@ const ImageUploader = ({ value, onChange, label = "Image" }) => {
         const file = e.target.files[0];
         if (!file) return;
         setIsProcessing(true);
-        const dataUrl = await resizeImage(file);
-        onChange({ target: { value: dataUrl } });
+        try {
+            const dataUrl = await resizeImage(file, 1200); // Higher quality for main images
+            onChange({ target: { value: dataUrl } });
+        } catch (err) {
+            console.error(err);
+            alert("Failed to process image");
+        }
         setIsProcessing(false);
     };
 
     return (
         <Field label={label}>
             <div className="space-y-4">
-                <div className="flex flex-col gap-3">
-                    <div className="relative group overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-6 transition-all hover:border-secondary/50 hover:bg-white text-center">
-                        <input type="file" accept="image/*" onChange={handleFile}
-                            className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                        <div className="flex flex-col items-center gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-400 group-hover:text-secondary group-hover:scale-110 transition-all">
-                                {isProcessing ? <div className="w-5 h-5 border-2 border-secondary/20 border-t-secondary rounded-full animate-spin" /> : <Plus size={24} />}
-                            </div>
-                            <div>
-                                <p className="text-xs font-black text-slate-700 uppercase tracking-widest">Click to select file</p>
-                                <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-tight">Auto-resizes for Firestore optimization</p>
-                            </div>
+                <div className="relative group overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] p-8 transition-all hover:border-secondary hover:bg-white text-center cursor-pointer">
+                    <input type="file" accept="image/*" onChange={handleFile}
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="w-16 h-16 rounded-[1.5rem] bg-white shadow-sm flex items-center justify-center text-slate-400 group-hover:text-secondary group-hover:scale-110 transition-all border border-slate-100">
+                            {isProcessing ? <div className="w-6 h-6 border-2 border-secondary/20 border-t-secondary rounded-full animate-spin" /> : <UploadCloud size={30} />}
                         </div>
-                    </div>
-                </div>
-
-                <div className="relative">
-                    <div className="flex items-center gap-4 py-2 opacity-50"><div className="h-px flex-1 bg-slate-200"></div><span className="text-[10px] font-black font-mono">OR PASTE URL</span><div className="h-px flex-1 bg-slate-200"></div></div>
-                    <div className="flex items-center border border-slate-200 rounded-2xl overflow-hidden focus-within:border-secondary transition-all">
-                        <div className="px-3 py-3 bg-slate-50 border-r border-slate-200"><Link size={16} className="text-slate-400" /></div>
-                        <input value={value && !value.startsWith('data:') ? value : ''}
-                            onChange={onChange} placeholder="https://unsplash.com/..."
-                            className="flex-1 px-4 py-3 text-sm font-medium outline-none bg-white" />
+                        <div>
+                            <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Upload from Device</p>
+                            <p className="text-[9px] text-slate-400 mt-1 uppercase font-bold tracking-tight">Optimized for high-speed delivery</p>
+                        </div>
                     </div>
                 </div>
 
                 {value && (
-                    <div className="relative h-44 rounded-[2rem] overflow-hidden border-4 border-white shadow-xl">
-                        <img src={value} alt="Preview" className="w-full h-full object-cover"
-                            onError={(e) => { e.target.parentElement.style.display = 'none'; }} />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-                        <div className="absolute top-4 right-4 bg-secondary text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1 shadow-lg">
-                            <Check size={10} /> Active Image
+                    <div className="relative h-56 rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl group/prev">
+                        <img src={value} alt="Preview" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/20 group-hover/prev:bg-black/40 transition-all" />
+                        <div className="absolute top-4 right-4 bg-secondary text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-2">
+                             <Check size={12} /> Live Preview
                         </div>
-                        <button onClick={() => onChange({ target: { value: '' } })}
-                            className="absolute bottom-4 left-4 p-2 bg-white/20 backdrop-blur-md rounded-xl text-white hover:bg-white hover:text-red-500 transition-all">
-                            <Trash2 size={16} />
+                        <button onClick={() => onChange({ target: { value: '' } })} 
+                            className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2.5 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl opacity-0 group-hover/prev:opacity-100 translate-y-4 group-hover/prev:translate-y-0 transition-all">
+                            Remove & Replace
                         </button>
                     </div>
                 )}
@@ -549,14 +539,15 @@ const CategoryManager = () => {
     const [categories, setCategories] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ title: '', description: '', imageUrl: '', color: '#16a34a' });
+    const [form, setForm] = useState({ title: '', description: '', imageUrl: '', color: '#16a34a', isFeatured: true });
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const q = query(collection(db, 'categories'), orderBy('order', 'asc'));
         return onSnapshot(q, (snap) => {
             const firestoreCats = snap.docs.map(d => ({ docId: d.id, ...d.data(), isFirestore: true }));
-            const merged = staticCategories.map(c => ({ ...c, isStatic: true }));
+            // Static ones are considered featured by default
+            const merged = staticCategories.map(c => ({ ...c, isStatic: true, isFeatured: true }));
 
             firestoreCats.forEach(fc => {
                 const idx = merged.findIndex(s => s.slug === fc.slug);
@@ -571,18 +562,21 @@ const CategoryManager = () => {
         });
     }, []);
 
-    const reset = () => { setForm({ title: '', description: '', imageUrl: '', color: '#16a34a' }); setEditing(null); };
+    const reset = () => { setForm({ title: '', description: '', imageUrl: '', color: '#16a34a', isFeatured: true }); setEditing(null); };
 
     const handleSave = async () => {
         if (!form.title) return;
         setSaving(true);
+        const rawOrder = typeof editing?.order === 'number' ? editing.order : (categories?.length || 0);
+        const safeOrder = parseInt(rawOrder);
         const payload = {
             title: form.title,
             slug: slugify(form.title),
-            description: form.description,
-            imageUrl: form.imageUrl,
-            color: form.color,
-            order: editing ? editing.order : categories.length,
+            description: form.description || '',
+            imageUrl: form.imageUrl || '',
+            color: form.color || '#16a34a',
+            isFeatured: !!form.isFeatured,
+            order: isNaN(safeOrder) ? 0 : safeOrder,
             updatedAt: serverTimestamp()
         };
         try {
@@ -614,7 +608,8 @@ const CategoryManager = () => {
             title: cat.title,
             description: cat.description || '',
             imageUrl: cat.imageUrl || cat.image || '',
-            color: cat.color || '#16a34a'
+            color: cat.color || '#16a34a',
+            isFeatured: !!cat.isFeatured
         });
         setShowForm(true);
     };
@@ -650,6 +645,13 @@ const CategoryManager = () => {
                                 <span className="text-sm font-mono text-slate-500">{form.color}</span>
                             </div>
                         </Field>
+                        <div className="flex items-center gap-3 py-2">
+                             <button type="button" onClick={() => setForm(f => ({ ...f, isFeatured: !f.isFeatured }))}
+                                 className={`w-10 h-6 rounded-full transition-all flex-shrink-0 ${form.isFeatured ? 'bg-secondary' : 'bg-slate-200'}`}>
+                                 <div className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform ${form.isFeatured ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                             </button>
+                             <label className="text-sm font-black text-slate-600">Feature in Navbar & Footer</label>
+                         </div>
                         <ImageUploader label="Category Banner Image" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} />
                     </Modal>
                 )}
@@ -660,13 +662,14 @@ const CategoryManager = () => {
                     <motion.div key={cat.slug} layout
                         className="flex items-center gap-4 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
                         <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
-                            {cat.imageUrl && <img src={cat.imageUrl} alt={cat.title} className="w-full h-full object-cover" />}
+                            {(cat.imageUrl || cat.image) && <img src={cat.imageUrl || cat.image} alt={cat.title} className="w-full h-full object-cover" />}
                         </div>
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                                 <h4 className="font-black text-slate-900 truncate">{cat.title}</h4>
                                 {cat.isStatic && <span className="text-[8px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-slate-200">Static</span>}
                                 {cat.isFirestore && <span className="text-[8px] font-black bg-secondary/10 text-secondary px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-secondary/20">Live</span>}
+                                {cat.isFeatured && <span className="text-[8px] font-black bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-amber-200">Featured</span>}
                             </div>
                             <p className="text-xs text-slate-400 truncate font-medium">{cat.description}</p>
                             <div className="flex items-center gap-1.5 mt-1">
@@ -714,7 +717,7 @@ const ProductManager = () => {
         specifications: [{ label: '', value: '' }],
         benefits: [''],
         varieties: [{ title: '', desc: '', imageUrl: '' }]
-    });
+    });  
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -773,25 +776,27 @@ const ProductManager = () => {
     const handleSave = async () => {
         if (!form.title || !form.categorySlug) return;
         setSaving(true);
+        const rawOrder = typeof editing?.order === 'number' ? editing.order : (products?.length || 0);
+        const safeOrder = Number(rawOrder); // Use Number() for robustness
         const payload = {
             title: form.title,
             id: slugify(form.title),
-            description: form.description,
-            longDescription: form.longDescription,
-            category: form.category,
-            categorySlug: form.categorySlug,
-            isHalal: form.isHalal,
-            imageUrl: form.imageUrl,
-            status: form.status,
-            badgeNote: form.badgeNote,
-            specifications: form.specifications.filter(s => s.label && s.value),
-            benefits: form.benefits.filter(b => b.trim()),
-            varieties: form.varieties.filter(v => v.title).map(v => ({
+            description: form.description || '',
+            longDescription: form.longDescription || '',
+            category: form.category || 'Uncategorized',
+            categorySlug: form.categorySlug || '',
+            isHalal: !!form.isHalal,
+            imageUrl: form.imageUrl || '',
+            status: form.status || 'Ready for Export',
+            badgeNote: form.badgeNote || 'Premium Selection',
+            specifications: (form.specifications || []).filter(s => s.label && s.value),
+            benefits: (form.benefits || []).filter(b => b && b.trim()),
+            varieties: (form.varieties || []).filter(v => v.title).map(v => ({
                 title: v.title,
-                desc: v.desc,
-                img: v.imageUrl // Map internal imageUrl to 'img' for compatibility with detail page
+                desc: v.desc || '',
+                img: v.imageUrl || '' 
             })),
-            order: editing ? editing.order : products.length,
+            order: isNaN(safeOrder) ? 0 : safeOrder, // Check if it's a valid number
             updatedAt: serverTimestamp()
         };
         try {
@@ -970,39 +975,47 @@ const ProductManager = () => {
                                                 newV[idx].desc = e.target.value;
                                                 setForm({ ...form, varieties: newV });
                                             }} placeholder="Short Description..." className="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium outline-none" />
-                                            <input value={v.imageUrl} onChange={e => {
-                                                const newV = [...form.varieties];
-                                                newV[idx].imageUrl = e.target.value;
-                                                setForm({ ...form, varieties: newV });
-                                            }} placeholder="Variety Image URL..." className="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium outline-none mb-4" />
-                                            {v.imageUrl && <div className="h-20 w-full rounded-xl overflow-hidden border border-slate-200"><img src={v.imageUrl} className="w-full h-full object-cover" /></div>}
                                             <div className="relative mt-2">
-                                                <input type="file" accept="image/*" onChange={async (e) => {
-                                                    const file = e.target.files[0];
-                                                    if (!file) return;
-                                                    const dataUrl = await resizeImage(file, 400); // Varieties can be smaller
-                                                    const newV = [...form.varieties];
-                                                    newV[idx].imageUrl = dataUrl;
-                                                    setForm({ ...form, varieties: newV });
-                                                }} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                                <button type="button" className="w-full py-2 bg-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-200">Or Click to Pick File</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                                <button onClick={() => setForm({ ...form, varieties: [...form.varieties, { title: '', desc: '', imageUrl: '' }] })}
-                                    className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1">+ Add Variety</button>
+                                                 <input type="file" accept="image/*" onChange={async (e) => {
+                                                     const file = e.target.files[0];
+                                                     if (!file) return;
+                                                     const dataUrl = await resizeImage(file, 600); // Varieties can be smaller
+                                                     const newV = [...form.varieties];
+                                                     newV[idx].imageUrl = dataUrl;
+                                                     setForm({ ...form, varieties: newV });
+                                                 }} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                                 <button type="button" className="w-full py-3 bg-secondary/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-secondary hover:bg-secondary/10 border border-secondary/10 flex items-center justify-center gap-2">
+                                                     <UploadCloud size={14} /> {v.imageUrl ? 'Change Variety Image' : 'Add Variety Image'}
+                                                 </button>
+                                             </div>
+                                             {v.imageUrl && (
+                                                 <div className="h-24 w-full rounded-xl overflow-hidden border border-slate-200 mt-2 relative group/var">
+                                                     <img src={v.imageUrl} className="w-full h-full object-cover" />
+                                                     <button onClick={() => {
+                                                         const newV = [...form.varieties];
+                                                         newV[idx].imageUrl = '';
+                                                         setForm({ ...form, varieties: newV });
+                                                     }} className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover/var:opacity-100 transition-all">
+                                                         <X size={12} />
+                                                     </button>
+                                                 </div>
+                                             )}
+                                         </div>
+                                     </div>
+                                 ))}
+                                 <button onClick={() => setForm({ ...form, varieties: [...form.varieties, { title: '', desc: '', imageUrl: '' }] })}
+                                     className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1 group/btn"><Plus size={14} className="group-hover/btn:rotate-90 transition-transform"/> Add Variety Item</button>
                             </div>
                         </Field>
 
                         <div className="flex items-center gap-3">
-                            <button type="button" onClick={() => setForm(f => ({ ...f, isHalal: !f.isHalal }))}
-                                className={`w-10 h-6 rounded-full transition-all flex-shrink-0 ${form.isHalal ? 'bg-secondary' : 'bg-slate-200'}`}>
-                                <div className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform ${form.isHalal ? 'translate-x-4' : 'translate-x-0.5'}`} />
-                            </button>
-                            <label className="text-sm font-black text-slate-600">Halal Certified</label>
-                        </div>
-                        <ImageUploader label="Main Product Hero Image" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} />
+                             <button type="button" onClick={() => setForm(f => ({ ...f, isHalal: !f.isHalal }))}
+                                 className={`w-10 h-6 rounded-full transition-all flex-shrink-0 ${form.isHalal ? 'bg-secondary' : 'bg-slate-200'}`}>
+                                 <div className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform ${form.isHalal ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                             </button>
+                             <label className="text-sm font-black text-slate-600">Halal Certified</label>
+                         </div>
+                         <ImageUploader label="Main Product Hero Image" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} />
                     </Modal>
                 )
                 }
@@ -1229,25 +1242,6 @@ const CertificateManager = () => {
                                 )}
                             </div>
 
-                            {/* Or paste URL */}
-                            <div className="flex gap-3">
-                                <div className="flex-1 flex items-center border border-slate-200 rounded-xl overflow-hidden focus-within:border-secondary transition-all">
-                                    <div className="px-3 py-3 bg-slate-50 border-r border-slate-200"><Link size={14} className="text-slate-400" /></div>
-                                    <input
-                                        value={pageUrl}
-                                        onChange={e => setPageUrl(e.target.value)}
-                                        onKeyDown={e => e.key === 'Enter' && addPageUrl()}
-                                        placeholder="Or paste image URL and press Add"
-                                        className="flex-1 px-4 py-3 text-sm font-medium outline-none bg-white"
-                                    />
-                                </div>
-                                <button
-                                    onClick={addPageUrl}
-                                    className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-secondary hover:text-white transition-all"
-                                >
-                                    Add
-                                </button>
-                            </div>
 
                             {/* Pages preview grid */}
                             {pages.length > 0 && (
@@ -1485,7 +1479,6 @@ const Dashboard = ({ onLogout }) => {
         { id: 'inquiries', label: 'Inquiries', icon: Mail },
         { id: 'appointments', label: 'Call Bookings', icon: Calendar },
         { id: 'certificates', label: 'Certificates', icon: Award },
-
     ];
     return (
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-10 md:py-14">
@@ -1559,3 +1552,10 @@ const AdminPanel = () => {
 };
 
 export default AdminPanel;
+
+
+
+
+
+
+

@@ -5,11 +5,22 @@ import { NavHashLink } from 'react-router-hash-link';
 import { Link, useLocation } from 'react-router-dom';
 import logoImg from '../assets/logo.png';
 import logoTextImg from '../assets/logo-text.png';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from '../firebase';
+import { categories as staticCategories } from '../data/products';
+
+const iconMap = {
+    'agro-products': Leaf,
+    'woodcrafts': Package,
+    'livestock': Award,
+    'beverages': ShoppingBag
+};
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrollProgress, setScrollProgress] = useState(0);
+    const [categories, setCategories] = useState([]);
     const location = useLocation();
 
     useEffect(() => {
@@ -24,6 +35,47 @@ const Navbar = () => {
 
     useEffect(() => { setIsMenuOpen(false); }, [location]);
 
+    useEffect(() => {
+        const q = query(collection(db, 'categories'), orderBy('order', 'asc'));
+        const unsubscribe = onSnapshot(q, (snap) => {
+            const firestoreCats = snap.docs.map(d => ({ docId: d.id, ...d.data(), isFirestore: true }));
+            
+            const merged = staticCategories.map(c => ({
+                ...c,
+                name: c.title,
+                desc: c.description,
+                icon: iconMap[c.slug] || Package,
+                isFeatured: true, // Default featured
+                isStatic: true
+            }));
+
+            firestoreCats.forEach(fc => {
+                const idx = merged.findIndex(s => s.slug === fc.slug);
+                if (idx !== -1) {
+                    merged[idx] = { 
+                        ...merged[idx], 
+                        ...fc, 
+                        name: fc.title, 
+                        desc: fc.description,
+                        icon: iconMap[fc.slug] || Package,
+                        isStatic: false 
+                    };
+                } else {
+                    merged.push({
+                        ...fc,
+                        name: fc.title,
+                        desc: fc.description,
+                        icon: iconMap[fc.slug] || Package,
+                        isStatic: false
+                    });
+                }
+            });
+
+            setCategories(merged.filter(c => c.isFeatured));
+        });
+        return () => unsubscribe();
+    }, []);
+
     const navLinks = [
         { name: 'Home', href: '/#' },
         { name: 'Services', href: '/services' },
@@ -31,13 +83,6 @@ const Navbar = () => {
         { name: 'Payments', href: '/payment-terms' },
         { name: 'About', href: '/about' },
         { name: 'FAQ', href: '/faq' },
-    ];
-
-    const productCategories = [
-        { name: 'Agro Products', slug: 'agro-products', icon: Leaf, desc: 'Premium Grains & Spices' },
-        { name: 'Woodcrafts', slug: 'woodcrafts', icon: Package, desc: 'Artisanal Furniture' },
-        { name: 'Livestock', slug: 'livestock', icon: Award, desc: 'Halal Certified Meat' },
-        { name: 'Beverages', slug: 'beverages', icon: ShoppingBag, desc: 'Purified Mineral Water' },
     ];
 
     const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
@@ -91,7 +136,7 @@ const Navbar = () => {
                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                     className="absolute top-full -left-10 w-[240px] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden p-2"
                                 >
-                                    {productCategories.map((cat) => (
+                                    {categories.map((cat) => (
                                         <Link
                                             key={cat.slug}
                                             to={`/category/${cat.slug}`}
@@ -100,9 +145,8 @@ const Navbar = () => {
                                             <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary group-hover/item:bg-primary group-hover/item:text-white transition-all">
                                                 <cat.icon size={14} />
                                             </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-slate-900 uppercase tracking-tighter group-hover/item:text-secondary transition-colors">{cat.name}</p>
-                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">{cat.desc}</p>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-[10px] font-black text-slate-900 uppercase tracking-tight group-hover/item:text-secondary transition-colors">{cat.name}</p>
                                             </div>
                                         </Link>
                                     ))}
@@ -193,7 +237,7 @@ const Navbar = () => {
                                             exit={{ height: 0, opacity: 0 }}
                                             className="overflow-hidden bg-slate-50/50"
                                         >
-                                            {productCategories.map(cat => (
+                                            {categories.map(cat => (
                                                 <Link
                                                     key={cat.slug}
                                                     to={`/category/${cat.slug}`}

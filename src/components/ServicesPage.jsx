@@ -443,7 +443,7 @@ const ServicesPage = () => {
     }, []);
 
     return (
-        <div className="pt-24 min-h-screen bg-white">
+        <div className="pt-44 min-h-screen bg-white">
 
             {/* Private Label Packaging - Deep Dive (Premium Split Layout) */}
             <section className="py-24 md:py-32 bg-white relative overflow-hidden">

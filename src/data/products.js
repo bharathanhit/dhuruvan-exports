@@ -8,6 +8,11 @@ import nonBasmati1 from '../assets/non pasmati/26864a111cb62d87147528c71d8a6ff1.
 
 // Meat Images
 import buffalo1 from '../assets/baffalo meat/6c0071e78766afe56c65f019f30ab2a6.jpg';
+import buffaloTongue from '../assets/baffalo meat/buffalo_tongue.png';
+import buffaloTail from '../assets/baffalo meat/buffalo_tail.png';
+import chuckTender from '../assets/baffalo meat/chuck_tender.png';
+import thickFlank from '../assets/baffalo meat/thick_flank.png';
+import tripeOmasum from '../assets/baffalo meat/tripe_omasum.png';
 
 // Water Images
 import water1 from '../assets/water/2bd373bf4e9c47df0a817b9638a0eb06.jpg';
@@ -160,6 +165,82 @@ export const products = [
         ],
         varieties: [
             { title: 'Premium Boneless Cuts', desc: 'Selected lean cuts processed under strict Halal standards.', img: buffalo1 }
+        ]
+    },
+    {
+        id: 'frozen-buffalo-tongue',
+        title: 'Frozen Buffalo Tongue',
+        category: 'Livestock',
+        categorySlug: 'livestock',
+        image: buffaloTongue,
+        description: 'Premium salted and frozen buffalo tongue.',
+        badgeNote: 'Export Quality',
+        isHalal: true,
+        specifications: [
+            { label: 'Type', value: 'Frozen' },
+            { label: 'Processing', value: 'Salted/Natural' },
+            { label: 'Certification', value: 'Halal Certified' }
+        ]
+    },
+    {
+        id: 'frozen-buffalo-tail',
+        title: 'Frozen Buffalo Tail',
+        category: 'Livestock',
+        categorySlug: 'livestock',
+        image: buffaloTail,
+        description: 'Choice frozen buffalo tail, perfectly trimmed.',
+        badgeNote: 'Rich Flavor',
+        isHalal: true,
+        specifications: [
+            { label: 'Type', value: 'Frozen' },
+            { label: 'Cut', value: 'Oxtail/Buffalo Tail' },
+            { label: 'Certification', value: 'Halal Certified' }
+        ]
+    },
+    {
+        id: 'frozen-chuck-tender',
+        title: 'Frozen Buffalo Chuck Tender',
+        category: 'Livestock',
+        categorySlug: 'livestock',
+        image: chuckTender,
+        description: 'Lean and tender frozen buffalo chuck tender.',
+        badgeNote: 'Premium Cut',
+        isHalal: true,
+        specifications: [
+            { label: 'Type', value: 'Frozen' },
+            { label: 'Cut', value: 'Chuck Tender' },
+            { label: 'Certification', value: 'Halal Certified' }
+        ]
+    },
+    {
+        id: 'frozen-thick-flank',
+        title: 'Frozen Buffalo Thick Flank',
+        category: 'Livestock',
+        categorySlug: 'livestock',
+        image: thickFlank,
+        description: 'High-quality frozen buffalo thick flank.',
+        badgeNote: 'High Protein',
+        isHalal: true,
+        specifications: [
+            { label: 'Type', value: 'Frozen' },
+            { label: 'Cut', value: 'Thick Flank' },
+            { label: 'Certification', value: 'Halal Certified' }
+        ]
+    },
+    {
+        id: 'frozen-tripe-omasum',
+        title: 'Frozen Buffalo Tripe/Omasum',
+        category: 'Livestock',
+        categorySlug: 'livestock',
+        image: tripeOmasum,
+        description: 'Cleaned and frozen buffalo tripe and omasum.',
+        badgeNote: 'Cleaned & Frozen',
+        isHalal: true,
+        specifications: [
+            { label: 'Type', value: 'Frozen' },
+            { label: 'Parts', value: 'Tripe / Omasum' },
+            { label: 'Processing', value: 'Thoroughly Cleaned' },
+            { label: 'Certification', value: 'Halal Certified' }
         ]
     },
     {
