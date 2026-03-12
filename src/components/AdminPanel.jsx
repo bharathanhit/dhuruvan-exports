@@ -661,12 +661,25 @@ const CategoryManager = () => {
             const batch = writeBatch(db);
             let changes = false;
             categories.forEach((cat, i) => {
-                if (cat.isFirestore && cat.docId && cat.order !== i) {
-                    batch.update(doc(db, 'categories', cat.docId), { 
-                        order: i, 
-                        updatedAt: serverTimestamp() 
-                    });
-                    changes = true;
+                if (cat.order !== i) {
+                    if (cat.isFirestore && cat.docId) {
+                        batch.update(doc(db, 'categories', cat.docId), { 
+                            order: i, 
+                            updatedAt: serverTimestamp() 
+                        });
+                        changes = true;
+                    } else {
+                        // Thin promotion for static items
+                        const newRef = doc(collection(db, 'categories'));
+                        batch.set(newRef, {
+                            title: cat.title,
+                            slug: cat.slug,
+                            order: i,
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
+                        });
+                        changes = true;
+                    }
                 }
             });
             if (changes) await batch.commit();
@@ -823,6 +836,8 @@ const ProductManager = () => {
         status: 'Ready for Export',
         badgeNote: 'Premium Selection',
         specifications: [{ label: '', value: '' }],
+        types: [''],
+        minimumOrder: '',
         benefits: [''],
         varieties: [],
         order: 0
@@ -884,6 +899,8 @@ const ProductManager = () => {
             status: 'Ready for Export',
             badgeNote: 'Premium Selection',
             specifications: [{ label: '', value: '' }],
+            types: [''],
+            minimumOrder: '',
             benefits: [''],
             varieties: [],
             order: 0
@@ -907,13 +924,15 @@ const ProductManager = () => {
             status: form.status || 'Ready for Export',
             badgeNote: form.badgeNote || 'Premium Selection',
             specifications: (form.specifications || []).filter(s => s.label && s.value),
+            types: (form.types || []).filter(t => t && t.trim()),
+            minimumOrder: form.minimumOrder || '',
             benefits: (form.benefits || []).filter(b => b && b.trim()),
             varieties: (form.varieties || []).filter(v => v.title).map(v => ({
                 title: v.title,
                 desc: v.desc || '',
                 img: v.imageUrl || '' 
             })),
-            order: isNaN(safeOrder) ? 0 : safeOrder, // Check if it's a valid number
+            order: isNaN(safeOrder) ? 0 : safeOrder,
             updatedAt: serverTimestamp()
         };
         try {
@@ -953,6 +972,8 @@ const ProductManager = () => {
             status: prod.status || 'Ready for Export',
             badgeNote: prod.badgeNote || 'Premium Selection',
             specifications: prod.specifications && prod.specifications.length ? prod.specifications : [{ label: '', value: '' }],
+            types: prod.types && prod.types.length ? prod.types : [''],
+            minimumOrder: prod.minimumOrder || '',
             benefits: prod.benefits && prod.benefits.length ? prod.benefits : [''],
             varieties: prod.varieties && prod.varieties.length ? prod.varieties.map(v => ({
                 title: v.title,
@@ -969,8 +990,14 @@ const ProductManager = () => {
         if (filterCat === 'all') {
             updatedFull = reorderedSub;
         } else {
-            const others = products.filter(p => p.categorySlug !== filterCat);
-            updatedFull = [...reorderedSub, ...others];
+            // Keep the non-filtered items in their original absolute positions where possible
+            updatedFull = [...products];
+            let subIndex = 0;
+            for (let i = 0; i < updatedFull.length; i++) {
+                if (updatedFull[i].categorySlug === filterCat) {
+                    updatedFull[i] = reorderedSub[subIndex++];
+                }
+            }
         }
         setProducts(updatedFull);
         setReordering(true);
@@ -983,13 +1010,26 @@ const ProductManager = () => {
             const batch = writeBatch(db);
             let changes = false;
             products.forEach((prod, i) => {
-                // Ensure we only update items that actually exist in firestore
-                if (prod.isFirestore && prod.docId && prod.order !== i) {
-                    batch.update(doc(db, 'products', prod.docId), { 
-                        order: i, 
-                        updatedAt: serverTimestamp() 
-                    });
-                    changes = true;
+                if (prod.order !== i) {
+                    if (prod.isFirestore && prod.docId) {
+                        batch.update(doc(db, 'products', prod.docId), { 
+                            order: i, 
+                            updatedAt: serverTimestamp() 
+                        });
+                        changes = true;
+                    } else {
+                        // Thin promotion to save order to Firestore while keeping rest static
+                        const newRef = doc(collection(db, 'products'));
+                        batch.set(newRef, {
+                            title: prod.title,
+                            id: prod.id || slugify(prod.title),
+                            categorySlug: prod.categorySlug,
+                            order: i,
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
+                        });
+                        changes = true;
+                    }
                 }
             });
             if (changes) await batch.commit();
@@ -1098,6 +1138,37 @@ const ProductManager = () => {
                                 <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Lower numbers appear first (e.g. -100 pins to top)</p>
                             </Field>
                         </div>
+
+                        <Field label="Minimum Order Quantity">
+                            <TextInput 
+                                value={form.minimumOrder} 
+                                onChange={e => setForm(f => ({ ...f, minimumOrder: e.target.value }))} 
+                                placeholder="e.g. 1 Metric Ton, 500 kg, 20 FCL" 
+                            />
+                            <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Displayed prominently on the product detail page</p>
+                        </Field>
+
+                        <Field label="Available Types / Variants">
+                            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 mb-3">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight italic">📦 e.g. Frozen, Fresh, Chilled, Boneless, Bone-In, Salted, Natural</p>
+                            </div>
+                            <div className="space-y-3">
+                                {form.types.map((type, idx) => (
+                                    <div key={idx} className="flex gap-2">
+                                        <input value={type} onChange={e => {
+                                            const newTypes = [...form.types];
+                                            newTypes[idx] = e.target.value;
+                                            setForm(f => ({ ...f, types: newTypes }));
+                                        }} placeholder="e.g. Frozen Boneless" className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:border-secondary transition-all" />
+                                        <button onClick={() => {
+                                            const newTypes = form.types.filter((_, i) => i !== idx);
+                                            setForm(f => ({ ...f, types: newTypes.length ? newTypes : [''] }));
+                                        }} className="p-2 text-red-400 hover:text-red-500"><Trash2 size={16} /></button>
+                                    </div>
+                                ))}
+                                <button onClick={() => setForm(f => ({ ...f, types: [...f.types, ''] }))} className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1">+ Add Type</button>
+                            </div>
+                        </Field>
 
                         <Field label="Product Highlights / Benefits">
                             <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-2">

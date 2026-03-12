@@ -10,7 +10,9 @@ import {
     ShieldCheck,
     Globe2,
     Package,
-    ArrowRight
+    ArrowRight,
+    Layers,
+    BoxSelect
 } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -212,15 +214,47 @@ const ProductDetail = () => {
 
                                     <div className="space-y-6 relative z-10">
                                         {product.specifications.map((spec, i) => (
-                                            <div key={i} className="flex flex-col gap-1 border-b border-white/10 pb-4 last:border-0 group-hover:border-white/20 transition-colors">
-                                                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{spec.label}</span>
-                                                <span className="text-base font-bold text-white/90">{spec.value}</span>
+                                            <div key={i} className="flex flex-col gap-1 border-b border-white/10 pb-4 last:border-0 group-hover:border-white/20 transition-colors group/spec">
+                                                <span className="text-[10px] font-black text-secondary tracking-widest uppercase group-hover/spec:text-white transition-colors">{spec.label}</span>
+                                                <span className="text-[15px] font-black text-white leading-snug">{spec.value}</span>
                                             </div>
                                         ))}
                                     </div>
 
+                                    {/* Available Types */}
+                                    {product.types && product.types.length > 0 && (
+                                        <div className="mt-8 pt-8 border-t border-white/10 relative z-10">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <Layers size={14} className="text-secondary" />
+                                                <p className="text-[10px] font-black text-secondary tracking-widest uppercase">Available Types</p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {product.types.map((type, i) => (
+                                                    <span key={i} className="px-3 py-1.5 bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-secondary/30 hover:border-secondary/40 transition-colors">
+                                                        {type}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Minimum Order */}
+                                    {product.minimumOrder && (
+                                        <div className="mt-6 relative z-10">
+                                            <div className="bg-secondary/20 border border-secondary/30 rounded-2xl p-5 flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-xl bg-secondary/30 flex items-center justify-center shrink-0">
+                                                    <BoxSelect size={18} className="text-secondary" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-black text-secondary uppercase tracking-widest mb-0.5">Minimum Order Quantity</p>
+                                                    <p className="text-base font-black text-white">{product.minimumOrder}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {product.isHalal && (
-                                        <div className="mt-12 pt-8 border-t border-white/10 flex items-center gap-6">
+                                        <div className="mt-8 pt-8 border-t border-white/10 flex items-center gap-6">
                                             <div className="w-16 h-16 bg-white rounded-2xl p-3 shadow-xl">
                                                 <img src={halalImg} alt="Halal" className="w-full h-full object-contain" />
                                             </div>

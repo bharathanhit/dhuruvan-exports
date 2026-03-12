@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, ChevronRight, Sparkles, X, Send, Package, ShoppingBag, Info, Award, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ChevronRight, Sparkles, X, Send, Package, ShoppingBag, Info, Award, Phone, Mail, Layers, BoxSelect } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
 import { products as staticProducts, categories as staticCategories } from '../data/products';
@@ -21,7 +21,7 @@ const ProductModal = ({ product, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 bg-black/60 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 bg-black/85 backdrop-blur-sm"
         >
             <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 30 }}
@@ -64,7 +64,14 @@ const ProductModal = ({ product, onClose }) => {
                     {/* Badge */}
                     <div className="inline-flex items-center gap-2.5 px-4 py-1.5 bg-secondary/10 border border-secondary/20 rounded-full w-fit">
                         <Award size={12} className="text-secondary" />
-                        <span className="text-[9px] font-black text-secondary uppercase tracking-[0.2em]">{product.badgeNote || 'Handcrafted Product'}</span>
+                        <span className="text-[9px] font-black text-secondary uppercase tracking-[0.2em]">
+                            {product.badgeNote || (
+                                product.categorySlug === 'livestock' ? 'Halal Certified Export' :
+                                product.categorySlug === 'agro-products' ? 'Premium Export Grade' :
+                                product.categorySlug === 'beverages' ? 'Purified & Certified' :
+                                'Handcrafted Product'
+                            )}
+                        </span>
                     </div>
 
                     <div className="space-y-3">
@@ -94,8 +101,8 @@ const ProductModal = ({ product, onClose }) => {
                             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
                                 {product.specifications.filter(s => s.label.trim() !== '').map((spec, i) => (
                                     <div key={i} className="flex flex-col gap-1 group/spec">
-                                        <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest group-hover/spec:text-secondary transition-colors">{spec.label}</span>
-                                        <span className="text-sm font-black text-primary leading-none uppercase italic border-b border-slate-50 pb-1 group-hover/spec:border-secondary/20 transition-all">{spec.value}</span>
+                                        <span className="text-[10px] font-black text-secondary tracking-widest uppercase group-hover/spec:text-slate-800 transition-colors">{spec.label}</span>
+                                        <span className="text-[14px] font-black text-primary leading-snug border-b border-primary/10 pb-1.5">{spec.value}</span>
                                     </div>
                                 ))}
                             </div>
@@ -113,8 +120,38 @@ const ProductModal = ({ product, onClose }) => {
                         )}
                     </div>
 
+                    {/* Available Types */}
+                    {product.types && product.types.length > 0 && (
+                        <div className="space-y-3 pt-4 border-t border-slate-100">
+                            <div className="flex items-center gap-2">
+                                <Layers size={14} className="text-secondary" />
+                                <span className="text-[10px] font-black text-secondary uppercase tracking-widest">Available Types</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                                {product.types.map((type, i) => (
+                                    <span key={i} className="px-2.5 py-1 bg-secondary/8 border border-secondary/20 text-secondary text-[8px] font-black uppercase tracking-widest rounded-full">
+                                        {type}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Minimum Order */}
+                    {product.minimumOrder && (
+                        <div className="flex items-center gap-4 px-5 py-4 bg-secondary/5 border border-secondary/20 rounded-2xl">
+                            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                                <BoxSelect size={18} className="text-secondary" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-secondary uppercase tracking-widest mb-0.5">Min. Order Qty</p>
+                                <p className="text-base font-black text-primary">{product.minimumOrder}</p>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="mt-auto pt-6 border-t border-slate-100">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 text-center">Start Your Inquiry</p>
+                        <p className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 text-center">Start Your Inquiry</p>
                         <GlobalInquiryButtons productTitle={product.title} context={`Category Modal: ${product.categorySlug}`} />
                         <button
                             onClick={onClose}

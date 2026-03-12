@@ -44,7 +44,7 @@ export const categories = [
         id: 'woodcrafts',
         title: 'Woodcrafts',
         slug: 'woodcrafts',
-        description: 'Exquisitely handcrafted wooden furniture and decorative pieces reflecting India\'s rich artisan heritage.',
+        description: "Exquisitely handcrafted wooden furniture and decorative pieces reflecting India's rich artisan heritage.",
         image: woodcraftsImg,
         color: '#92400e',
         gradient: 'from-amber-900 to-amber-700',
@@ -70,6 +70,7 @@ export const categories = [
 ];
 
 export const products = [
+    // ── AGRO PRODUCTS ──────────────────────────────────────────────────
     {
         id: 'basmati-rice',
         title: 'Basmati Rice',
@@ -80,11 +81,23 @@ export const products = [
         description: 'Long-grain, aromatic rice sourced from the foothills of the Himalayas.',
         badgeNote: 'Premium Selection',
         specifications: [
-            { label: 'Origin', value: 'Himalayan Foothills' },
-            { label: 'Grain Length', value: '8.35mm Average' },
-            { label: 'Moisture', value: '12% Maximum' },
-            { label: 'Broken', value: '2% Maximum' }
+            { label: 'Rice Size', value: 'Medium Grain' },
+            { label: 'Purity', value: '95% – 99%' },
+            { label: 'Moisture (%)', value: '13% Max' },
+            { label: 'Shelf Life', value: '6 – 12 Months' },
+            { label: 'Payment Terms', value: 'Refer Payment Terms Section' },
+            { label: 'Supply Ability', value: '1500 Metric Tons per Month' },
+            { label: 'Delivery Time', value: 'Depends on Destination Country' },
+            { label: 'Pack Size (KG)', value: '1, 5, 10, 20, 25, 50' },
+            { label: 'Packaging', value: 'PP Bags, Non Woven Bags, BOPP Bags, Jute Bags' },
+            { label: 'Custom Packing & Labelling', value: 'Available' },
+            { label: 'Unit of Measure', value: 'Metric Ton (MT)' },
+            { label: 'Polishing', value: 'Well Polished' },
+            { label: 'Broken %', value: '2% Max' },
+            { label: 'Shipping', value: 'Global Shipping Available' },
         ],
+        types: ['1121 Basmati Rice', 'Pusa Basmati Rice', '1509 Basmati Rice', 'Traditional Basmati Rice'],
+        minimumOrder: '5 Metric Tons (MT)',
         varieties: [
             { title: 'Premium Long Grain', desc: 'Extra-long grains that expand up to 2.5 times when cooked.', img: basmati1 },
             { title: 'Traditional Himalayan Aroma', desc: 'Sourced directly from Himalayan farms with natural fragrance.', img: basmati2 }
@@ -98,6 +111,14 @@ export const products = [
         categorySlug: 'agro-products',
         image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&q=80&w=1200',
         description: 'High-quality Sona Masoori, Ponni, and IR64 varieties.',
+        specifications: [
+            { label: 'Varieties', value: 'Sona Masoori, Ponni, IR64, PR11' },
+            { label: 'Moisture (%)', value: '14% Max' },
+            { label: 'Broken %', value: '5% Max' },
+            { label: 'Packing', value: '25 kg / 50 kg PP Bags' },
+        ],
+        types: ['IR64 Rice', 'Sona Masoori Rice', 'Ponni Rice', 'PR11 Rice'],
+        minimumOrder: '5 Metric Tons (MT)',
         varieties: [
             { title: 'Sona Masoori & Ponni', desc: 'Lightweight and aromatic medium-grain rice.', img: nonBasmati1 }
         ]
@@ -110,6 +131,14 @@ export const products = [
         categorySlug: 'agro-products',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNdGqBLaLcgceHppWww5JoO756aGlRWzVV1Q&s',
         description: 'Vibrant, high-curcumin turmeric fingers and powder.',
+        specifications: [
+            { label: 'Curcumin Content', value: '3% – 5% Minimum' },
+            { label: 'Moisture', value: '10% Maximum' },
+            { label: 'Origin', value: 'Erode / Salem, India' },
+            { label: 'Packing', value: '25 kg / 50 kg PP Bags' },
+        ],
+        types: ['Whole Fingers', 'Powder (Machine Ground)', 'Polished Fingers', 'Bulb Grade'],
+        minimumOrder: '5 Metric Tons',
     },
     {
         id: 'black-white-pepper',
@@ -119,6 +148,14 @@ export const products = [
         categorySlug: 'agro-products',
         image: 'https://images.unsplash.com/photo-1600728255690-edd070021d02?q=80&w=1163&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         description: 'Bold, aromatic black pepper and mild white pepper.',
+        specifications: [
+            { label: 'Black Pepper Grade', value: '550 GL / 570 GL / 630 GL' },
+            { label: 'White Pepper Grade', value: 'Muntok Grade' },
+            { label: 'Moisture', value: '12% Maximum' },
+            { label: 'Packing', value: '25 kg / 50 kg Bags' },
+        ],
+        types: ['Black Pepper Whole', 'White Pepper Whole', 'Black Pepper Powder', 'White Pepper Powder'],
+        minimumOrder: '2 Metric Tons',
     },
     {
         id: 'dry-fruits-nuts',
@@ -128,6 +165,14 @@ export const products = [
         categorySlug: 'agro-products',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMsP3T4dVyy3DJv9JOevk9Le_2hRKuS0fNiA&s',
         description: 'Premium quality cashews, almonds, raisins, walnuts and more.',
+        specifications: [
+            { label: 'Moisture', value: '8% Maximum' },
+            { label: 'Purity', value: '99% Minimum' },
+            { label: 'Packing', value: '10 kg / 25 kg Vacuum Bags' },
+            { label: 'Origin', value: 'India / Afghanistan' },
+        ],
+        types: ['Raw Cashews (W240 / W320)', 'Roasted Cashews', 'Almonds (Whole / Split)', 'Raisins', 'Walnuts'],
+        minimumOrder: '1 Metric Ton',
     },
     {
         id: 'coconut',
@@ -137,6 +182,14 @@ export const products = [
         categorySlug: 'agro-products',
         image: 'https://5.imimg.com/data5/NA/CB/MY-34697231/tender-coconut-500x500.jpg',
         description: 'Fresh and processed coconuts sourced directly from Indian coastal farms.',
+        specifications: [
+            { label: 'Origin', value: 'Kerala / Tamil Nadu, India' },
+            { label: 'Grade', value: 'Export Quality A+' },
+            { label: 'Packing', value: '100 / 200 pcs per Bag' },
+            { label: 'Shelf Life', value: '45 – 60 Days' },
+        ],
+        types: ['Fresh Whole Coconut', 'Semi-Husked', 'Desiccated Coconut', 'Coconut Oil (Cold Pressed)'],
+        minimumOrder: '10 Metric Tons',
     },
     {
         id: 'pappad-farfar',
@@ -146,6 +199,14 @@ export const products = [
         categorySlug: 'agro-products',
         image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=1200',
         description: 'Traditional Indian pappad and far far snacks.',
+        specifications: [
+            { label: 'Base Ingredient', value: 'Urad Dal / Potato Starch' },
+            { label: 'Moisture', value: '12% Maximum' },
+            { label: 'Packing', value: '250 g / 500 g / Bulk 10 kg' },
+            { label: 'Shelf Life', value: '12 Months' },
+        ],
+        types: ['Plain Pappad', 'Jeera (Cumin) Pappad', 'Garlic Pappad', 'Far Far (Potato)', 'Prawn Far Far'],
+        minimumOrder: '500 kg',
     },
     {
         id: 'jaggery',
@@ -155,7 +216,17 @@ export const products = [
         categorySlug: 'agro-products',
         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfAaxY5K67vJxy_KqZsvVJJCuGXwDWEpkIsg&s',
         description: 'Pure, natural jaggery made from fresh sugarcane juice.',
+        specifications: [
+            { label: 'Sucrose', value: '70% Minimum' },
+            { label: 'Moisture', value: '5% Maximum' },
+            { label: 'Color', value: 'Golden / Dark Brown' },
+            { label: 'Packing', value: '25 kg / 50 kg Bags' },
+        ],
+        types: ['Block Jaggery', 'Powder Jaggery', 'Liquid Jaggery', 'Organic Jaggery'],
+        minimumOrder: '5 Metric Tons',
     },
+
+    // ── LIVESTOCK ──────────────────────────────────────────────────────
     {
         id: 'buffalo-meat',
         title: 'Buffalo Meat',
@@ -170,8 +241,11 @@ export const products = [
             { label: 'Type', value: 'Frozen Boneless' },
             { label: 'Fat Content', value: '95% Chemical Lean' },
             { label: 'Cut', value: 'Premium Forequarter' },
-            { label: 'Certification', value: 'Halal Certified' }
+            { label: 'Packing', value: '30 kg Carton (Vacuum)' },
+            { label: 'Certification', value: 'Halal Certified' },
         ],
+        types: ['Frozen Boneless', 'Chilled Boneless', 'Boneless Forequarter', 'Boneless Hindquarter', 'Bone-In Cuts'],
+        minimumOrder: '1 Full Container (FCL) ~20 MT',
         varieties: [
             { title: 'Premium Boneless Cuts', desc: 'Selected lean cuts processed under strict Halal standards.', img: buffalo1 }
         ]
@@ -187,9 +261,12 @@ export const products = [
         isHalal: true,
         specifications: [
             { label: 'Type', value: 'Frozen' },
-            { label: 'Processing', value: 'Salted/Natural' },
-            { label: 'Certification', value: 'Halal Certified' }
-        ]
+            { label: 'Processing', value: 'Salted / Natural' },
+            { label: 'Packing', value: '25 kg Carton (Vacuum Packed)' },
+            { label: 'Certification', value: 'Halal Certified' },
+        ],
+        types: ['Salted Frozen', 'Natural Frozen'],
+        minimumOrder: '5 Metric Tons',
     },
     {
         id: 'frozen-buffalo-tail',
@@ -202,9 +279,12 @@ export const products = [
         isHalal: true,
         specifications: [
             { label: 'Type', value: 'Frozen' },
-            { label: 'Cut', value: 'Oxtail/Buffalo Tail' },
-            { label: 'Certification', value: 'Halal Certified' }
-        ]
+            { label: 'Cut', value: 'Oxtail / Buffalo Tail' },
+            { label: 'Packing', value: '25 kg Carton (Vacuum Packed)' },
+            { label: 'Certification', value: 'Halal Certified' },
+        ],
+        types: ['Whole Frozen Tail', 'Cut Sections (Bone-In)'],
+        minimumOrder: '5 Metric Tons',
     },
     {
         id: 'frozen-chuck-tender',
@@ -216,10 +296,14 @@ export const products = [
         badgeNote: 'Premium Cut',
         isHalal: true,
         specifications: [
-            { label: 'Type', value: 'Frozen' },
+            { label: 'Type', value: 'Frozen Boneless' },
             { label: 'Cut', value: 'Chuck Tender' },
-            { label: 'Certification', value: 'Halal Certified' }
-        ]
+            { label: 'Fat Content', value: 'Extra Lean (95 CL)' },
+            { label: 'Packing', value: '30 kg Carton (Vacuum Packed)' },
+            { label: 'Certification', value: 'Halal Certified' },
+        ],
+        types: ['Frozen Boneless', 'Vacuum Packed', 'IQF (Individual Quick Frozen)'],
+        minimumOrder: '1 Full Container (FCL) ~20 MT',
     },
     {
         id: 'frozen-thick-flank',
@@ -231,10 +315,14 @@ export const products = [
         badgeNote: 'High Protein',
         isHalal: true,
         specifications: [
-            { label: 'Type', value: 'Frozen' },
+            { label: 'Type', value: 'Frozen Boneless' },
             { label: 'Cut', value: 'Thick Flank' },
-            { label: 'Certification', value: 'Halal Certified' }
-        ]
+            { label: 'Fat Content', value: '90% Chemical Lean' },
+            { label: 'Packing', value: '30 kg Carton (Vacuum Packed)' },
+            { label: 'Certification', value: 'Halal Certified' },
+        ],
+        types: ['Frozen Boneless', 'Chilled Boneless', 'Vacuum Packed'],
+        minimumOrder: '1 Full Container (FCL) ~20 MT',
     },
     {
         id: 'frozen-tripe-omasum',
@@ -249,9 +337,14 @@ export const products = [
             { label: 'Type', value: 'Frozen' },
             { label: 'Parts', value: 'Tripe / Omasum' },
             { label: 'Processing', value: 'Thoroughly Cleaned' },
-            { label: 'Certification', value: 'Halal Certified' }
-        ]
+            { label: 'Packing', value: '25 kg Carton (Vacuum Packed)' },
+            { label: 'Certification', value: 'Halal Certified' },
+        ],
+        types: ['Frozen Tripe (Rumen)', 'Frozen Omasum (Book Tripe)', 'Mixed (Tripe + Omasum)'],
+        minimumOrder: '5 Metric Tons',
     },
+
+    // ── BEVERAGES ──────────────────────────────────────────────────────
     {
         id: 'drinking-water',
         title: 'Drinking Water',
@@ -259,11 +352,21 @@ export const products = [
         categorySlug: 'beverages',
         image: waterImg,
         description: 'Purified and mineral-enriched drinking water.',
+        specifications: [
+            { label: 'Purification', value: '7-Stage RO + UV + Ozone' },
+            { label: 'TDS Level', value: '50 – 150 ppm' },
+            { label: 'pH Level', value: '7.0 – 7.5 (Neutral)' },
+            { label: 'Packaging', value: '500 ml / 1 L / 5 L / 20 L' },
+        ],
+        types: ['500 ml Bottle', '1 Litre Bottle', '5 Litre Jar', '20 Litre Can', 'Bulk Tanker Supply'],
+        minimumOrder: '1 Full Container (20ft)',
         varieties: [
             { title: '7-Stage Purification', desc: 'Our mineral water undergoes RO, UV sterilization, and Ozonization.', img: water1 },
             { title: 'Mineral Enriched', desc: 'Enriched with Magnesium and Potassium.', img: water2 }
         ]
     },
+
+    // ── WOODCRAFTS ─────────────────────────────────────────────────────
     {
         id: 'rattan-cradle',
         title: 'Rattan Baby Cradle Stand',
@@ -276,8 +379,11 @@ export const products = [
         specifications: [
             { label: 'Material', value: 'Natural Rattan' },
             { label: 'Craft', value: 'Hand Woven' },
-            { label: 'Application', value: 'Nursery / Interior' }
-        ]
+            { label: 'Application', value: 'Nursery / Interior' },
+            { label: 'Finish', value: 'Natural / Lacquered' },
+        ],
+        types: ['Natural Finish', 'White Lacquered', 'Stained Brown', 'Custom Color'],
+        minimumOrder: '50 Pieces',
     },
     {
         id: 'wicker-stools',
@@ -290,8 +396,11 @@ export const products = [
         specifications: [
             { label: 'Material', value: 'Bamboo Fiber' },
             { label: 'Count', value: 'Set of 3' },
-            { label: 'Style', value: 'Pedestal' }
-        ]
+            { label: 'Style', value: 'Pedestal' },
+            { label: 'Finish', value: 'Natural / Stained' },
+        ],
+        types: ['Set of 3 (Standard)', 'Set of 2', 'Individual Piece', 'Custom Size'],
+        minimumOrder: '20 Sets',
     },
     {
         id: 'hanging-swing',
@@ -304,8 +413,11 @@ export const products = [
         specifications: [
             { label: 'Frame', value: 'Dark Mahogany Rattan' },
             { label: 'Seat', value: 'Intricate Wicker' },
-            { label: 'Durability', value: 'High Grade' }
-        ]
+            { label: 'Load Capacity', value: 'Up to 120 kg' },
+            { label: 'Durability', value: 'High Grade' },
+        ],
+        types: ['With Cushion', 'Without Cushion', 'Round Frame', 'Teardrop Frame', 'Indoor Grade', 'Outdoor Grade'],
+        minimumOrder: '20 Pieces',
     },
     {
         id: 'oval-sofa-set',
@@ -317,8 +429,12 @@ export const products = [
         badgeNote: 'Full Set',
         specifications: [
             { label: 'Set Includes', value: 'Sofa + 2 Chairs + Table' },
-            { label: 'Grade', value: 'Export Premium' }
-        ]
+            { label: 'Grade', value: 'Export Premium' },
+            { label: 'Finish', value: 'Natural Rattan' },
+            { label: 'Cushion', value: 'Custom Fabric Available' },
+        ],
+        types: ['Full Set (4-Piece)', 'Sofa Only', 'Chairs Only (Pair)', 'Indoor Grade', 'Hotel Grade'],
+        minimumOrder: '10 Sets',
     },
     {
         id: 'peacock-chair',
@@ -330,8 +446,12 @@ export const products = [
         badgeNote: 'Iconic Design',
         specifications: [
             { label: 'Style', value: 'Peacock Throne' },
-            { label: 'Artisan', value: 'Hand Carved' }
-        ]
+            { label: 'Artisan', value: 'Hand Carved' },
+            { label: 'Frame', value: 'Mahogany Rattan' },
+            { label: 'Load Capacity', value: 'Up to 100 kg' },
+        ],
+        types: ['Natural Rattan', 'White Lacquered', 'Gold Accent', 'Miniature (Decor)'],
+        minimumOrder: '20 Pieces',
     },
     {
         id: 'storage-basket',
@@ -343,8 +463,12 @@ export const products = [
         badgeNote: 'Bulk Available',
         specifications: [
             { label: 'Utility', value: 'Retail / Decor' },
-            { label: 'Weave', value: 'Tight Wicker' }
-        ]
+            { label: 'Weave', value: 'Tight Wicker' },
+            { label: 'Sizes', value: 'S / M / L / XL' },
+            { label: 'Handle', value: 'Rope / Rattan / None' },
+        ],
+        types: ['Small (20 cm)', 'Medium (30 cm)', 'Large (40 cm)', 'XL (50 cm)', 'Nesting Set (3-in-1)'],
+        minimumOrder: '100 Pieces',
     },
     {
         id: 'lounge-sofa',
@@ -356,8 +480,12 @@ export const products = [
         badgeNote: 'Hotel Grade',
         specifications: [
             { label: 'Capacity', value: '3-Seater' },
-            { label: 'Standard', value: 'Hospitality Grade' }
-        ]
+            { label: 'Standard', value: 'Hospitality Grade' },
+            { label: 'Frame', value: 'Natural Rattan' },
+            { label: 'Cushion', value: 'Custom Fabric Available' },
+        ],
+        types: ['2-Seater', '3-Seater', 'L-Shape Corner', 'With Ottoman', 'Indoor Grade', 'Outdoor Grade'],
+        minimumOrder: '10 Pieces',
     },
     {
         id: 'egg-chair',
@@ -369,12 +497,11 @@ export const products = [
         badgeNote: 'Top Export',
         specifications: [
             { label: 'Design', value: 'Cocoon / Egg' },
-            { label: 'Base', value: 'Sturdy Rattan' }
-        ]
+            { label: 'Base', value: 'Sturdy Rattan' },
+            { label: 'Load Capacity', value: 'Up to 110 kg' },
+            { label: 'Hardware', value: 'Heavy Duty Steel Hook' },
+        ],
+        types: ['With Stand', 'Without Stand (Hanging Only)', 'With Cushion', 'Without Cushion', 'Mini Egg Chair'],
+        minimumOrder: '20 Pieces',
     }
 ];
-
-
-
-
-
