@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, ChevronRight, Sparkles, X, Send, Package, ShoppingBag, Info, Award, Phone, Mail, Layers, BoxSelect } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -12,170 +12,8 @@ import waterBg from '../assets/children-water-bg.png';
 
 import GlobalInquiryButtons from './GlobalInquiryButtons';
 
-const ProductModal = ({ product, onClose }) => {
-    if (!product) return null;
-    const imgSrc = product.imageUrl || product.image;
-
-    return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 bg-black/85 backdrop-blur-sm"
-        >
-            <motion.div
-                initial={{ scale: 0.9, opacity: 0, y: 30 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.9, opacity: 0, y: 30 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="relative bg-white rounded-[3rem] w-full max-w-4xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col md:flex-row min-h-[400px]"
-                onClick={(e) => e.stopPropagation()}
-            >
-                {/* Close Button Mobile */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-6 right-6 z-[60] py-2 px-5 bg-white shadow-xl rounded-full flex items-center justify-center gap-2 text-primary border border-slate-100 md:hidden text-[10px] font-black uppercase tracking-widest"
-                >
-                    <X size={14} />
-                    CLOSE
-                </button>
-
-                {/* Left Side: Image Area */}
-                <div className="md:w-1/2 relative min-h-[400px]">
-                    <img src={imgSrc} alt={product.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-                    {/* Status Badge */}
-                    <div className="absolute top-8 left-8">
-                        <div className="px-5 py-2.5 bg-white/90 backdrop-blur-md rounded-full border border-white/50 shadow-lg">
-                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">{product.status || 'Set Available'}</span>
-                        </div>
-                    </div>
-
-                    {product.isHalal && (
-                        <div className="absolute bottom-8 left-8">
-                            <img src={halalImg} alt="Halal" className="w-20 h-auto drop-shadow-xl" />
-                        </div>
-                    )}
-                </div>
-
-                {/* Right Side: Content Area */}
-                <div className="md:w-1/2 p-6 md:p-8 lg:p-10 flex flex-col gap-6 bg-white overflow-y-auto max-h-[90vh]">
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2.5 px-4 py-1.5 bg-secondary/10 border border-secondary/20 rounded-full w-fit">
-                        <Award size={12} className="text-secondary" />
-                        <span className="text-[9px] font-black text-secondary uppercase tracking-[0.2em]">
-                            {product.badgeNote || (
-                                product.categorySlug === 'livestock' ? 'Halal Certified Export' :
-                                product.categorySlug === 'agro-products' ? 'Premium Export Grade' :
-                                product.categorySlug === 'beverages' ? 'Purified & Certified' :
-                                'Handcrafted Product'
-                            )}
-                        </span>
-                    </div>
-
-                    <div className="space-y-3">
-                        <h2 className="text-3xl md:text-3xl font-black text-primary tracking-tighter uppercase leading-[0.9]">
-                            {product.title}
-                        </h2>
-                        <p className="text-slate-500 font-medium text-sm leading-relaxed">
-                            {product.longDescription || product.description}
-                        </p>
-                    </div>
-
-                    {/* Highlights/Benefits */}
-                    {product.benefits && product.benefits.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                            {product.benefits.filter(b => b.trim() !== '').map((benefit, i) => (
-                                <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-secondary/5 border border-secondary/10 rounded-lg text-secondary">
-                                    <CheckCircle2 size={10} className="shrink-0" />
-                                    <span className="text-[9px] font-black uppercase tracking-tight">{benefit}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Specs Section */}
-                    <div className="space-y-6 pt-6 border-t border-slate-100">
-                        {product.specifications && product.specifications.length > 0 && product.specifications.some(s => s.label.trim() !== '') ? (
-                            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-                                {product.specifications.filter(s => s.label.trim() !== '').map((spec, i) => (
-                                    <div key={i} className="flex flex-col gap-1 group/spec">
-                                        <span className="text-[10px] font-black text-secondary tracking-widest uppercase group-hover/spec:text-slate-800 transition-colors">{spec.label}</span>
-                                        <span className="text-[14px] font-black text-primary leading-snug border-b border-primary/10 pb-1.5">{spec.value}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100 flex flex-col gap-1.5">
-                                    <CheckCircle2 size={16} className="text-secondary" />
-                                    <h5 className="text-[9px] font-black text-primary uppercase tracking-widest">Premium Grade</h5>
-                                </div>
-                                <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100 flex flex-col gap-1.5">
-                                    <ShoppingBag size={16} className="text-secondary" />
-                                    <h5 className="text-[9px] font-black text-primary uppercase tracking-widest">Global Logistics</h5>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Available Types */}
-                    {product.types && product.types.length > 0 && (
-                        <div className="space-y-3 pt-4 border-t border-slate-100">
-                            <div className="flex items-center gap-2">
-                                <Layers size={14} className="text-secondary" />
-                                <span className="text-[10px] font-black text-secondary uppercase tracking-widest">Available Types</span>
-                            </div>
-                            <div className="flex flex-wrap gap-1.5">
-                                {product.types.map((type, i) => (
-                                    <span key={i} className="px-2.5 py-1 bg-secondary/8 border border-secondary/20 text-secondary text-[8px] font-black uppercase tracking-widest rounded-full">
-                                        {type}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Minimum Order */}
-                    {product.minimumOrder && (
-                        <div className="flex items-center gap-4 px-5 py-4 bg-secondary/5 border border-secondary/20 rounded-2xl">
-                            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
-                                <BoxSelect size={18} className="text-secondary" />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-secondary uppercase tracking-widest mb-0.5">Min. Order Qty</p>
-                                <p className="text-base font-black text-primary">{product.minimumOrder}</p>
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="mt-auto pt-6 border-t border-slate-100">
-                        <p className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 text-center">Start Your Inquiry</p>
-                        <GlobalInquiryButtons productTitle={product.title} context={`Category Modal: ${product.categorySlug}`} />
-                        <button
-                            onClick={onClose}
-                            className="w-full py-4 text-slate-300 font-black text-[9px] uppercase tracking-[0.3em] hover:text-red-400 transition-colors"
-                        >
-                            Dismiss Window
-                        </button>
-                    </div>
-                </div>
-
-                {/* Floating Close (Desktop) */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-8 right-8 hidden md:flex items-center gap-3 px-6 py-2.5 bg-slate-100 hover:bg-red-50 rounded-full text-slate-400 hover:text-red-500 transition-all z-50 shadow-sm border border-slate-200 group font-black text-[10px] uppercase tracking-widest"
-                >
-                    <X size={16} className="group-hover:rotate-90 transition-transform" />
-                    CLOSE
-                </button>
-            </motion.div>
-        </motion.div>
-    );
-};
-
-const ProductCard = ({ product, index, onOpen, themeColor, slug }) => {
+const ProductCard = ({ product, index, themeColor, slug }) => {
+    const navigate = useNavigate();
     const imgSrc = product.imageUrl || product.image;
     const isBeverage = slug === 'beverages';
     return (
@@ -186,7 +24,7 @@ const ProductCard = ({ product, index, onOpen, themeColor, slug }) => {
             transition={{ duration: 0.7, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ y: -12 }}
             className="group relative bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)] hover:shadow-[0_40px_100px_rgba(0,0,0,0.6)] transition-all duration-700 m-1 cursor-pointer"
-            onClick={() => onOpen(product)}
+            onClick={() => navigate(`/product/${product.id || product.docId}`)}
         >
             {/* Dynamic Glow Effect on Hover */}
             <div 
@@ -272,7 +110,6 @@ const CategoryPage = () => {
     const [categoryProducts, setCategoryProducts] = useState([]);
     const [category, setCategory] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [activeProduct, setActiveProduct] = useState(null);
 
     // Resolve category info
     useEffect(() => {
@@ -336,11 +173,6 @@ const CategoryPage = () => {
 
     return (
         <div className="min-h-screen bg-[#050505]">
-            <AnimatePresence>
-                {activeProduct && (
-                    <ProductModal product={activeProduct} onClose={() => setActiveProduct(null)} />
-                )}
-            </AnimatePresence>
 
             {/* Hero Banner */}
             <div className={`relative h-[55vh] min-h-[450px] md:h-[60vh] overflow-hidden flex items-end bg-gradient-to-br ${category?.gradient || 'from-slate-900 to-slate-800'}`}>
@@ -466,7 +298,6 @@ const CategoryPage = () => {
                                     key={product.id || product.docId} 
                                     index={idx} 
                                     product={product} 
-                                    onOpen={setActiveProduct} 
                                     themeColor={category?.color}
                                     slug={slug}
                                 />

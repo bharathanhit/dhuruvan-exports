@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,8 +5,6 @@ import {
     TrendingUp,
     ArrowLeft,
     CheckCircle2,
-    ShieldCheck,
-    Globe2,
     Package,
     ArrowRight,
     Layers,
@@ -68,32 +64,45 @@ const ProductDetail = () => {
 
     return (
         <div id="product-detail" className="min-h-screen bg-[#fafbfc] selection:bg-secondary/30">
-            {/* Top Navigation Bar */}
-            <div className="sticky top-20 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 py-4 mb-2">
-                <div className="container px-6 flex items-center justify-between">
-                    <button
-                        onClick={() => navigate('/#products')}
-                        className="flex items-center gap-2 text-slate-400 hover:text-primary transition-colors text-[10px] font-black uppercase tracking-[0.2em]"
-                    >
-                        <ArrowLeft size={14} />
-                        Back to Catalog
-                    </button>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-4 text-slate-400 font-bold uppercase tracking-widest text-[9px]">
-                            Quality Grade: {product.category}
-                        </div>
-                        <div className="flex gap-2">
-                            <GlobalInquiryButtons productTitle={product.title} className="!grid-cols-3 !gap-2 !py-0 sm:!grid-cols-3" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div className="container px-6 pt-12 pb-24">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24">
+                    {/* Left Column: Product Image & Highlights */}
+                    <div className="lg:col-span-6 space-y-12">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.8 }}
+                            className="relative group rounded-[3rem] overflow-hidden shadow-2xl bg-white border border-slate-100 aspect-square"
+                        >
+                            <img
+                                src={product.imageUrl || product.image}
+                                alt={product.title}
+                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent pointer-events-none" />
+                            
+                            <div className="absolute top-8 left-8 z-20">
+                                <div className="px-5 py-2 bg-white/90 backdrop-blur-md rounded-full shadow-xl border border-white/20">
+                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Premium Export Entry</span>
+                                </div>
+                            </div>
 
-                    {/* Left Column: Product Info */}
-                    <div className="lg:col-span-7 space-y-16">
+                            {product.isHalal && (
+                                <motion.img
+                                    initial={{ scale: 0, rotate: -45 }}
+                                    animate={{ scale: 1, rotate: 12 }}
+                                    src={halalImg}
+                                    alt="Halal"
+                                    className="absolute -top-4 -right-4 w-32 pointer-events-none z-20 drop-shadow-2xl opacity-90"
+                                />
+                            )}
+                        </motion.div>
+
+                    </div>
+
+
+                    {/* Right Column: Title, Description & Specifications Card */}
+                    <div className="lg:col-span-6 space-y-10">
                         <section>
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
@@ -107,7 +116,7 @@ const ProductDetail = () => {
                             <motion.h1
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className="text-5xl md:text-7xl font-black text-primary mb-8 tracking-tighter leading-[0.95] uppercase"
+                                className="text-4xl md:text-6xl font-black text-primary mb-8 tracking-tighter leading-[0.95] uppercase"
                             >
                                 {product.title.split(' ').map((word, i) => (
                                     <span key={i} className={i === product.title.split(' ').length - 1 ? "text-secondary italic block lg:inline" : ""}>
@@ -120,175 +129,138 @@ const ProductDetail = () => {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.2 }}
-                                className="text-lg md:text-xl text-slate-500 max-w-2xl leading-relaxed font-medium mb-12"
+                                className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium mb-12"
                             >
                                 {product.longDescription || product.description}
                             </motion.p>
-
-                            {/* Key Highlights Table/Grid */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {[
-                                    { icon: ShieldCheck, label: 'Quality', val: 'A++ Grade' },
-                                    { icon: Globe2, label: 'Supply', val: 'Global' },
-                                    { icon: Package, label: 'Custom', val: 'Packaging' },
-                                    { icon: CheckCircle2, label: 'Status', val: 'Certified' }
-                                ].map((stat, i) => (
-                                    <div key={i} className="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
-                                        <stat.icon size={18} className="text-secondary mb-3" />
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
-                                        <p className="text-[11px] font-bold text-primary">{stat.val}</p>
-                                    </div>
-                                ))}
-                            </div>
                         </section>
 
-                        {/* Varieties Section (Only show if present) */}
+                        {/* Detailed Specs Card */}
+                        {product.specifications && product.specifications.length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-white border border-slate-100 rounded-[2.5rem] p-8 md:p-10 shadow-sm relative overflow-hidden group"
+                            >
+                                <h3 className="text-xl font-black mb-8 tracking-tighter flex items-center gap-3 text-primary uppercase">
+                                    <ArrowRight size={18} className="text-secondary" />
+                                    Specifications
+                                </h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 relative z-10">
+                                    {product.specifications.map((spec, i) => (
+                                        <div key={i} className="flex flex-col gap-1 border-b border-slate-50 pb-3 last:border-0 md:[&:nth-last-child(2)]:border-0 transition-colors group/spec">
+                                            <span className="text-[9px] font-black text-secondary tracking-widest uppercase">{spec.label}</span>
+                                            <span className="text-[14px] font-black text-primary leading-tight">{spec.value}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Available Types */}
+                                {product.types && product.types.length > 0 && (
+                                    <div className="mt-10 pt-8 border-t border-slate-50 relative z-10">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Layers size={14} className="text-secondary" />
+                                            <p className="text-[9px] font-black text-secondary tracking-widest uppercase">Available Types</p>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {product.types.map((type, i) => (
+                                                <span key={i} className="px-3 py-1.5 bg-slate-50 border border-slate-100 text-primary text-[9px] font-black uppercase tracking-widest rounded-full hover:bg-secondary hover:text-white hover:border-secondary transition-all">
+                                                    {type}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {product.minimumOrder && (
+                                    <div className="mt-8 relative z-10">
+                                        <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                                                <BoxSelect size={18} className="text-secondary" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] font-black text-secondary uppercase tracking-widest mb-0.5">Min Order</p>
+                                                <p className="text-base font-black text-primary leading-tight">{product.minimumOrder}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+
+                        {/* Varieties Section (Moved Here) */}
                         {product.varieties && product.varieties.length > 0 && (
-                            <section className="space-y-12">
-                                <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] mb-10 pl-1 border-l-4 border-secondary">Available Varieties & Quality</h2>
+                            <motion.section 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="space-y-6 pt-4"
+                            >
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[9px] font-black text-secondary uppercase tracking-[0.3em]">Selection</span>
+                                    <h2 className="text-xl font-black text-primary uppercase tracking-tighter">Varieties</h2>
+                                </div>
 
-                                {product.varieties.map((variety, index) => (
-                                    <motion.div
-                                        key={index}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        className="group relative bg-white border border-slate-100 rounded-[2.5rem] p-6 md:p-10 shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,43,88,0.08)] transition-all duration-700 flex flex-col md:flex-row gap-10 items-center overflow-hidden"
-                                    >
-                                        <div className="absolute top-0 right-0 p-8 text-slate-50 font-black text-8xl pointer-events-none group-hover:text-secondary/5 transition-colors">
-                                            0{index + 1}
-                                        </div>
-
-                                        <div className="relative w-full md:w-[180px] shrink-0">
-                                            <div className="aspect-square relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] shadow-xl border-4 border-white">
-                                                <motion.img
-                                                    whileHover={{ scale: 1.15 }}
-                                                    transition={{ duration: 1 }}
-                                                    src={variety.img}
-                                                    alt={variety.title}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                                <div className="absolute inset-0 bg-primary/5 group-hover:bg-transparent transition-colors duration-500" />
+                                <div className="space-y-4">
+                                    {product.varieties.map((variety, index) => (
+                                        <div
+                                            key={index}
+                                            className="group relative bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden"
+                                        >
+                                            <div className="absolute top-0 right-0 p-4 text-slate-50 font-black text-6xl pointer-events-none group-hover:text-secondary/5 transition-colors leading-none">
+                                                {index + 1}
                                             </div>
-                                            <div className="absolute -top-3 -left-3 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-xl z-10 border border-slate-50">
-                                                {getEmojiForVariety(index)}
-                                            </div>
-                                        </div>
-
-                                        <div className="flex-1 space-y-4 relative z-10">
-                                            <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter leading-tight group-hover:text-secondary transition-colors">
-                                                {variety.title}
-                                            </h3>
-                                            <p className="text-sm md:text-base text-slate-500 leading-relaxed font-medium">
-                                                {variety.desc}
-                                            </p>
-                                            <div className="flex gap-4 pt-2">
-                                                <span className="px-3 py-1 bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest rounded-md border border-slate-100 italic">Export Ready</span>
-                                                <span className="px-3 py-1 bg-secondary/5 text-[9px] font-black text-secondary uppercase tracking-widest rounded-md border border-secondary/10">Premium Grade</span>
+                                            <div className="flex items-center gap-4 relative z-10">
+                                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-xl border border-slate-100 shrink-0">
+                                                    {getEmojiForVariety(index)}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="text-lg font-black text-primary tracking-tighter uppercase group-hover:text-secondary transition-colors leading-none mb-2">
+                                                        {variety.title}
+                                                    </h3>
+                                                    <p className="text-sm text-slate-500 font-medium line-clamp-2 leading-snug">
+                                                        {variety.desc}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </motion.div>
-                                ))}
-                            </section>
+                                    ))}
+                                </div>
+                            </motion.section>
                         )}
                     </div>
+                </div>
 
-                    {/* Right Column: Specifications & Sidebar */}
-                    <div className="lg:col-span-5 space-y-8">
-                        <div className="sticky top-40 space-y-8">
 
-                            {/* Detailed Specs Card */}
-                            {product.specifications && product.specifications.length > 0 && (
-                                <motion.div
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    className="bg-primary text-white rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group"
-                                >
-                                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
-                                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl" />
-
-                                    <h3 className="text-2xl font-black mb-8 tracking-tighter flex items-center gap-3">
-                                        <ArrowRight size={20} className="text-secondary" />
-                                        Specifications
-                                    </h3>
-
-                                    <div className="space-y-6 relative z-10">
-                                        {product.specifications.map((spec, i) => (
-                                            <div key={i} className="flex flex-col gap-1 border-b border-white/10 pb-4 last:border-0 group-hover:border-white/20 transition-colors group/spec">
-                                                <span className="text-[10px] font-black text-secondary tracking-widest uppercase group-hover/spec:text-white transition-colors">{spec.label}</span>
-                                                <span className="text-[15px] font-black text-white leading-snug">{spec.value}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Available Types */}
-                                    {product.types && product.types.length > 0 && (
-                                        <div className="mt-8 pt-8 border-t border-white/10 relative z-10">
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <Layers size={14} className="text-secondary" />
-                                                <p className="text-[10px] font-black text-secondary tracking-widest uppercase">Available Types</p>
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                {product.types.map((type, i) => (
-                                                    <span key={i} className="px-3 py-1.5 bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-secondary/30 hover:border-secondary/40 transition-colors">
-                                                        {type}
-                                                    </span>
+                <div className="mt-12 pt-12 border-t border-slate-100">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                        <div className="lg:col-span-12">
+                            {/* Benefits List (Full Width or Side-by-Side) */}
+                            {product.benefits && product.benefits.length > 0 && (
+                                <div className="bg-white border border-slate-100 rounded-[3rem] p-12 shadow-sm">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                        <div>
+                                            <h3 className="text-3xl font-black text-primary mb-8 tracking-tighter uppercase">Key Benefits</h3>
+                                            <div className="space-y-4">
+                                                {product.benefits.map((benefit, i) => (
+                                                    <div key={i} className="flex items-start gap-4 text-slate-600 group">
+                                                        <div className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors mt-0.5">
+                                                            <CheckCircle2 size={12} className="text-secondary group-hover:text-white" />
+                                                        </div>
+                                                        <span className="text-[15px] font-bold tracking-tight leading-tight group-hover:text-primary transition-colors">{benefit}</span>
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>
-                                    )}
-
-                                    {/* Minimum Order */}
-                                    {product.minimumOrder && (
-                                        <div className="mt-6 relative z-10">
-                                            <div className="bg-secondary/20 border border-secondary/30 rounded-2xl p-5 flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-secondary/30 flex items-center justify-center shrink-0">
-                                                    <BoxSelect size={18} className="text-secondary" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[10px] font-black text-secondary uppercase tracking-widest mb-0.5">Minimum Order Quantity</p>
-                                                    <p className="text-base font-black text-white">{product.minimumOrder}</p>
-                                                </div>
-                                            </div>
+                                        <div className="bg-slate-50 rounded-[2rem] p-8 flex flex-col justify-center items-center text-center space-y-6">
+                                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Direct Inquiry</p>
+                                            <h4 className="text-2xl font-black text-primary tracking-tighter">Ready to Source?</h4>
+                                            <GlobalInquiryButtons productTitle={product.title} context="Product Detail Consolidated" className="w-full" />
                                         </div>
-                                    )}
-
-                                    {product.isHalal && (
-                                        <div className="mt-8 pt-8 border-t border-white/10 flex items-center gap-6">
-                                            <div className="w-16 h-16 bg-white rounded-2xl p-3 shadow-xl">
-                                                <img src={halalImg} alt="Halal" className="w-full h-full object-contain" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Global Standards</p>
-                                                <p className="text-sm font-black text-secondary uppercase">100% Halal Certified</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                </motion.div>
-                            )}
-
-                            {/* Benefits List */}
-                            {product.benefits && product.benefits.length > 0 && (
-                                <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-sm">
-                                    <h3 className="text-xl font-black text-primary mb-8 tracking-tighter">Key Benefits</h3>
-                                    <div className="space-y-4">
-                                        {product.benefits.map((benefit, i) => (
-                                            <div key={i} className="flex items-center gap-4 text-slate-600 group">
-                                                <div className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
-                                                    <CheckCircle2 size={12} className="text-secondary group-hover:text-white" />
-                                                </div>
-                                                <span className="text-sm font-bold tracking-tight">{benefit}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="mt-12 space-y-4">
-                                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Select Inquiry Method</p>
-                                        <GlobalInquiryButtons productTitle={product.title} context="Product Detail Page" />
                                     </div>
                                 </div>
                             )}
-
                         </div>
                     </div>
                 </div>

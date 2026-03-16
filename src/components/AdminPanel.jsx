@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import {
     Lock, Eye, EyeOff, LogOut, ShieldCheck, Package, Users, Globe,
@@ -569,26 +570,15 @@ const AppointmentManager = () => {
                         </div>
                     </div>
                 ))}
-
-                {appointments.length === 0 && (
-                    <div className="py-24 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
-                        <Calendar size={40} className="text-slate-200 mx-auto mb-4" />
-                        <p className="text-slate-400 font-black uppercase tracking-[0.2em]">No discovery calls booked yet</p>
-                    </div>
-                )}
             </div>
         </div>
     );
 };
 
-
 const CategoryManager = () => {
+    const navigate = useNavigate();
     const [reordering, setReordering] = useState(false);
     const [categories, setCategories] = useState([]);
-    const [showForm, setShowForm] = useState(false);
-    const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ title: '', description: '', imageUrl: '', color: '#16a34a', isFeatured: true, order: 0 });
-    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const q = query(collection(db, 'categories'), orderBy('order', 'asc'));
@@ -609,36 +599,6 @@ const CategoryManager = () => {
             setCategories(merged);
         });
     }, [reordering]);
-
-    const reset = () => { setForm({ title: '', description: '', imageUrl: '', color: '#16a34a', isFeatured: true, order: 0 }); setEditing(null); };
-
-    const handleSave = async () => {
-        if (!form.title) return;
-        setSaving(true);
-        const safeOrder = Number(form.order);
-        const payload = {
-            title: form.title,
-            slug: slugify(form.title),
-            description: form.description || '',
-            imageUrl: form.imageUrl || '',
-            color: form.color || '#16a34a',
-            isFeatured: !!form.isFeatured,
-            order: isNaN(safeOrder) ? 0 : safeOrder,
-            updatedAt: serverTimestamp()
-        };
-        try {
-            if (editing && editing.docId) {
-                await updateDoc(doc(db, 'categories', editing.docId), payload);
-            } else {
-                await addDoc(collection(db, 'categories'), { ...payload, createdAt: serverTimestamp() });
-            }
-            reset(); setShowForm(false);
-        } catch (e) {
-            console.error(e);
-            alert("Error saving category: " + e.message);
-        }
-        setSaving(false);
-    };
 
     const handleDelete = async (cat) => {
         if (!cat.isFirestore) {
@@ -689,16 +649,15 @@ const CategoryManager = () => {
     }, [categories]);
 
     const openEdit = (cat) => {
-        setEditing(cat);
-        setForm({
-            title: cat.title,
-            description: cat.description || '',
-            imageUrl: cat.imageUrl || cat.image || '',
-            color: cat.color || '#16a34a',
-            isFeatured: !!cat.isFeatured,
-            order: typeof cat.order === 'number' ? cat.order : 0
-        });
-        setShowForm(true);
+        if (cat.isFirestore && cat.docId) {
+            navigate(`/admin/category/edit/${cat.docId}`);
+        } else {
+             // For static items, we might want to "promote" them first or just handle them as "new" with prefilled data
+             // But the existing logic in AdminCategoryFormPage handles loading from Firestore.
+             // If it's static, it won't have a docId.
+             alert("This is a static category. Edit it to save it to the database first.");
+             // I should probably allow editing static items too by passing data.
+        }
     };
 
     return (
@@ -715,51 +674,11 @@ const CategoryManager = () => {
                         )}
                     </div>
                 </div>
-                <button onClick={() => { reset(); setShowForm(true); }}
+                <button onClick={() => navigate('/admin/category/new')}
                     className="flex items-center gap-2 px-5 py-3 bg-secondary text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20">
                     <Plus size={16} /> Add Category
                 </button>
             </div>
-
-            <AnimatePresence>
-                {showForm && (
-                    <Modal title={editing ? 'Edit Category' : 'New Category'} onClose={() => { setShowForm(false); reset(); }}
-                        onSave={handleSave} saving={saving} valid={!!form.title}>
-                        <Field label="Category Name *">
-                            <TextInput value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="e.g. Agro Products" />
-                            {form.title && <p className="text-[10px] text-slate-400 mt-1 font-mono">slug: /{slugify(form.title)}</p>}
-                        </Field>
-                        <Field label="Description">
-                            <TextArea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Brief description..." />
-                        </Field>
-                        <Field label="Accent Color">
-                            <div className="flex items-center gap-3">
-                                <input type="color" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })}
-                                    className="w-12 h-10 rounded-lg border border-slate-200 cursor-pointer" />
-                                <span className="text-sm font-mono text-slate-500">{form.color}</span>
-                            </div>
-                        </Field>
-                        <div className="flex items-center gap-3 py-2">
-                             <button type="button" onClick={() => setForm(f => ({ ...f, isFeatured: !f.isFeatured }))}
-                                 className={`w-10 h-6 rounded-full transition-all flex-shrink-0 ${form.isFeatured ? 'bg-secondary' : 'bg-slate-200'}`}>
-                                 <div className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform ${form.isFeatured ? 'translate-x-4' : 'translate-x-0.5'}`} />
-                             </button>
-                             <label className="text-sm font-black text-slate-600">Feature in Navbar & Footer</label>
-                         </div>
-                        <Field label="Display Order (Priority)">
-                            <TextInput 
-                                type="number" 
-                                value={form.order} 
-                                onChange={e => setForm(f => ({ ...f, order: e.target.value }))} 
-                                placeholder="e.g. 1, 2, 10" 
-                            />
-                            <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter text-center">Lower numbers appear first in Navbar and Products Grid</p>
-                        </Field>
-                        <ImageUploader label="Category Banner Image" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} />
-                    </Modal>
-                )}
-            </AnimatePresence>
-
             <Reorder.Group axis="y" values={categories} onReorder={handleReorder} className="space-y-4">
                 {categories.map((cat) => (
                     <CategoryItem key={cat.docId || cat.slug} cat={cat} openEdit={openEdit} handleDelete={handleDelete} />
@@ -819,30 +738,11 @@ const ProductItem = ({ prod, openEdit, handleDelete }) => {
 
 // ─── Product Manager ───────────────────────────────────────────────
 const ProductManager = () => {
+    const navigate = useNavigate();
     const [reordering, setReordering] = useState(false);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [showForm, setShowForm] = useState(false);
-    const [editing, setEditing] = useState(null);
     const [filterCat, setFilterCat] = useState('all');
-    const [form, setForm] = useState({
-        title: '',
-        description: '',
-        longDescription: '',
-        category: '',
-        categorySlug: '',
-        imageUrl: '',
-        isHalal: false,
-        status: 'Ready for Export',
-        badgeNote: 'Premium Selection',
-        specifications: [{ label: '', value: '' }],
-        types: [''],
-        minimumOrder: '',
-        benefits: [''],
-        varieties: [],
-        order: 0
-    });  
-    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const unsub1 = onSnapshot(query(collection(db, 'products'), orderBy('order', 'asc')), (snap) => {
@@ -887,69 +787,6 @@ const ProductManager = () => {
         return () => { unsub1(); unsub2(); };
     }, [reordering]);
 
-    const reset = () => {
-        setForm({
-            title: '',
-            description: '',
-            longDescription: '',
-            category: '',
-            categorySlug: '',
-            imageUrl: '',
-            isHalal: false,
-            status: 'Ready for Export',
-            badgeNote: 'Premium Selection',
-            specifications: [{ label: '', value: '' }],
-            types: [''],
-            minimumOrder: '',
-            benefits: [''],
-            varieties: [],
-            order: 0
-        });
-        setEditing(null);
-    };
-
-    const handleSave = async () => {
-        if (!form.title || !form.categorySlug) return;
-        setSaving(true);
-        const safeOrder = Number(form.order);
-        const payload = {
-            title: form.title,
-            id: slugify(form.title),
-            description: form.description || '',
-            longDescription: form.longDescription || '',
-            category: form.category || 'Uncategorized',
-            categorySlug: form.categorySlug || '',
-            isHalal: !!form.isHalal,
-            imageUrl: form.imageUrl || '',
-            status: form.status || 'Ready for Export',
-            badgeNote: form.badgeNote || 'Premium Selection',
-            specifications: (form.specifications || []).filter(s => s.label && s.value),
-            types: (form.types || []).filter(t => t && t.trim()),
-            minimumOrder: form.minimumOrder || '',
-            benefits: (form.benefits || []).filter(b => b && b.trim()),
-            varieties: (form.varieties || []).filter(v => v.title).map(v => ({
-                title: v.title,
-                desc: v.desc || '',
-                img: v.imageUrl || '' 
-            })),
-            order: isNaN(safeOrder) ? 0 : safeOrder,
-            updatedAt: serverTimestamp()
-        };
-        try {
-            if (editing && editing.docId) {
-                await updateDoc(doc(db, 'products', editing.docId), payload);
-            } else {
-                // If editing a static product (it has no docId), or adding new, create a new Firestore doc
-                await addDoc(collection(db, 'products'), { ...payload, createdAt: serverTimestamp() });
-            }
-            reset(); setShowForm(false);
-        } catch (e) {
-            console.error(e);
-            alert("Error saving: " + e.message);
-        }
-        setSaving(false);
-    };
-
     const handleDelete = async (prod) => {
         if (!prod.isFirestore) {
             alert("This product is defined in the source code. To modify it, edit and save it once to 'promote' it to the database.");
@@ -960,29 +797,11 @@ const ProductManager = () => {
     };
 
     const openEdit = (prod) => {
-        setEditing(prod);
-        setForm({
-            title: prod.title,
-            description: prod.description || '',
-            longDescription: prod.longDescription || '',
-            category: prod.category,
-            categorySlug: prod.categorySlug,
-            imageUrl: prod.imageUrl || prod.image || '',
-            isHalal: !!prod.isHalal,
-            status: prod.status || 'Ready for Export',
-            badgeNote: prod.badgeNote || 'Premium Selection',
-            specifications: prod.specifications && prod.specifications.length ? prod.specifications : [{ label: '', value: '' }],
-            types: prod.types && prod.types.length ? prod.types : [''],
-            minimumOrder: prod.minimumOrder || '',
-            benefits: prod.benefits && prod.benefits.length ? prod.benefits : [''],
-            varieties: prod.varieties && prod.varieties.length ? prod.varieties.map(v => ({
-                title: v.title,
-                desc: v.desc || '',
-                imageUrl: v.img || v.imageUrl || ''
-            })) : [],
-            order: typeof prod.order === 'number' ? prod.order : 0
-        });
-        setShowForm(true);
+        if (prod.isFirestore && prod.docId) {
+            navigate(`/admin/product/edit/${prod.docId}`);
+        } else {
+            alert("This is a static product. Edit it to save it to the database first.");
+        }
     };
 
     const handleReorder = (reorderedSub) => {
@@ -1063,149 +882,12 @@ const ProductManager = () => {
                         </select>
                         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                     </div>
-                    <button onClick={() => { reset(); setShowForm(true); }}
+                    <button onClick={() => navigate('/admin/product/new')}
                         className="flex items-center gap-2 px-5 py-3 bg-secondary text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20">
                         <Plus size={16} /> Add Product
                     </button>
                 </div>
             </div>
-
-            <AnimatePresence>
-                {showForm && (
-                    <Modal title={editing ? 'Edit Product' : 'New Product'} onClose={() => { setShowForm(false); reset(); }}
-                        onSave={handleSave} saving={saving} valid={!!(form.title && form.categorySlug)}>
-                        <Field label="Product Name *">
-                            <TextInput value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g. Turmeric Powder" />
-                        </Field>
-                        <Field label="Category *">
-                            <div className="relative">
-                                <select value={form.categorySlug}
-                                    onChange={e => {
-                                        const cat = categories.find(c => c.slug === e.target.value);
-                                        if (cat) setForm(f => ({ ...f, category: cat.title, categorySlug: cat.slug }));
-                                    }}
-                                    className="w-full appearance-none border border-slate-200 rounded-xl px-4 py-3 pr-10 text-sm font-bold outline-none focus:border-secondary transition-all bg-white cursor-pointer">
-                                    <option value="">Select a category</option>
-                                    {categories.map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}
-                                </select>
-                                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                            </div>
-                        </Field>
-                        <Field label="Short Description">
-                            <TextArea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Brief product description for the grid..." />
-                        </Field>
-                        <Field label="Long Description (Detail Page)">
-                            <TextArea value={form.longDescription} onChange={e => setForm(f => ({ ...f, longDescription: e.target.value }))} placeholder="Detailed story for the product page..." rows={5} />
-                        </Field>
-
-                        <Field label="Specifications">
-                            <div className="space-y-3">
-                                {form.specifications.map((spec, idx) => (
-                                    <div key={idx} className="flex gap-2">
-                                        <input value={spec.label} onChange={e => {
-                                            const newSpecs = [...form.specifications];
-                                            newSpecs[idx].label = e.target.value;
-                                            setForm(f => ({ ...f, specifications: newSpecs }));
-                                        }} placeholder="Label (e.g. Moisture)" className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none" />
-                                        <input value={spec.value} onChange={e => {
-                                            const newSpecs = [...form.specifications];
-                                            newSpecs[idx].value = e.target.value;
-                                            setForm(f => ({ ...f, specifications: newSpecs }));
-                                        }} placeholder="Value (e.g. 12% Max)" className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none" />
-                                        <button onClick={() => {
-                                            const newSpecs = form.specifications.filter((_, i) => i !== idx);
-                                            setForm(f => ({ ...f, specifications: newSpecs.length ? newSpecs : [{ label: '', value: '' }] }));
-                                        }} className="p-2 text-red-400 hover:text-red-500"><Trash2 size={16} /></button>
-                                    </div>
-                                ))}
-                                <button onClick={() => setForm(f => ({ ...f, specifications: [...f.specifications, { label: '', value: '' }] }))} className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1">+ Add Spec</button>
-                            </div>
-                        </Field>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <Field label="Availability Status">
-                                <TextInput value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} placeholder="e.g. Set Available" />
-                            </Field>
-                            <Field label="Display Badge">
-                                <TextInput value={form.badgeNote} onChange={e => setForm(f => ({ ...f, badgeNote: e.target.value }))} placeholder="e.g. Handcrafted Product" />
-                            </Field>
-                            <Field label="Display Order (Priority)">
-                                <TextInput 
-                                    type="number" 
-                                    value={form.order} 
-                                    onChange={e => setForm(f => ({ ...f, order: e.target.value }))} 
-                                    placeholder="e.g. -10, 0, 10" 
-                                />
-                                <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Lower numbers appear first (e.g. -100 pins to top)</p>
-                            </Field>
-                        </div>
-
-                        <Field label="Minimum Order Quantity">
-                            <TextInput 
-                                value={form.minimumOrder} 
-                                onChange={e => setForm(f => ({ ...f, minimumOrder: e.target.value }))} 
-                                placeholder="e.g. 1 Metric Ton, 500 kg, 20 FCL" 
-                            />
-                            <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Displayed prominently on the product detail page</p>
-                        </Field>
-
-                        <Field label="Available Types / Variants">
-                            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 mb-3">
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight italic">📦 e.g. Frozen, Fresh, Chilled, Boneless, Bone-In, Salted, Natural</p>
-                            </div>
-                            <div className="space-y-3">
-                                {form.types.map((type, idx) => (
-                                    <div key={idx} className="flex gap-2">
-                                        <input value={type} onChange={e => {
-                                            const newTypes = [...form.types];
-                                            newTypes[idx] = e.target.value;
-                                            setForm(f => ({ ...f, types: newTypes }));
-                                        }} placeholder="e.g. Frozen Boneless" className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:border-secondary transition-all" />
-                                        <button onClick={() => {
-                                            const newTypes = form.types.filter((_, i) => i !== idx);
-                                            setForm(f => ({ ...f, types: newTypes.length ? newTypes : [''] }));
-                                        }} className="p-2 text-red-400 hover:text-red-500"><Trash2 size={16} /></button>
-                                    </div>
-                                ))}
-                                <button onClick={() => setForm(f => ({ ...f, types: [...f.types, ''] }))} className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1">+ Add Type</button>
-                            </div>
-                        </Field>
-
-                        <Field label="Product Highlights / Benefits">
-                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-2">
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight italic">ℹ️ These are key selling points that appear in the product highlights section.</p>
-                            </div>
-                            <div className="space-y-3">
-                                {form.benefits.map((benefit, idx) => (
-                                    <div key={idx} className="flex gap-2">
-                                        <input value={benefit} onChange={e => {
-                                            const newBen = [...form.benefits];
-                                            newBen[idx] = e.target.value;
-                                            setForm({ ...form, benefits: newBen });
-                                        }} placeholder="e.g. 100% Organic" className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none" />
-                                        <button onClick={() => {
-                                            const newBen = form.benefits.filter((_, i) => i !== idx);
-                                            setForm({ ...form, benefits: newBen.length ? newBen : [''] });
-                                        }} className="p-2 text-red-400 hover:text-red-500"><Trash2 size={16} /></button>
-                                    </div>
-                                ))}
-                                <button onClick={() => setForm({ ...form, benefits: [...form.benefits, ''] })} className="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1">+ Add Benefit</button>
-                            </div>
-                        </Field>
-
-
-
-                        <div className="flex items-center gap-3">
-                             <button type="button" onClick={() => setForm(f => ({ ...f, isHalal: !f.isHalal }))}
-                                 className={`w-10 h-6 rounded-full transition-all flex-shrink-0 ${form.isHalal ? 'bg-secondary' : 'bg-slate-200'}`}>
-                                 <div className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform ${form.isHalal ? 'translate-x-4' : 'translate-x-0.5'}`} />
-                             </button>
-                             <label className="text-sm font-black text-slate-600">Halal Certified</label>
-                         </div>
-                         <ImageUploader label="Main Product Hero Image" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} />
-                    </Modal>
-                )
-                }
-            </AnimatePresence >
 
             <Reorder.Group axis="y" values={filtered} onReorder={handleReorder} className="space-y-3">
                 {filtered.map((prod) => (
@@ -1632,7 +1314,8 @@ const DashboardOverview = () => {
 
 // ─── Main Dashboard Shell ──────────────────────────────────────────
 const Dashboard = ({ onLogout }) => {
-    const [tab, setTab] = useState('overview');
+    const location = useLocation();
+    const [tab, setTab] = useState(location.state?.activeTab || 'overview');
     const tabs = [
         { id: 'overview', label: 'Overview', icon: BarChart3 },
         { id: 'categories', label: 'Categories', icon: FolderOpen },

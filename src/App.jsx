@@ -8,6 +8,8 @@ import WoodCrafts from './components/WoodCrafts';
 import Certificates from './components/Certificates';
 import ProductDetail from './components/ProductDetail';
 import AdminPanel from './components/AdminPanel';
+import AdminProductFormPage from './components/AdminProductFormPage';
+import AdminCategoryFormPage from './components/AdminCategoryFormPage';
 import AboutPage from './components/AboutPage';
 import CategoryPage from './components/CategoryPage';
 import ServicesPage from './components/ServicesPage';
@@ -47,6 +49,10 @@ function App() {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/payment-terms" element={<PaymentTerms />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin/product/new" element={<AdminProductFormPage />} />
+        <Route path="/admin/product/edit/:docId" element={<AdminProductFormPage />} />
+        <Route path="/admin/category/new" element={<AdminCategoryFormPage />} />
+        <Route path="/admin/category/edit/:docId" element={<AdminCategoryFormPage />} />
         <Route path="*" element={<div className="pt-40 pb-24 min-h-screen flex items-center justify-center"><h1 className="text-4xl text-primary font-black">404 - Page Not Found</h1></div>} />
       </Routes>
       <FloatingEnquiry />

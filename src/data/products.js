@@ -7,7 +7,7 @@ import basmati2 from '../assets/pasmati/bfb94b8934e15f5529a44be1952cddcf.jpg';
 import nonBasmati1 from '../assets/non pasmati/26864a111cb62d87147528c71d8a6ff1.jpg';
 
 // Meat Images
-import buffalo1 from '../assets/baffalo meat/6c0071e78766afe56c65f019f30ab2a6.jpg';
+
 import buffaloTongue from '../assets/baffalo meat/buffalo_tongue.png';
 import buffaloTail from '../assets/baffalo meat/buffalo_tail.png';
 import chuckTender from '../assets/baffalo meat/chuck_tender.png';
@@ -228,29 +228,6 @@ export const products = [
 
     // ── LIVESTOCK ──────────────────────────────────────────────────────
     {
-        id: 'buffalo-meat',
-        title: 'Buffalo Meat',
-        category: 'Livestock',
-        categorySlug: 'livestock',
-        image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&q=80&w=1200',
-        description: 'Premium frozen boneless buffalo meat.',
-        status: 'Set Available',
-        badgeNote: 'Halal Certified Export',
-        isHalal: true,
-        specifications: [
-            { label: 'Type', value: 'Frozen Boneless' },
-            { label: 'Fat Content', value: '95% Chemical Lean' },
-            { label: 'Cut', value: 'Premium Forequarter' },
-            { label: 'Packing', value: '30 kg Carton (Vacuum)' },
-            { label: 'Certification', value: 'Halal Certified' },
-        ],
-        types: ['Frozen Boneless', 'Chilled Boneless', 'Boneless Forequarter', 'Boneless Hindquarter', 'Bone-In Cuts'],
-        minimumOrder: '1 Full Container (FCL) ~20 MT',
-        varieties: [
-            { title: 'Premium Boneless Cuts', desc: 'Selected lean cuts processed under strict Halal standards.', img: buffalo1 }
-        ]
-    },
-    {
         id: 'frozen-buffalo-tongue',
         title: 'Frozen Buffalo Tongue',
         category: 'Livestock',
@@ -323,7 +300,7 @@ export const products = [
         ],
         types: ['Frozen Boneless', 'Chilled Boneless', 'Vacuum Packed'],
         minimumOrder: '1 Full Container (FCL) ~20 MT',
-    },
+    }, 
     {
         id: 'frozen-tripe-omasum',
         title: 'Frozen Buffalo Tripe/Omasum',
@@ -333,7 +310,7 @@ export const products = [
         description: 'Cleaned and frozen buffalo tripe and omasum.',
         badgeNote: 'Cleaned & Frozen',
         isHalal: true,
-        specifications: [
+        specifications: [ 
             { label: 'Type', value: 'Frozen' },
             { label: 'Parts', value: 'Tripe / Omasum' },
             { label: 'Processing', value: 'Thoroughly Cleaned' },
@@ -346,23 +323,33 @@ export const products = [
 
     // ── BEVERAGES ──────────────────────────────────────────────────────
     {
-        id: 'drinking-water',
-        title: 'Drinking Water',
+        id: 'alkaline-drinking-water',
+        title: 'Alkaline Enriched Drinking Water',
         category: 'Beverages',
         categorySlug: 'beverages',
         image: waterImg,
-        description: 'Purified and mineral-enriched drinking water.',
+        description: 'Alkaline Water Enriched With Added Minerals, Electrolytes & Vitamin B12. Sourced from Borewell.',
         specifications: [
-            { label: 'Purification', value: '7-Stage RO + UV + Ozone' },
-            { label: 'TDS Level', value: '50 – 150 ppm' },
-            { label: 'pH Level', value: '7.0 – 7.5 (Neutral)' },
-            { label: 'Packaging', value: '500 ml / 1 L / 5 L / 20 L' },
+            { label: 'Source', value: 'Borewell' },
+            { label: 'Purification', value: 'RO + Filtration + Alkaline Media Vessel + Dozing Pumps + UV + Ozonization + Filling & Packing' },
+            { label: 'pH Value', value: 'Upto 8 pH' },
+            { label: 'TDS Level', value: '90 - 110 mg/L' },
+            { label: 'Shelf Life', value: '6 to 9 Months' },
+            { label: 'Certifications', value: 'FSSAI Central, ISO 9001, Factory, Dept. of Metrology Central, Labour & MSME' },
+            { label: 'Supply Ability', value: '2K Cases/Day, 2K 20L Jars/Day' },
+            { label: 'Delivery Time', value: '1 Day Order In Advance' },
+            { label: 'Custom Labeling/Branding', value: 'Available (Different Rates)' },
+            { label: 'Packaging Options', value: 'Cartons & Shrink Packs' },
         ],
-        types: ['500 ml Bottle', '1 Litre Bottle', '5 Litre Jar', '20 Litre Can', 'Bulk Tanker Supply'],
-        minimumOrder: '1 Full Container (20ft)',
+        types: [
+            '500ml & 1Ltr PET Bottles Packs',
+            '250ml, 500ml & 750ml Glass Bottles Packs',
+            '20Ltrs Jars'
+        ],
+        minimumOrder: 'One Vehicle Full Load',
         varieties: [
-            { title: '7-Stage Purification', desc: 'Our mineral water undergoes RO, UV sterilization, and Ozonization.', img: water1 },
-            { title: 'Mineral Enriched', desc: 'Enriched with Magnesium and Potassium.', img: water2 }
+            { title: 'Advanced Purification', desc: 'Undergoes RO, Alkaline Media Vessel, UV, and Ozonization.', img: water1 },
+            { title: 'Mineral & Vitamin Enriched', desc: 'Enriched with added Minerals, Electrolytes & Vitamin B12.', img: water2 }
         ]
     },
 

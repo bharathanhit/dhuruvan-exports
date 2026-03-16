@@ -1,7 +1,4 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, ArrowLeft, Leaf, Sparkles, TrendingUp, Package } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import GlobalInquiryButtons from './GlobalInquiryButtons';
 
 
@@ -21,7 +18,7 @@ import img9 from '../assets/wood/WhatsApp Image 2026-02-22 at 5.58.03 PM.jpeg';
 
 const woodProducts = [
     {
-        id: 1,
+        id: 'rattan-cradle',
         name: 'Rattan Baby Cradle Stand',
         category: 'Baby Furniture',
         description: 'Handcrafted rattan cradle stand with elegant arched frame and wicker basket insert. Perfect blend of artistry and function for nurseries.',
@@ -29,7 +26,7 @@ const woodProducts = [
         tag: 'Bestseller',
     },
     {
-        id: 2,
+        id: 'wicker-stools',
         name: 'Wicker Pedestal Stools (Set of 3)',
         category: 'Seating',
         description: 'Intricately woven bamboo pedestal stools in a matching set. Ideal for living rooms, verandas, or garden spaces.',
@@ -37,7 +34,7 @@ const woodProducts = [
         tag: 'Set Available',
     },
     {
-        id: 3,
+        id: 'wicker-stools', // Reusing ID as they are likely varieties or similar
         name: 'Wicker Duo Pedestal Set',
         category: 'Seating',
         description: 'A pair of natural bamboo pedestal stools in two sizes — a versatile accent piece for any interior or exterior setting.',
@@ -45,7 +42,7 @@ const woodProducts = [
         tag: 'Pair',
     },
     {
-        id: 4,
+        id: 'hanging-swing',
         name: 'Hanging Swing Chair',
         category: 'Swing Furniture',
         description: 'Stunning handcrafted hanging swing chair with dark mahogany rattan frame and wicker seat. A statement piece for patios and terraces.',
@@ -53,7 +50,7 @@ const woodProducts = [
         tag: 'Export Favourite',
     },
     {
-        id: 5,
+        id: 'oval-sofa-set',
         name: 'Oval Sofa Set',
         category: 'Living Room',
         description: 'Full organic oval weave living room set — sofa, armchairs, and coffee table. Premium natural rattan, export-grade finish.',
@@ -61,7 +58,7 @@ const woodProducts = [
         tag: 'Full Set',
     },
     {
-        id: 6,
+        id: 'peacock-chair',
         name: 'Rattan Peacock Chair',
         category: 'Accent Chairs',
         description: 'Iconic peacock throne chair with mahogany rattan frame and wicker weave backrest. Artisanal craftsmanship, globally admired.',
@@ -69,7 +66,7 @@ const woodProducts = [
         tag: 'Iconic',
     },
     {
-        id: 7,
+        id: 'storage-basket',
         name: 'Wicker Storage Basket',
         category: 'Storage',
         description: 'Natural tightly woven wicker storage baskets. Available in multiple sizes — perfect for retail, home decor, and gifting markets.',
@@ -77,7 +74,7 @@ const woodProducts = [
         tag: 'Bulk Available',
     },
     {
-        id: 8,
+        id: 'lounge-sofa',
         name: 'Rattan Lounge Sofa',
         category: 'Living Room',
         description: 'Spacious three-seater rattan lounge sofa with deep-weave texture. Lightweight yet durable — ideal for hotels and resorts.',
@@ -85,7 +82,7 @@ const woodProducts = [
         tag: 'Hotel Grade',
     },
     {
-        id: 9,
+        id: 'egg-chair',
         name: 'Hanging Egg Chair',
         category: 'Swing Furniture',
         description: 'Classic wicker hanging egg chair, cocoon-shaped with a sturdy rattan frame. A global bestseller in outdoor and indoor decor.',
@@ -95,7 +92,7 @@ const woodProducts = [
 ];
 
 const WoodCrafts = () => {
-    const [selected, setSelected] = useState(null);
+    const navigate = useNavigate();
 
     return (
         <div className="min-h-screen bg-white">
@@ -192,7 +189,7 @@ const WoodCrafts = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1, duration: 0.8 }}
-                                onClick={() => setSelected(product)}
+                                onClick={() => navigate(`/product/${product.id}`)}
                                 className="group bg-white rounded-[2.5rem] overflow-hidden shadow-[0_15px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,43,88,0.12)] border border-slate-100 transition-all duration-700 hover:-translate-y-2 cursor-pointer"
                             >
                                 {/* Image Container - Reduced for Elegance */}
@@ -247,64 +244,6 @@ const WoodCrafts = () => {
                 </div>
             </section>
 
-            {/* Lightbox / Product QuickView */}
-            <AnimatePresence>
-                {selected && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setSelected(null)}
-                        className="fixed inset-0 bg-primary/80 backdrop-blur-md z-[1000] flex items-center justify-center p-6 md:p-12"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            onClick={e => e.stopPropagation()}
-                            className="bg-white rounded-[3rem] overflow-hidden max-w-5xl w-full flex flex-col lg:flex-row shadow-[0_50px_100px_rgba(0,0,0,0.3)]"
-                        >
-                            <div className="flex-1 min-h-[300px] lg:h-auto overflow-hidden bg-slate-50 relative">
-                                <img src={selected.image} alt={selected.name} className="w-full h-full object-cover" />
-                                <div className="absolute top-8 left-8 z-20 px-5 py-2 bg-white/90 backdrop-blur-md rounded-full shadow-xl">
-                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{selected.tag}</span>
-                                </div>
-                            </div>
-                            <div className="flex-1 p-10 lg:p-16 flex flex-col justify-center">
-                                <button
-                                    onClick={() => setSelected(null)}
-                                    className="absolute top-8 right-8 w-12 h-12 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:text-red-500 transition-all hover:scale-110 hover:rotate-90 z-50 shadow-sm"
-                                >
-                                    <X size={24} strokeWidth={2.5} />
-                                </button>
-
-                                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-secondary/10 rounded-full text-secondary text-[10px] font-black uppercase tracking-[0.3em] mb-8">
-                                    <Sparkles size={14} />
-                                    <span>Handcrafted Product</span>
-                                </div>
-
-                                <h2 className="text-4xl md:text-5xl font-black text-primary mb-6 tracking-tighter leading-none">
-                                    {selected.name}
-                                </h2>
-                                <p className="text-slate-500 text-lg font-medium leading-relaxed mb-10">
-                                    {selected.description}
-                                </p>
-
-                                <div className="space-y-6">
-                                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest text-center">Select Inquiry Method</p>
-                                    <GlobalInquiryButtons productTitle={selected.name} context={`WoodCrafts Lightbox: ${selected.category}`} />
-                                    <button
-                                        onClick={() => setSelected(null)}
-                                        className="w-full bg-slate-100 text-slate-400 font-black py-4 rounded-2xl text-[11px] uppercase tracking-widest hover:bg-slate-200 hover:text-slate-600 transition-all mt-4"
-                                    >
-                                        Close Window
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div>
     );
 };
