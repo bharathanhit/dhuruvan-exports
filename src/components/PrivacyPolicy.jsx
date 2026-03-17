@@ -139,21 +139,7 @@ const PrivacyPolicy = () => {
                     </motion.div>
                 </div>
 
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    className="mt-32 text-center p-16 bg-primary rounded-[4rem] text-white shadow-2xl relative overflow-hidden"
-                >
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                    <h3 className="text-3xl md:text-4xl font-black mb-6 tracking-tighter">Compliance Inquiry</h3>
-                    <p className="font-medium text-white/60 mb-12 text-lg max-w-xl mx-auto">
-                        Dhuruvan Exports is committed to ethical data management across all global borders.
-                    </p>
-                    <a href="mailto:privacy@dhuruvanexports.com" className="btn bg-secondary text-white hover:bg-secondary/90 px-12 py-5 text-sm uppercase tracking-[0.2em]">
-                        Contact Privacy Officer
-                    </a>
-                </motion.div>
+
             </div>
         </div>
     );
