@@ -8,7 +8,7 @@ import { products as staticProducts, categories as staticCategories } from '../d
 import halalImg from '../assets/halal.png';
 import woodenBg from '../assets/wooden-background.jpg';
 import agriWallBg from '../assets/agri-wall.jpg';
-import waterBg from '../assets/children-water-bg.png';
+import waterBg from '../assets/pouring-water.png';
 
 import GlobalInquiryButtons from './GlobalInquiryButtons';
 
