@@ -1,14 +1,30 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ShieldCheck, Award, Target, Eye, Globe2, Users, HeartHandshake } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Award, Target, Eye, Globe2, Users, HeartHandshake, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import GlobalInquiryButtons from './GlobalInquiryButtons';
 
 const AboutPage = () => {
     return (
-        <div className="pt-44 min-h-screen bg-white">
+        <div className="min-h-screen bg-white">
             {/* Hero Section - Compact & Premium */}
-            <section className="relative py-20 bg-slate-50 overflow-hidden border-b border-slate-100">
+            <section className="relative pt-52 pb-20 bg-slate-50 overflow-hidden border-b border-slate-100">
                 <div className="container px-6 relative z-10">
+                    <motion.div
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <div className="flex justify-end mb-12">
+                            <Link
+                                to="/#"
+                                className="inline-flex items-center gap-2 text-slate-500 bg-white shadow-sm hover:bg-secondary hover:text-white px-4 py-2 rounded-xl text-[10px] font-black transition-all group tracking-[0.2em] uppercase border border-slate-100"
+                            >
+                                <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                                Back to Home
+                            </Link>
+                        </div>
+                    </motion.div>
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}

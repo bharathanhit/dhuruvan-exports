@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Package, Truck, ShieldCheck, Search, Zap, Globe, Layout, Compass,
     CheckCircle2, ArrowRight, BarChart3, Phone, Clock, ChevronLeft,
-    ChevronRight, Calendar, Check, X, User, Mail, MessageCircle
+    ChevronRight, Calendar, Check, X, User, Mail, MessageCircle, ArrowLeft
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -443,7 +443,7 @@ const ServicesPage = () => {
     }, []);
 
     return (
-        <div className="pt-44 min-h-screen bg-white">
+        <div className="pt-52 min-h-screen bg-white">
 
             {/* Private Label Packaging - Deep Dive (Premium Split Layout) */}
             <section className="py-24 md:py-32 bg-white relative overflow-hidden">
@@ -451,6 +451,21 @@ const ServicesPage = () => {
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/[0.03] rounded-full blur-3xl -z-10 -translate-x-1/2" />
 
                 <div className="container px-6">
+                    <motion.div
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <div className="flex justify-end mb-12">
+                            <Link
+                                to="/#"
+                                className="inline-flex items-center gap-2 text-slate-500 bg-white shadow-sm hover:bg-secondary hover:text-white px-4 py-2 rounded-xl text-[10px] font-black transition-all group tracking-[0.2em] uppercase border border-slate-100"
+                            >
+                                <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                                Back to Home
+                            </Link>
+                        </div>
+                    </motion.div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
                         <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
                             <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 100 }}

@@ -72,7 +72,7 @@ const FloatingEnquiry = () => {
     };
 
     return (
-        <div className="fixed bottom-8 left-8 z-[100] flex flex-col items-start gap-4 pointer-events-none">
+        <div className="fixed bottom-8 right-8 z-[100] flex flex-col items-end gap-4 pointer-events-none">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div

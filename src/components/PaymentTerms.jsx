@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { CreditCard, ShieldCheck, Globe, Scale, Clock, Briefcase, CheckCircle2, DollarSign } from 'lucide-react';
+import { CreditCard, ShieldCheck, Globe, Scale, Clock, Briefcase, CheckCircle2, DollarSign, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const PaymentTerms = () => {
     const paymentMethods = [
@@ -27,8 +28,23 @@ const PaymentTerms = () => {
     ];
 
     return (
-        <div className="pt-40 pb-24 bg-slate-50 min-h-screen selection:bg-secondary selection:text-white">
+        <div className="pt-52 pb-24 bg-slate-50 min-h-screen selection:bg-secondary selection:text-white">
             <div className="container max-w-5xl px-6">
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }} // Updated animation
+                    animate={{ opacity: 1, y: 0 }} // Updated animation
+                    transition={{ duration: 0.5 }}
+                >
+                    <div className="flex justify-end mb-12">
+                        <Link
+                            to="/#"
+                            className="inline-flex items-center gap-2 text-slate-500 bg-white shadow-sm hover:bg-secondary hover:text-white px-4 py-2 rounded-xl text-[10px] font-black transition-all group tracking-[0.2em] uppercase border border-slate-100"
+                        >
+                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                            Back to Home
+                        </Link>
+                    </div>
+                </motion.div>
 
                 {/* Hero Header */}
                 <motion.div

@@ -64,7 +64,28 @@ const ProductDetail = () => {
 
     return (
         <div id="product-detail" className="min-h-screen bg-[#fafbfc] selection:bg-secondary/30">
-            <div className="container px-6 pt-12 pb-24">
+            <div className="container px-6 pt-52 pb-24">
+                <motion.div
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <div className="flex items-center justify-end gap-3 mb-12">
+                        <Link
+                            to="/#"
+                            className="inline-flex items-center gap-2 text-slate-500 bg-slate-100 hover:bg-secondary hover:text-white px-4 py-2 rounded-xl text-[10px] font-black transition-all group tracking-[0.2em] uppercase"
+                        >
+                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                            Back to Home
+                        </Link>
+                        <Link
+                            to={product?.categorySlug ? `/category/${product.categorySlug}` : "/#products"}
+                            className="inline-flex items-center gap-2 text-slate-500 bg-slate-100 hover:bg-secondary hover:text-white px-4 py-2 rounded-xl text-[10px] font-black transition-all group tracking-[0.2em] uppercase"
+                        >
+                            Back to {product?.categorySlug ? product.category : 'Catalog'}
+                        </Link>
+                    </div>
+                </motion.div>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24">
                     {/* Left Column: Product Image & Highlights */}
                     <div className="lg:col-span-6 space-y-12">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus, HelpCircle, MessageCircle, Mail, Phone, Calendar, ArrowRight, Sparkles } from 'lucide-react';
+import { Plus, Minus, HelpCircle, MessageCircle, Mail, Phone, Calendar, ArrowRight, Sparkles, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const faqData = [
     {
@@ -86,13 +87,28 @@ const FAQ = () => {
     return (
         <div className="min-h-screen bg-white">
             {/* Header Section */}
-            <section className="pt-40 pb-20 bg-primary relative overflow-hidden">
+            <section className="pt-52 pb-20 bg-primary relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
                     <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
                 </div>
 
                 <div className="container px-6 relative z-10">
+                    <motion.div
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <div className="flex justify-end mb-12">
+                            <Link
+                                to="/#"
+                                className="inline-flex items-center gap-2 text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10 text-[10px] font-black transition-all group tracking-[0.2em] uppercase"
+                            >
+                                <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                                Back to Home
+                            </Link>
+                        </div>
+                    </motion.div>
                     <div className="max-w-4xl mx-auto text-center">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -127,6 +143,20 @@ const FAQ = () => {
             {/* Still have questions? Section */}
             <section className="pb-24">
                 <div className="container px-6">
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="w-full flex justify-end"
+                    >
+                        <Link
+                            to="/#"
+                            className="inline-flex items-center gap-2 text-slate-400 hover:text-secondary text-[10px] font-black transition-all mb-12 group tracking-[0.2em] uppercase"
+                        >
+                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                            Back to Home
+                        </Link>
+                    </motion.div>
                     <div className="max-w-4xl mx-auto text-center bg-slate-50 rounded-[3rem] p-12 md:p-16 border border-slate-100">
                         <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm mx-auto mb-8 border border-slate-100">
                             <Sparkles size={24} />

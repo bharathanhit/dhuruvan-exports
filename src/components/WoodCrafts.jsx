@@ -1,9 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Leaf, Package, TrendingUp } from 'lucide-react';
 import GlobalInquiryButtons from './GlobalInquiryButtons';
-
-
-
-
 
 // Import all wood craft images
 import img1 from '../assets/wood/WhatsApp Image 2026-02-22 at 5.57.59 PM.jpeg';
@@ -34,7 +32,7 @@ const woodProducts = [
         tag: 'Set Available',
     },
     {
-        id: 'wicker-stools', // Reusing ID as they are likely varieties or similar
+        id: 'wicker-stools-pair', // Unique ID
         name: 'Wicker Duo Pedestal Set',
         category: 'Seating',
         description: 'A pair of natural bamboo pedestal stools in two sizes — a versatile accent piece for any interior or exterior setting.',
@@ -104,13 +102,17 @@ const WoodCrafts = () => {
                     <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600 rounded-full transform -translate-x-1/2 translate-y-1/2" />
                 </div>
 
-                <div className="container px-6 relative z-10">
+                <div className="container px-6 relative z-10 mx-auto">
                     <motion.div
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
+                        className="w-full flex justify-end"
                     >
-                        <Link to="/" className="inline-flex items-center gap-3 text-white/50 hover:text-white transition-colors text-[10px] font-black uppercase tracking-[0.3em] mb-12">
-                            <ArrowLeft size={16} />
+                        <Link 
+                            to="/#" 
+                            className="inline-flex items-center gap-3 text-white bg-white/10 hover:bg-secondary px-5 py-2.5 rounded-xl backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] mb-12 transition-all group"
+                        >
+                            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                             Return Home
                         </Link>
                     </motion.div>
@@ -180,7 +182,7 @@ const WoodCrafts = () => {
 
             {/* Catalog Grid */}
             <section className="py-24 md:py-32 bg-white relative -mt-32 z-10">
-                <div className="container px-6">
+                <div className="container px-6 mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {woodProducts.map((product, i) => (
                             <motion.div
@@ -192,7 +194,7 @@ const WoodCrafts = () => {
                                 onClick={() => navigate(`/product/${product.id}`)}
                                 className="group bg-white rounded-[2.5rem] overflow-hidden shadow-[0_15px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,43,88,0.12)] border border-slate-100 transition-all duration-700 hover:-translate-y-2 cursor-pointer"
                             >
-                                {/* Image Container - Reduced for Elegance */}
+                                {/* Image Container */}
                                 <div className="relative h-56 overflow-hidden bg-slate-50">
                                     <motion.div
                                         className="w-full h-full"
@@ -232,7 +234,7 @@ const WoodCrafts = () => {
                                     <p className="text-slate-500 text-sm font-medium leading-relaxed line-clamp-2 mb-8">
                                         {product.description}
                                     </p>
-                                    {/* Inquiry Section - Swapped for Global Component */}
+                                    {/* Inquiry Section */}
                                     <div className="pt-4 border-t border-slate-50">
                                         <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Start Inquiry</p>
                                         <GlobalInquiryButtons productTitle={product.name} context={`WoodCrafts: ${product.category}`} />
@@ -243,7 +245,6 @@ const WoodCrafts = () => {
                     </div>
                 </div>
             </section>
-
         </div>
     );
 };

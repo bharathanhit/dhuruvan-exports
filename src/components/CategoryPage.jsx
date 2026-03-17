@@ -164,7 +164,7 @@ const CategoryPage = () => {
 
     if (!loading && !category) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center text-primary pt-20">
+            <div className="min-h-screen flex flex-col items-center justify-center text-primary pt-52">
                 <h2 className="text-3xl font-black mb-4">Category not found</h2>
                 <Link to="/" className="text-secondary underline">← Back to Home</Link>
             </div>
@@ -175,7 +175,7 @@ const CategoryPage = () => {
         <div className="min-h-screen bg-[#050505]">
 
             {/* Hero Banner */}
-            <div className={`relative h-[55vh] min-h-[450px] md:h-[60vh] overflow-hidden flex items-end bg-gradient-to-br ${category?.gradient || 'from-slate-900 to-slate-800'}`}>
+            <div className={`relative min-h-[500px] md:min-h-[600px] overflow-hidden bg-gradient-to-br ${category?.gradient || 'from-slate-900 to-slate-800'}`}>
                 {category && (
                     <motion.img
                         initial={{ scale: 1.1, opacity: 0 }}
@@ -191,17 +191,34 @@ const CategoryPage = () => {
                 <div className="absolute inset-0 bg-black/20 mix-blend-multiply z-0" />
                 <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-0" />
 
-                <div className="relative z-10 container pb-20 pt-48 px-6">
+                <div className="relative z-10 container mx-auto px-6 pt-52 pb-20">
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="flex items-center justify-end gap-3 mb-12"
+                    >
+                        <Link 
+                            to="/#" 
+                            className="inline-flex items-center gap-2 text-white bg-white/10 hover:bg-secondary px-4 py-2 rounded-xl backdrop-blur-md border border-white/10 text-[10px] font-black transition-all group tracking-widest uppercase"
+                        >
+                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                            Back to Home
+                        </Link>
+                        <Link 
+                            to="/#products" 
+                            className="inline-flex items-center gap-2 text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10 text-[10px] font-black transition-all group tracking-widest uppercase"
+                        >
+                            Return to Catalog
+                        </Link>
+                    </motion.div>
+
                     <motion.div 
                         initial={{ opacity: 0, y: 30 }} 
                         animate={{ opacity: 1, y: 0 }} 
                         transition={{ duration: 0.8, type: 'spring', damping: 25, stiffness: 200 }}
                         className="max-w-4xl relative z-10"
                     >
-                        <Link to="/#products" className="inline-flex items-center gap-2 text-white/70 hover:text-white text-xs font-bold transition-colors mb-8 group tracking-widest uppercase">
-                            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                            Return to Catalog
-                        </Link>
 
                         <div className="block mb-5">
                             <motion.span 
@@ -311,4 +328,3 @@ const CategoryPage = () => {
 };
 
 export default CategoryPage;
-
