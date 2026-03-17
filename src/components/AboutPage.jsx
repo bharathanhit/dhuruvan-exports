@@ -4,7 +4,12 @@ import { CheckCircle2, ShieldCheck, Award, Target, Eye, Globe2, Users, HeartHand
 import { Link } from 'react-router-dom';
 import GlobalInquiryButtons from './GlobalInquiryButtons';
 
+import { useEffect } from 'react';
+
 const AboutPage = () => {
+    useEffect(() => {
+        document.title = "About Us | Our Global Vision | Dhuruvan Exports";
+    }, []);
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section - Compact & Premium */}

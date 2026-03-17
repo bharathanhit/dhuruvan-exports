@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
 import { ArrowLeft, FileText, Shield, Globe, Scale, Clock, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const TermsAndConditions = () => {
+    useEffect(() => {
+        document.title = "Terms & Conditions | Export Compliance | Dhuruvan Exports";
+    }, []);
     return (
         <div className="pt-52 pb-24 bg-slate-50 min-h-screen selection:bg-secondary selection:text-white">
             <div className="container max-w-4xl px-6">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, HelpCircle, MessageCircle, Mail, Phone, Calendar, ArrowRight, Sparkles, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -84,6 +84,9 @@ const FAQItem = ({ item, index }) => {
 };
 
 const FAQ = () => {
+    useEffect(() => {
+        document.title = "FAQ | Export Documentation & Logistics | Dhuruvan Exports";
+    }, []);
     return (
         <div className="min-h-screen bg-white">
             {/* Header Section */}

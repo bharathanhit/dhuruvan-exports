@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Package, Truck, ShieldCheck, Search, Zap, Globe, Layout, Compass,
@@ -424,6 +424,9 @@ const BookingWidget = () => {
 };
 
 const ServicesPage = () => {
+    useEffect(() => {
+        document.title = "Global Export Services | Logistics & Private Labeling | Dhuruvan Exports";
+    }, []);
     const [services, setServices] = React.useState(staticServices);
 
     React.useEffect(() => {

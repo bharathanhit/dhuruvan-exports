@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
 import { ArrowLeft, Shield, Eye, Lock, Database, Search, UserCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const PrivacyPolicy = () => {
+    useEffect(() => {
+        document.title = "Privacy Policy | Data Protection | Dhuruvan Exports";
+    }, []);
     return (
         <div className="pt-52 pb-24 bg-slate-50 min-h-screen selection:bg-secondary selection:text-white">
             <div className="container max-w-4xl px-6">

@@ -50,6 +50,12 @@ const ProductDetail = () => {
         fetchProduct();
     }, [id, navigate]);
 
+    useEffect(() => {
+        if (product) {
+            document.title = `${product.title} | Dhuruvan Exports - India`;
+        }
+    }, [product]);
+
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-white">
             <div className="w-12 h-12 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin" />

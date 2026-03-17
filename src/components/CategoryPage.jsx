@@ -128,6 +128,12 @@ const CategoryPage = () => {
         return unsub;
     }, [slug]);
 
+    useEffect(() => {
+        if (category) {
+            document.title = `${category.title} | Premium Indian Exports | Dhuruvan Exports`;
+        }
+    }, [category]);
+
     // Fetch products
     useEffect(() => {
         const q = query(

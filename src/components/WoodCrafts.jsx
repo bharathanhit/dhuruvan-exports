@@ -1,6 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Leaf, Package, TrendingUp } from 'lucide-react';
+import { useEffect } from 'react';
 import GlobalInquiryButtons from './GlobalInquiryButtons';
 
 // Import all wood craft images
@@ -90,6 +91,9 @@ const woodProducts = [
 ];
 
 const WoodCrafts = () => {
+    useEffect(() => {
+        document.title = "Handcrafted Woodcrafts | Rattan Arts & Antique Decor | Dhuruvan Exports";
+    }, []);
     const navigate = useNavigate();
 
     return (

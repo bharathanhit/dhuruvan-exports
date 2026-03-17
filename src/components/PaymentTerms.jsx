@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
 import { CreditCard, ShieldCheck, Globe, Scale, Clock, Briefcase, CheckCircle2, DollarSign, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const PaymentTerms = () => {
+    useEffect(() => {
+        document.title = "Payment Terms | Secure Global Trade Finance | Dhuruvan Exports";
+    }, []);
     const paymentMethods = [
         {
             title: "100% Irrevocable & Confirmed L/C",
