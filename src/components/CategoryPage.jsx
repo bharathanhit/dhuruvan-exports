@@ -8,7 +8,8 @@ import { products as staticProducts, categories as staticCategories } from '../d
 import halalImg from '../assets/halal.png';
 import woodenBg from '../assets/wooden-background.jpg';
 import agriWallBg from '../assets/agri-wall.jpg';
-import waterBg from '../assets/pouring-water.png';
+import waterBg from '../assets/children-water-bg.png';
+import pouringBg from '../assets/pouring-water.png';
 
 import GlobalInquiryButtons from './GlobalInquiryButtons';
 
@@ -147,8 +148,16 @@ const CategoryPage = () => {
                 const firestoreProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 firestoreProducts.forEach(fp => {
                     const idx = merged.findIndex(p => p.title === fp.title);
-                    if (idx !== -1) merged[idx] = { ...merged[idx], ...fp };
-                    else merged.push(fp);
+                    if (idx !== -1) {
+                        const staticProd = merged[idx];
+                        // Merge Firestore data with static as fallback, prioritizing Firestore data
+                        merged[idx] = {
+                            ...staticProd,
+                            ...fp
+                        };
+                    } else {
+                        merged.push(fp);
+                    }
                 });
             }
             merged.sort((a, b) => {

@@ -25,7 +25,7 @@ const PaymentTerms = () => {
         },
 
         {
-            title: "50% Advance & 50% T/T Transfer",
+            title: "50 % advance , 50% BL SCAN COPY BEFORE SHIPMENT",
             desc: "A streamlined process for recurring global trade partners.",
             icon: Globe
         }

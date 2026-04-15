@@ -98,8 +98,15 @@ const BookingWidget = () => {
     };
 
     const handleSubmit = async () => {
-        if (!form.name || !form.email) return;
+        if (!form.name || !form.email || !form.phone) {
+            console.warn('Strategy Call Validation Failed - Missing fields:', { name: !!form.name, email: !!form.email, phone: !!form.phone });
+            alert('REQUIRED FIELDS MISSING:\n\nPlease enter your Name, Email, and Phone Number to confirm your strategy call.');
+            return;
+        }
+
         setSaving(true);
+        console.log('Starting appointment booking...', { dateStr: `${MONTHS[month]} ${selectedDate}, ${year}`, time: selectedTime });
+
         try {
             const dateStr = `${MONTHS[month]} ${selectedDate}, ${year}`;
             const appointmentData = {
@@ -112,10 +119,11 @@ const BookingWidget = () => {
                 createdAt: serverTimestamp()
             };
 
-            // Save to appointments collection (Original)
+            // Save to appointments collection
             await addDoc(collection(db, 'appointments'), appointmentData);
+            console.log('Saved to appointments');
 
-            // Save to inquiries collection (For unified dashboard view)
+            // Save to inquiries collection
             await addDoc(collection(db, 'inquiries'), {
                 name: form.name,
                 email: form.email,
@@ -128,16 +136,23 @@ const BookingWidget = () => {
                 createdAt: serverTimestamp(),
                 status: 'new'
             });
+            console.log('Saved to inquiries');
 
-            // Constructing the Message for WhatsApp
             const body = `🤝 *Dhuruvan Exports - Discovery Call Scheduled* 🤝\n\n🎯 *Confirmed:* ${dateStr} @ ${selectedTime}\n👤 *Client:* ${form.name}\n📱 *Phone:* ${form.phone}\n✉️ *Email:* ${form.email}\n📝 *Note:* ${form.note || "N/A"}\n\nPlease confirm our meeting invitation.`;
 
-            // Auto-open WhatsApp
-            window.open(`https://wa.me/919952777973?text=${encodeURIComponent(body)}`, '_blank');
+            try {
+                window.open(`https://wa.me/919952777973?text=${encodeURIComponent(body)}`, '_blank');
+            } catch (e) {
+                console.warn('WhatsApp popup was blocked');
+            }
 
             setStep('done');
-        } catch (e) { alert('Error: ' + e.message); }
-        setSaving(false);
+        } catch (e) {
+            console.error('Booking error:', e);
+            alert('Error: ' + e.message);
+        } finally {
+            setSaving(false);
+        }
     };
 
     const reset = () => {
@@ -328,7 +343,7 @@ const BookingWidget = () => {
 
                                 <div className="flex-1 overflow-y-auto pr-1 space-y-4 pb-6">
                                     <div className="space-y-1">
-                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Name</label>
+                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Name (Required)</label>
                                         <input
                                             value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
                                             className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-primary focus:border-secondary transition-all outline-none"
@@ -336,7 +351,7 @@ const BookingWidget = () => {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Phone Number</label>
+                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Phone Number (Required)</label>
                                         <input
                                             value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
                                             className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-primary focus:border-secondary transition-all outline-none"
@@ -345,7 +360,7 @@ const BookingWidget = () => {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Email</label>
+                                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest pl-1">Email (Required)</label>
                                         <input
                                             value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
                                             className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-primary focus:border-secondary transition-all outline-none"
@@ -365,9 +380,10 @@ const BookingWidget = () => {
                                 </div>
 
                                 <button
-                                    disabled={saving || !form.name || !form.email || !form.phone}
+                                    type="button"
+                                    disabled={saving}
                                     onClick={handleSubmit}
-                                    className="w-full py-4 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-secondary/20 transition-all flex items-center justify-center gap-3"
+                                    className={`w-full py-4 bg-secondary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-secondary/20 transition-all flex items-center justify-center gap-3 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
                                 >
                                     {saving ? 'Scheduling...' : 'Confirm Strategy Call'}
                                 </button>

@@ -6,15 +6,15 @@ import { useEffect } from 'react';
 const PrivacyPolicy = () => {
     useEffect(() => {
         document.title = "Privacy Policy | Data Protection | Dhuruvan Exports";
-    }, []);
-    return (
+    }, []);                     
+    return (                  
         <div className="pt-52 pb-24 bg-slate-50 min-h-screen selection:bg-secondary selection:text-white">
             <div className="container max-w-4xl px-6">
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
-                >
+                >             
                     <div className="flex justify-end mb-12">
                         <Link
                             to="/#"

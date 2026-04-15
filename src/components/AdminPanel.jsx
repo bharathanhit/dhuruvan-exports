@@ -15,7 +15,10 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { categories as staticCategories, products as staticProducts } from '../data/products';
-const ADMIN_PASSWORD = 'dhuruvan2026';
+// ─── Environment Credentials ─────────────────────────────────────────
+const ADMIN_USER = import.meta.env.VITE_ADMIN_USER;
+const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS;
+
 const slugify = (str) => str.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 const resizeImage = (file, maxWidth = 800) => {
     return new Promise((resolve) => {
@@ -44,6 +47,7 @@ const resizeImage = (file, maxWidth = 800) => {
 
 // ─── Login Screen ──────────────────────────────────────────────────
 const LoginScreen = ({ onLogin }) => {
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
@@ -53,12 +57,19 @@ const LoginScreen = ({ onLogin }) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
+        
+        // Use a subtle delay to prevent brute-forcing
         setTimeout(() => {
-            if (password === ADMIN_PASSWORD) {
+            const enteredUser = username.trim();
+            const enteredPass = password.trim();
+            const targetUser = (ADMIN_USER || '').trim();
+            const targetPass = (ADMIN_PASS || '').trim();
+
+            if (enteredUser === targetUser && enteredPass === targetPass) {
                 sessionStorage.setItem('adminAuth', 'true');
                 onLogin();
             } else {
-                setError('Invalid password. Access denied.');
+                setError('Invalid credentials. Access denied.');
                 setPassword('');
             }
             setIsLoading(false);
@@ -85,6 +96,23 @@ const LoginScreen = ({ onLogin }) => {
                 <h1 className="text-center text-white text-3xl font-black mb-2 tracking-tight">Admin Access</h1>
                 <p className="text-center text-white/50 text-sm font-medium mb-10">Enter your credentials to access the management dashboard</p>
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Username Field */}
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] ml-1">Username</label>
+                        <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl px-5 focus-within:border-secondary transition-all">
+                            <Users size={18} className="text-white/30 shrink-0" />
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Enter admin username"
+                                className="flex-1 bg-transparent border-none outline-none text-white text-sm font-medium py-4 px-4 placeholder:text-white/20"
+                                autoFocus
+                            />
+                        </div>
+                    </div>
+
+                    {/* Password Field */}
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] ml-1">Password</label>
                         <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl px-5 focus-within:border-secondary transition-all">
@@ -95,13 +123,13 @@ const LoginScreen = ({ onLogin }) => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Enter admin password"
                                 className="flex-1 bg-transparent border-none outline-none text-white text-sm font-medium py-4 px-4 placeholder:text-white/20"
-                                autoFocus
                             />
                             <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-white/30 hover:text-white transition-colors">
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
                         </div>
                     </div>
+
                     <AnimatePresence>
                         {error && (
                             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -110,7 +138,7 @@ const LoginScreen = ({ onLogin }) => {
                             </motion.div>
                         )}
                     </AnimatePresence>
-                    <button type="submit" disabled={isLoading || !password}
+                    <button type="submit" disabled={isLoading || !password || !username}
                         className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-secondary to-green-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg hover:-translate-y-1 transition-all disabled:opacity-50">
                         {isLoading
                             ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -649,15 +677,8 @@ const CategoryManager = () => {
     }, [categories]);
 
     const openEdit = (cat) => {
-        if (cat.isFirestore && cat.docId) {
-            navigate(`/admin/category/edit/${cat.docId}`);
-        } else {
-             // For static items, we might want to "promote" them first or just handle them as "new" with prefilled data
-             // But the existing logic in AdminCategoryFormPage handles loading from Firestore.
-             // If it's static, it won't have a docId.
-             alert("This is a static category. Edit it to save it to the database first.");
-             // I should probably allow editing static items too by passing data.
-        }
+        const idToUse = cat.isFirestore ? cat.docId : cat.slug;
+        navigate(`/admin/category/edit/${idToUse}`);
     };
 
     return (
@@ -751,7 +772,12 @@ const ProductManager = () => {
             const merged = staticProducts.map(p => ({ ...p, isStatic: true }));
 
             firestoreProds.forEach(fp => {
-                const idx = merged.findIndex(p => p.title === fp.title);
+                const idx = merged.findIndex(p => {
+                    const idMatch = p.id && fp.id && p.id === fp.id;
+                    const normalize = (s) => (s || '').toLowerCase().trim().replace(/\s+/g, ' ');
+                    const titleMatch = normalize(p.title) === normalize(fp.title);
+                    return idMatch || titleMatch;
+                });
                 if (idx !== -1) {
                     merged[idx] = { ...merged[idx], ...fp, isStatic: false };
                 } else {
@@ -797,11 +823,9 @@ const ProductManager = () => {
     };
 
     const openEdit = (prod) => {
-        if (prod.isFirestore && prod.docId) {
-            navigate(`/admin/product/edit/${prod.docId}`);
-        } else {
-            alert("This is a static product. Edit it to save it to the database first.");
-        }
+        // If it's firestore, use docId. If it's static, use the id (slug) from the object.
+        const idToUse = prod.isFirestore ? prod.docId : (prod.id || slugify(prod.title));
+        navigate(`/admin/product/edit/${idToUse}`);
     };
 
     const handleReorder = (reorderedSub) => {
@@ -1068,8 +1092,8 @@ const CertificateManager = () => {
                                 ) : (
                                     <>
                                         <UploadCloud size={28} className="text-slate-300 mx-auto mb-2" />
-                                        <p className="text-sm font-bold text-slate-400 mb-1">Upload certificate page images</p>
-                                        <p className="text-[10px] text-slate-300 mb-3">PNG, JPG, PDF screenshots supported. Multiple files allowed.</p>
+                                        <p className="text-sm font-bold text-slate-400 mb-1">Upload certificate image</p>
+                                        <p className="text-[10px] text-slate-300 mb-3">Only the 1st image will be displayed on the website.</p>
                                         <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-500 uppercase tracking-widest hover:border-secondary hover:text-secondary transition-all">
                                             <Plus size={14} /> Browse Files
                                             <input type="file" multiple accept="image/*" onChange={handleFileUpload} className="hidden" />
@@ -1158,7 +1182,7 @@ const CertificateManager = () => {
                                     </div>
                                 )}
                             </div>
-                            <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest mt-2">{(cert.pages || []).length} pages</p>
+                            <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest mt-2">{(cert.pages || []).length} pages total • 1st page visible</p>
                         </div>
                         {/* Actions */}
                         <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1169,10 +1193,19 @@ const CertificateManager = () => {
                 ))}
             </div>
 
-            <div className="mt-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl">
+            <div className="mt-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col gap-4">
                 <p className="text-amber-700 text-xs font-bold">
-                    <span className="font-black">ℹ️ Note:</span> New certificates added here will appear on the <strong>Certificates page</strong> automatically alongside the static GST & MSME certificates.
-                    Pages are displayed in a flip-book viewer in the order you upload them.
+                    <span className="font-black">ℹ️ Note:</span> Certificates are now displayed as <strong>static images</strong>. Only the first page you upload will be visible on the public site.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                    {['FSSAI License', 'ECGC Cover'].map(placeholder => (
+                        <span key={placeholder} className="px-3 py-1.5 bg-amber-100 text-amber-800 rounded-lg text-[10px] font-black uppercase tracking-wider border border-amber-200">
+                            {placeholder}
+                        </span>
+                    ))}
+                </div>
+                <p className="text-amber-600/60 text-[10px] font-black uppercase tracking-[0.1em]">
+                    Use these exact names to update existing placeholders.
                 </p>
             </div>
         </div>
@@ -1293,6 +1326,9 @@ const DashboardOverview = () => {
                                     ) : (
                                         <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest px-1.5 py-0.5 bg-slate-50 rounded-md">Static</span>
                                     )}
+                                    {prod.price && (
+                                        <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest px-1.5 py-0.5 bg-emerald-50 rounded-md">{prod.price}</span>
+                                    )}
                                 </div>
                             </div>
                         </motion.div>
@@ -1371,13 +1407,41 @@ const Dashboard = ({ onLogout }) => {
 };
 
 // ─── Root ──────────────────────────────────────────────────────────
+// ─── Root ──────────────────────────────────────────────────────────
 const AdminPanel = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(true); // Unlocked for now
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
         const auth = sessionStorage.getItem('adminAuth');
         if (auth === 'true') setIsAuthenticated(true);
     }, []);
+
+    // ─── Inactivity Auto-Logout ───
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        let idleTimer;
+        const IDLE_LIMIT = 15 * 60 * 1000; // 15 minutes
+
+        const resetTimer = () => {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                handleLogout();
+                alert("Session expired due to inactivity. Please log in again.");
+            }, IDLE_LIMIT);
+        };
+
+        // Listen for activity
+        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+        events.forEach(name => document.addEventListener(name, resetTimer));
+        
+        resetTimer(); // Start initial timer
+
+        return () => {
+            clearTimeout(idleTimer);
+            events.forEach(name => document.removeEventListener(name, resetTimer));
+        };
+    }, [isAuthenticated]);
 
     const handleLogout = () => {
         sessionStorage.removeItem('adminAuth');

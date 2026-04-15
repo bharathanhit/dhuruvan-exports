@@ -128,11 +128,13 @@ const emptyForm = {
     isHalal: false,
     status: 'Ready for Export',
     badgeNote: 'Premium Selection',
+    price: '',
     specifications: [{ label: '', value: '' }],
     types: [''],
     minimumOrder: '',
     benefits: [''],
     varieties: [],
+    paragraphs: [{ heading: '', body: '' }],
     order: 0
 };
 
@@ -141,6 +143,14 @@ const AdminProductFormPage = () => {
     const navigate = useNavigate();
     const { docId } = useParams(); // present when editing
     const isEditing = !!docId;
+
+    // ─── Security Check ───
+    useEffect(() => {
+        const isAuth = sessionStorage.getItem('adminAuth');
+        if (!isAuth) {
+            navigate('/admin');
+        }
+    }, [navigate]);
 
     const [form, setForm] = useState(emptyForm);
     const [categories, setCategories] = useState([]);
@@ -166,30 +176,64 @@ const AdminProductFormPage = () => {
     useEffect(() => {
         if (!isEditing) return;
         const loadProduct = async () => {
-            // First try Firestore
-            const docRef = doc(db, 'products', docId);
-            const snap = await getDoc(docRef);
-            if (snap.exists()) {
-                const data = snap.data();
-                setForm({
-                    title: data.title || '',
-                    description: data.description || '',
-                    longDescription: data.longDescription || '',
-                    category: data.category || '',
-                    categorySlug: data.categorySlug || '',
-                    imageUrl: data.imageUrl || data.image || '',
-                    isHalal: !!data.isHalal,
-                    status: data.status || 'Ready for Export',
-                    badgeNote: data.badgeNote || 'Premium Selection',
-                    specifications: data.specifications?.length ? data.specifications : [{ label: '', value: '' }],
-                    types: data.types?.length ? data.types : [''],
-                    minimumOrder: data.minimumOrder || '',
-                    benefits: data.benefits?.length ? data.benefits : [''],
-                    varieties: (data.varieties || []).map(v => ({ title: v.title, desc: v.desc || '', imageUrl: v.img || v.imageUrl || '' })),
-                    order: typeof data.order === 'number' ? data.order : 0
-                });
+            try {
+                setLoadingData(true);
+                // First try Firestore by Doc ID
+                const docRef = doc(db, 'products', docId);
+                const snap = await getDoc(docRef);
+                
+                let data = null;
+                let actualDocId = docId;
+
+                if (snap.exists()) {
+                    data = snap.data();
+                } else {
+                    // Try searching by the 'id' field (slug)
+                    const q = query(collection(db, 'products'), where('id', '==', docId));
+                    const qSnap = await getDocs(q);
+                    if (!qSnap.empty) {
+                        data = qSnap.docs[0].data();
+                        actualDocId = qSnap.docs[0].id;
+                    }
+                }
+
+                // If still not found in Firestore, look in static data
+                if (!data) {
+                    const staticProd = staticProducts.find(p => p.id === docId || p.title.toLowerCase() === docId.toLowerCase());
+                    if (staticProd) {
+                        data = staticProd;
+                    }
+                }
+
+                if (data) {
+                    setForm({
+                        title: data.title || '',
+                        description: data.description || '',
+                        longDescription: data.longDescription || '',
+                        category: data.category || '',
+                        categorySlug: data.categorySlug || '',
+                        imageUrl: data.imageUrl || data.image || '',
+                        isHalal: !!data.isHalal,
+                        price: data.price || '',
+                        status: data.status || 'Ready for Export',
+                        badgeNote: data.badgeNote || 'Premium Selection',
+                        specifications: data.specifications?.length ? data.specifications : [{ label: '', value: '' }],
+                        types: data.types?.length ? data.types : [''],
+                        minimumOrder: data.minimumOrder || '',
+                        benefits: data.benefits?.length ? data.benefits : [''],
+                        varieties: (data.varieties || []).map(v => ({ title: v.title, desc: v.desc || '', imageUrl: v.img || v.imageUrl || '' })),
+                        paragraphs: data.paragraphs?.length ? data.paragraphs : [{ heading: '', body: '' }],
+                        order: typeof data.order === 'number' ? data.order : 0
+                    });
+                    
+                    // If we found it via slug or it was static, we should update the URL to use the real docId if possible 
+                    // or just keep it as is. The handleSave will correctly update/add based on isEditing.
+                }
+            } catch (err) {
+                console.error("Error loading product:", err);
+            } finally {
+                setLoadingData(false);
             }
-            setLoadingData(false);
         };
         loadProduct();
     }, [docId, isEditing]);
@@ -206,6 +250,7 @@ const AdminProductFormPage = () => {
             category: form.category || 'Uncategorized',
             categorySlug: form.categorySlug || '',
             isHalal: !!form.isHalal,
+            price: form.price || '',
             imageUrl: form.imageUrl || '',
             status: form.status || 'Ready for Export',
             badgeNote: form.badgeNote || 'Premium Selection',
@@ -218,6 +263,7 @@ const AdminProductFormPage = () => {
                 desc: v.desc || '',
                 img: v.imageUrl || ''
             })),
+            paragraphs: (form.paragraphs || []).filter(p => p.heading || p.body),
             order: isNaN(safeOrder) ? 0 : safeOrder,
             updatedAt: serverTimestamp()
         };
@@ -300,22 +346,27 @@ const AdminProductFormPage = () => {
                                 {form.title && <p className="text-[10px] text-slate-400 mt-1 font-mono">id: {slugify(form.title)}</p>}
                             </Field>
 
-                            <Field label="Category *">
-                                <div className="relative">
-                                    <select
-                                        value={form.categorySlug}
-                                        onChange={e => {
-                                            const cat = categories.find(c => c.slug === e.target.value);
-                                            if (cat) setForm(f => ({ ...f, category: cat.title, categorySlug: cat.slug }));
-                                        }}
-                                        className="w-full appearance-none border border-slate-200 rounded-xl px-4 py-3 pr-10 text-sm font-bold outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all bg-white cursor-pointer"
-                                    >
-                                        <option value="">Select a category</option>
-                                        {categories.map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}
-                                    </select>
-                                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                </div>
-                            </Field>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                                <Field label="Display Price / Amount" hint="Optional. e.g. $500 / Tonne">
+                                    <TextInput value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} />
+                                </Field>
+                                <Field label="Category *">
+                                    <div className="relative">
+                                        <select
+                                            value={form.categorySlug}
+                                            onChange={e => {
+                                                const cat = categories.find(c => c.slug === e.target.value);
+                                                if (cat) setForm(f => ({ ...f, category: cat.title, categorySlug: cat.slug }));
+                                            }}
+                                            className="w-full appearance-none border border-slate-200 rounded-xl px-4 py-3 pr-10 text-sm font-bold outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all bg-white cursor-pointer"
+                                        >
+                                            <option value="">Select a category</option>
+                                            {categories.map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}
+                                        </select>
+                                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    </div>
+                                </Field>
+                            </div>
 
                             <Field label="Short Description">
                                 <TextArea
@@ -339,7 +390,7 @@ const AdminProductFormPage = () => {
                         <SectionCard title="Technical Specifications">
                             <div className="space-y-3">
                                 {form.specifications.map((spec, idx) => (
-                                    <div key={idx} className="flex gap-2 items-center">
+                                    <div key={idx} className="flex gap-2 items-start">
                                         <input
                                             value={spec.label}
                                             onChange={e => {
@@ -350,7 +401,7 @@ const AdminProductFormPage = () => {
                                             placeholder="Label (e.g. Moisture)"
                                             className="flex-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold outline-none focus:border-secondary transition-all"
                                         />
-                                        <input
+                                        <textarea
                                             value={spec.value}
                                             onChange={e => {
                                                 const ns = [...form.specifications];
@@ -358,7 +409,8 @@ const AdminProductFormPage = () => {
                                                 setForm(f => ({ ...f, specifications: ns }));
                                             }}
                                             placeholder="Value (e.g. 12% Max)"
-                                            className="flex-1 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold outline-none focus:border-secondary transition-all"
+                                            rows={1}
+                                            className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:border-secondary transition-all min-h-[40px] leading-tight pt-3"
                                         />
                                         <button
                                             onClick={() => {
@@ -456,6 +508,60 @@ const AdminProductFormPage = () => {
                                     className="flex items-center gap-1.5 text-[11px] font-black text-secondary uppercase tracking-widest hover:gap-2 transition-all"
                                 >
                                     <Plus size={14} /> Add Benefit
+                                </button>
+                            </div>
+                        </SectionCard>
+
+                        {/* Product Detail Paragraphs */}
+                        <SectionCard title="Product Detail Paragraphs">
+                            <div className="bg-amber-50 px-4 py-3 rounded-xl border border-amber-100 mb-4">
+                                <p className="text-[9px] font-bold text-amber-600 uppercase tracking-tight">
+                                    📝 Add custom content sections with a heading and paragraph — displayed on the product detail page below the specifications.
+                                </p>
+                            </div>
+                            <div className="space-y-5">
+                                {(form.paragraphs || []).map((para, idx) => (
+                                    <div key={idx} className="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Section {idx + 1}</span>
+                                            <button
+                                                onClick={() => {
+                                                    const np = form.paragraphs.filter((_, i) => i !== idx);
+                                                    setForm(f => ({ ...f, paragraphs: np.length ? np : [{ heading: '', body: '' }] }));
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-xl border border-red-100 text-red-300 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all"
+                                            >
+                                                <Trash2 size={13} />
+                                            </button>
+                                        </div>
+                                        <input
+                                            value={para.heading}
+                                            onChange={e => {
+                                                const np = [...form.paragraphs];
+                                                np[idx] = { ...np[idx], heading: e.target.value };
+                                                setForm(f => ({ ...f, paragraphs: np }));
+                                            }}
+                                            placeholder="Section Heading (e.g. Why Choose Indian Pepper?)"
+                                            className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-black outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all bg-white"
+                                        />
+                                        <textarea
+                                            value={para.body}
+                                            onChange={e => {
+                                                const np = [...form.paragraphs];
+                                                np[idx] = { ...np[idx], body: e.target.value };
+                                                setForm(f => ({ ...f, paragraphs: np }));
+                                            }}
+                                            placeholder="Write the paragraph content here..."
+                                            rows={4}
+                                            className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/10 transition-all resize-none bg-white"
+                                        />
+                                    </div>
+                                ))}
+                                <button
+                                    onClick={() => setForm(f => ({ ...f, paragraphs: [...(f.paragraphs || []), { heading: '', body: '' }] }))}
+                                    className="flex items-center gap-1.5 text-[11px] font-black text-secondary uppercase tracking-widest hover:gap-2 transition-all"
+                                >
+                                    <Plus size={14} /> Add Paragraph Section
                                 </button>
                             </div>
                         </SectionCard>

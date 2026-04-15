@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Phone, Mail, X, Send, Sparkles } from 'lucide-react';
+import { MessageCircle, Phone, Mail, X, Send } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -84,7 +84,7 @@ const FloatingEnquiry = () => {
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <div className="flex items-center gap-1.5 mb-1">
-                                    <Sparkles size={11} className="text-secondary" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
                                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Direct Connect</span>
                                 </div>
                                 <h3 className="text-lg font-black text-primary tracking-tighter uppercase leading-none">Quick Inquiry</h3>

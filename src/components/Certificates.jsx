@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Award, CheckCircle, ShieldCheck, Lock, ChevronLeft, ChevronRight, BookOpen, X, Maximize2, Plus, ArrowLeft } from 'lucide-react';
+import { Award, CheckCircle, ShieldCheck, Lock, Globe, FileImage, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import HTMLFlipBook from 'react-pageflip';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../firebase';
 
-// Import images from organized folders
 import GST_P1 from '../assets/GST/gst_p1.png';
 import GST_P2 from '../assets/GST/gst_p2.png';
 import GST_P3 from '../assets/GST/gst_p3.png';
@@ -15,351 +13,332 @@ import MSME_P2 from '../assets/MSME/msme_p2.png';
 import MSME_P3 from '../assets/MSME/msme_p3.png';
 import MSME_P4 from '../assets/MSME/msme_p4.png';
 
-const Page = React.forwardRef((props, ref) => {
-    // Filter out props that HTMLFlipBook passes but shouldn't be added to DOM
-    const { isActive, flipping, isChanging, ...domProps } = props;
-    return (
-        <div {...domProps} ref={ref}>
-            {props.children}
-        </div>
-    );
-});
+// All colour values modified for a clean, premium light design
+const CERT_THEMES = [
+    { primary: '#f59e0b', secondary: '#d97706', text: '#b45309', light: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.2)' },
+    { primary: '#6366f1', secondary: '#4f46e5', text: '#4338ca', light: 'rgba(99,102,241,0.06)', border: 'rgba(99,102,241,0.2)' },
+    { primary: '#10b981', secondary: '#059669', text: '#047857', light: 'rgba(16,185,129,0.06)', border: 'rgba(16,185,129,0.2)' },
+    { primary: '#ec4899', secondary: '#db2777', text: '#be185d', light: 'rgba(236,72,153,0.06)', border: 'rgba(236,72,153,0.2)' },
+];
+const getTheme = (i) => CERT_THEMES[i % CERT_THEMES.length];
 
-const FlipBookComponent = ({ images, name, index }) => {
-    const book = useRef();
-    const [currentPage, setCurrentPage] = useState(0);
-    const [selectedImage, setSelectedImage] = useState(null);
 
-    // Prevent body scroll when modal is open
-    useEffect(() => {
-        if (selectedImage) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
-        return () => { document.body.style.overflow = 'unset'; };
-    }, [selectedImage]);
+// ─── Individual certificate display (Simplified from Flipbook) ───────────────
+const CertificateImage = ({ images, name, index }) => {
+    const theme = getTheme(index);
 
-    return (
-        <>
+    if (!images || images.length === 0) {
+        return (
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: index * 0.2 }}
-                className="relative group/book mx-auto flex flex-col items-center w-full max-w-[750px]"
+                transition={{ duration: 0.8, delay: index * 0.1 }}
+                className="relative group/book mx-auto flex flex-col items-center w-full max-w-[450px]"
             >
-                {/* Background Glow Effect */}
-                <div className="absolute -inset-20 bg-secondary/10 rounded-full blur-[150px] opacity-0 group-hover/book:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-
-                {/* Navigation Controls - Smaller & Nearer */}
-                <div className="absolute top-1/2 -left-3 -translate-y-1/2 z-30 hidden xl:block">
-                    <button
-                        onClick={() => book.current.pageFlip().flipPrev()}
-                        className="w-10 h-10 rounded-xl bg-white/95 backdrop-blur-md shadow-xl border border-white/50 flex items-center justify-center text-primary hover:bg-secondary hover:text-white transition-all duration-500 hover:scale-110 active:scale-95"
-                    >
-                        <ChevronLeft size={20} />
-                    </button>
-                </div>
-
-                <div className="absolute top-1/2 -right-3 -translate-y-1/2 z-30 hidden xl:block">
-                    <button
-                        onClick={() => book.current.pageFlip().flipNext()}
-                        className="w-10 h-10 rounded-xl bg-white/95 backdrop-blur-md shadow-xl border border-white/50 flex items-center justify-center text-primary hover:bg-secondary hover:text-white transition-all duration-500 hover:scale-110 active:scale-95"
-                    >
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-
-                {/* The FlipBook - Extra Large Scale */}
-                <motion.div
-                    animate={{ y: [0, -15, 0] }}
-                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                    className="shadow-[0_50px_120px_rgba(0,0,0,0.2)] rounded-[2.5rem] overflow-hidden bg-white/40 backdrop-blur-sm p-4 border border-white/60 relative z-10"
-                >
-                    <HTMLFlipBook
-                        width={750}
-                        height={1050}
-                        size="stretch"
-                        minWidth={280}
-                        maxWidth={750}
-                        minHeight={400}
-                        maxHeight={1050}
-                        maxShadowOpacity={0.4}
-                        showCover={true}
-                        mobileScrollSupport={true}
-                        onFlip={(e) => setCurrentPage(e.data)}
-                        className="dhuruvan-book"
-                        ref={book}
-                        style={{ background: 'transparent' }}
-                    >
-                        {images.map((img, i) => (
-                            <Page key={i} className="relative bg-white overflow-hidden group/page">
-                                {/* Click to Zoom Layer - Middle Clickable Area */}
-                                <div
-                                    className="absolute inset-10 z-30 cursor-zoom-in flex items-center justify-center opacity-0 group-hover/page:opacity-100 transition-opacity duration-300"
-                                    onClick={() => setSelectedImage(img)}
-                                >
-                                    <div className="bg-primary/80 backdrop-blur-sm text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                                        <Maximize2 size={12} /> Click to Expand
-                                    </div>
-                                </div>
-
-                                <div
-                                    className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing"
-                                    onContextMenu={(e) => e.preventDefault()}
-                                />
-
-                                <img
-                                    src={img}
-                                    alt={`${name} Page ${i + 1}`}
-                                    className="w-full h-full object-contain pointer-events-none select-none"
-                                    draggable="false"
-                                />
-
-                                <div className="absolute bottom-8 right-8 text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] z-10">
-                                    PAGE {i + 1}
-                                </div>
-
-                                <div className={`absolute top-0 w-12 h-full z-10 pointer-events-none opacity-[0.15] ${i % 2 === 0 ? 'right-0 bg-gradient-to-l from-black to-transparent' : 'left-0 bg-gradient-to-r from-black to-transparent'}`} />
-                            </Page>
+                <div className="absolute -inset-20 rounded-full blur-[100px] opacity-20 pointer-events-none"
+                    style={{ background: `radial-gradient(circle, ${theme.primary}, transparent 70%)` }} />
+                
+                <div className="relative w-full aspect-[3/4] rounded-[2.6rem] shadow-[0_20px_50px_rgba(0,0,0,0.03)] flex flex-col items-center justify-center p-8 text-center"
+                    style={{ background: '#fff', border: `1px dashed ${theme.primary}40` }}>
+                    <div className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center transition-transform duration-700 group-hover/book:scale-110"
+                        style={{ background: theme.light, color: theme.primary }}>
+                        <Award size={32} className="opacity-60" />
+                    </div>
+                    <p className="text-[11px] font-bold text-slate-800 leading-relaxed max-w-[280px]">
+                        {name.includes('APEDA') && "Our APEDA partnership ensures that every agricultural shipment adheres to stringent quality controls and global export protocols."}
+                        {name.includes('FSSAI') && "We maintain rigorous food safety standards, ensuring that all our products comply with international hygiene and consumption benchmarks."}
+                        {name.includes('ECGC') && "Our export operations are secured under ECGC, providing financial trust and risk protection for our global trade partners."}
+                        {!['APEDA', 'FSSAI', 'ECGC'].some(key => name.includes(key)) && "Verified document confirming our adherence to international trade regulations and quality assurance standards."}
+                    </p>
+                    <div className="mt-4 px-3 py-1 rounded-full bg-slate-50 border border-slate-100 italic text-[8px] font-black uppercase tracking-widest" style={{ color: theme.primary }}>
+                        Verification In Progress
+                    </div>
+                    
+                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-1">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="w-1 h-1 rounded-full bg-slate-200" />
                         ))}
-                    </HTMLFlipBook>
-                </motion.div>
+                    </div>
+                </div>
+            </motion.div>
+        );
+    }
 
-                {/* Glassmorphic Indicator */}
-                <div className="mt-12 flex flex-col items-center gap-5 relative z-20">
-                    <div className="px-8 py-3 bg-white/80 backdrop-blur-md rounded-[1.5rem] border border-white/50 shadow-sm flex items-center gap-6 group-hover/book:shadow-2xl transition-all duration-700">
-                        <div className="flex -space-x-1.5">
-                            {images.map((_, i) => (
-                                <div key={i} className={`w-2.5 h-2.5 rounded-full border border-white transition-all duration-500 ${currentPage === i ? 'w-8 bg-secondary' : 'bg-slate-200'}`} />
-                            ))}
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: index * 0.2 }}
+            className="relative group/book mx-auto flex flex-col items-center w-full max-w-[450px]"
+        >
+            {/* Per-cert coloured glow */}
+            <div className="absolute -inset-20 rounded-full blur-[160px] opacity-0 group-hover/book:opacity-70 transition-opacity duration-1000 pointer-events-none"
+                style={{ background: `radial-gradient(circle, ${theme.primary}1A, transparent 70%)` }} />
+
+            {/* Static image with coloured gradient border */}
+            <motion.div animate={{ y: [0, -12, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} className="relative w-full">
+                <div className="relative rounded-[2.6rem] shadow-[0_20px_50px_rgba(0,0,0,0.06)] transition-all duration-700"
+                    style={{ padding: '2px', background: `linear-gradient(135deg, ${theme.primary}40, rgba(255,255,255,0.8), ${theme.secondary}40)` }}>
+                    <div className="rounded-[2.5rem] overflow-hidden p-3" style={{ background: '#ffffff' }}>
+                        <div className="relative aspect-[3/4.2] rounded-[2rem] overflow-hidden border border-slate-100 group/image">
+                            <img 
+                                src={images[0]} 
+                                alt={`${name} Main Page`} 
+                                className="w-full h-full object-contain pointer-events-none select-none transition-transform duration-700 group-hover/image:scale-[1.02]" 
+                                draggable="false" 
+                            />
+                            {/* Subtle glass overlay on hover */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-500 pointer-events-none" />
                         </div>
-                        <div className="w-px h-6 bg-slate-200" />
-                        <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">
-                            {currentPage + 1} <span className="text-slate-300 mx-1">/</span> {images.length}
-                        </span>
                     </div>
                 </div>
             </motion.div>
 
-            {/* FULL SCREEN ZOOM MODAL */}
-            <AnimatePresence>
-                {selectedImage && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100000] flex items-center justify-center p-4 md:p-10 bg-black/95 backdrop-blur-xl"
-                        onClick={() => setSelectedImage(null)}
-                    >
-                        {/* Close Button - Labeled Exit */}
-                        <motion.button
-                            initial={{ y: -20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            className="absolute top-24 right-10 flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-secondary backdrop-blur-md rounded-2xl border border-white/20 text-white transition-all duration-500 z-[100] group shadow-2xl"
-                            onClick={() => setSelectedImage(null)}
-                        >
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] font-inter">Exit Preview</span>
-                            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
-                                <X size={18} />
-                            </div>
-                        </motion.button>
-
-                        {/* Image Container */}
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.8, opacity: 0 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="relative w-full h-full max-w-5xl flex items-center justify-center"
-                        >
-                            <img
-                                src={selectedImage}
-                                alt="Zoomed Certificate"
-                                className="w-full h-full object-contain pointer-events-none select-none drop-shadow-[0_0_50px_rgba(255,255,255,0.1)]"
-                                draggable="false"
-                                onContextMenu={(e) => e.preventDefault()}
-                            />
-
-                            {/* Security Badge in Modal */}
-                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-[10px] font-black text-white/40 uppercase tracking-[0.4em] whitespace-nowrap">
-                                <Lock size={12} className="inline mr-2 -mt-1" /> SECURED PREVIEW MODE
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </>
+            {/* Verified seal overlay */}
+            <div className="mt-6 px-5 py-2 rounded-full shadow-sm flex items-center gap-2.5" style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.05)' }}>
+                <CheckCircle size={14} style={{ color: theme.primary }} />
+                <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: '#64748b' }}>
+                    Official Certificate
+                </span>
+            </div>
+        </motion.div>
     );
 };
 
+// ─── Main Page ────────────────────────────────────────────────────────────────
 const Certificates = () => {
     const [dynamicCerts, setDynamicCerts] = useState([]);
 
     useEffect(() => {
-        const handleContextMenu = (e) => e.preventDefault();
-        document.addEventListener('contextmenu', handleContextMenu);
-        return () => document.removeEventListener('contextmenu', handleContextMenu);
+        // Disable context menu
+        const block = (e) => e.preventDefault();
+        document.addEventListener('contextmenu', block);
+
+        // Disable zooming for this page
+        const meta = document.querySelector('meta[name="viewport"]');
+        const originalContent = meta ? meta.getAttribute('content') : 'width=device-width, initial-scale=1.0';
+        if (meta) {
+            meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+        }
+
+        // Programmatically prevent multi-touch zoom and ctrl-scroll zoom
+        const handleTouch = (e) => {
+            if (e.touches.length > 1) e.preventDefault();
+        };
+        const handleWheel = (e) => {
+            if (e.ctrlKey) e.preventDefault();
+        };
+        const handleGesture = (e) => {
+            e.preventDefault();
+        };
+
+        document.addEventListener('touchstart', handleTouch, { passive: false });
+        document.addEventListener('wheel', handleWheel, { passive: false });
+        document.addEventListener('gesturestart', handleGesture);
+
+        return () => {
+            document.removeEventListener('contextmenu', block);
+            document.removeEventListener('touchstart', handleTouch);
+            document.removeEventListener('wheel', handleWheel);
+            document.removeEventListener('gesturestart', handleGesture);
+            if (meta) {
+                meta.setAttribute('content', originalContent);
+            }
+        };
     }, []);
 
     useEffect(() => {
         const q = query(collection(db, 'certificates'), orderBy('createdAt', 'desc'));
-        return onSnapshot(q, (snap) => {
-            setDynamicCerts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-        });
+        return onSnapshot(q, (snap) => setDynamicCerts(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
     }, []);
 
-    const staticCertificates = [
-        {
-            name: 'GST Registration',
-            description: 'GOVERNMENT OF INDIA • TAX REGISTRATION',
-            images: [GST_P1, GST_P2, GST_P3],
-            icon: <Award className="text-secondary" size={24} />,
-        },
-        {
-            name: 'MSME Certificate',
-            description: 'MINISTRY OF MSME • UDYAM REGISTRATION',
-            images: [MSME_P1, MSME_P2, MSME_P3, MSME_P4],
-            icon: <CheckCircle className="text-secondary" size={24} />,
-        }
+    const staticCerts = [
+        { name: 'GST Registration',  description: 'GOVERNMENT OF INDIA • TAX REGISTRATION',    images: [GST_P1, GST_P2, GST_P3],              icon: <Award size={26} /> },
+        { name: 'MSME Certificate',  description: 'MINISTRY OF MSME • UDYAM REGISTRATION',      images: [MSME_P1, MSME_P2, MSME_P3, MSME_P4],  icon: <CheckCircle size={26} /> },
+        { name: 'FSSAI License',     description: 'FOOD SAFETY AND STANDARDS AUTHORITY',       images: [],                                    icon: <ShieldCheck size={26} /> },
+        { name: 'ECGC Cover',        description: 'EXPORT CREDIT GUARANTEE CORPORATION',       images: [],                                    icon: <Lock size={26} /> },
     ];
 
-    const certificates = staticCertificates;
+    const getIcon = (iconName) => {
+        const icons = {
+            'Award': <Award size={26} />,
+            'ShieldCheck': <ShieldCheck size={26} />,
+            'FileImage': <FileImage size={26} />,
+            'Check': <CheckCircle size={26} />,
+            'Globe': <Globe size={26} />,
+            'Lock': <Lock size={26} />
+        };
+        return icons[iconName] || <Award size={26} />;
+    };
+
+    const finalCerts = [
+        ...staticCerts.filter(sc => !dynamicCerts.some(dc => dc.name.toLowerCase() === sc.name.toLowerCase())),
+        ...dynamicCerts.map(cert => ({ 
+            ...cert, 
+            images: cert.pages || [], 
+            icon: getIcon(cert.icon) 
+        }))
+    ];
 
     return (
-        <div className="pt-52 pb-24 bg-slate-50 min-h-screen selection:bg-secondary selection:text-white overflow-x-hidden relative">
-            {/* Background Decorative Gradient */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] bg-gradient-to-b from-secondary/[0.07] to-transparent pointer-events-none" />
+        <div className="min-h-screen overflow-x-hidden relative selection:bg-secondary selection:text-white"
+            style={{ background: '#f8fafc' }}>
 
-            <div className="container px-4 md:px-6 relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <div className="flex justify-end mb-12">
-                        <Link
-                            to="/#"
-                            className="inline-flex items-center gap-2 text-slate-500 bg-white shadow-sm hover:bg-secondary hover:text-white px-4 py-2 rounded-xl text-[10px] font-black transition-all group tracking-[0.2em] uppercase border border-slate-100"
-                        >
-                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                            Back to Home
-                        </Link>
+            {/* ── Animated background glows ── */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <motion.div animate={{ x: [0, 60, 0], y: [0, 40, 0] }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                    className="absolute rounded-full" style={{ top: '5%', left: '-10%', width: '50rem', height: '50rem', background: 'radial-gradient(circle, rgba(245,158,11,0.06), transparent 70%)', filter: 'blur(60px)' }} />
+                <motion.div animate={{ x: [0, -50, 0], y: [0, 70, 0] }} transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
+                    className="absolute rounded-full" style={{ top: '30%', right: '-12%', width: '42rem', height: '42rem', background: 'radial-gradient(circle, rgba(99,102,241,0.05), transparent 70%)', filter: 'blur(60px)' }} />
+                <motion.div animate={{ x: [0, 40, 0], y: [0, -30, 0] }} transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
+                    className="absolute rounded-full" style={{ bottom: '10%', left: '30%', width: '38rem', height: '38rem', background: 'radial-gradient(circle, rgba(16,185,129,0.04), transparent 70%)', filter: 'blur(60px)' }} />
+
+                {/* Subtle grid */}
+                <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
+
+                {/* Top fade */}
+                <div className="absolute top-0 left-0 right-0 h-40" style={{ background: 'linear-gradient(to bottom, #f8fafc, transparent)' }} />
+            </div>
+
+            <div className="relative z-10 container mx-auto px-4 md:px-8 pt-36 pb-28">
+
+                {/* ── Back button ── */}
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex mb-10 max-w-7xl mx-auto">
+                    <Link to="/#" className="inline-flex items-center gap-2 text-[10px] font-black transition-all group tracking-[0.2em] uppercase px-4 py-2 rounded-xl bg-white shadow-sm"
+                        style={{ color: '#475569', border: '1px solid rgba(0,0,0,0.05)' }}
+                        onMouseEnter={e => { e.currentTarget.style.color = '#0f172a'; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.15)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.05)'; }}>
+                        <ArrowLeft size={13} className="group-hover:-translate-x-1 transition-transform" /> Home
+                    </Link>
+                </motion.div>
+
+                {/* ── Hero ── */}
+                <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
+                    className="text-center mb-16 max-w-4xl mx-auto">
+
+                    {/* Live badge */}
+                    <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.35em] mb-8"
+                        style={{ border: '1px solid rgba(0,0,0,0.08)', background: '#fff', color: '#475569', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                        <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#34d399' }} />
+                        Verified Export Certifications
+                    </div>
+
+                    <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none uppercase mb-6" style={{ color: '#0f172a' }}>
+                        Trusted<br />
+                        <span className="relative inline-block italic" style={{ background: 'linear-gradient(90deg, #f59e0b, #ea580c, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                            Worldwide
+                        </span>
+                    </h1>
+
+                    <p className="text-lg font-medium leading-relaxed max-w-xl mx-auto" style={{ color: '#64748b' }}>
+                        Government-verified certifications affirming our commitment to quality, compliance, and global trade integrity.
+                    </p>
+
+                    <div className="flex justify-center gap-2 mt-8">
+                        {['#fbbf24', '#818cf8', '#34d399'].map((c, i) => (
+                            <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: c, opacity: 0.7 }} />
+                        ))}
                     </div>
                 </motion.div>
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="max-w-4xl mx-auto text-center mb-12"
-                >
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-white shadow-lg rounded-full text-secondary text-[9px] font-black uppercase tracking-[0.3em] mb-8 border border-slate-50"
-                    >
-                        <Lock size={12} className="animate-pulse" />
-                        SECURED DIGITAL ARCHIVE
-                    </motion.div>
-                    <h1 className="text-5xl md:text-6xl font-black text-primary tracking-tighter mb-8 uppercase leading-[0.85]">
-                        TRUST <br />
-                        <span className="text-secondary italic">VERIFIED</span>
-                    </h1>
-                    <div className="w-24 h-1.5 bg-secondary mx-auto mb-8 rounded-full shadow-[0_0_15px_rgba(var(--secondary-rgb),0.2)]" />
-                    <p className="text-lg md:text-xl text-slate-500 leading-relaxed max-w-2xl mx-auto font-bold tracking-tight">
-                        Our verified government artifacts presented in a premium interactive environment.
-                    </p>
-                </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-[1300px] mx-auto items-start">
-                    {certificates.map((cert, index) => (
-                        <div key={cert.name} className="flex flex-col items-center">
-                            <motion.div
-                                initial={{ opacity: 0, y: 15 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                className="mb-8 flex flex-col items-center text-center group"
-                            >
-                                <div className="w-14 h-14 rounded-[1.2rem] bg-white shadow-xl flex items-center justify-center border border-slate-50 text-secondary mb-4 group-hover:bg-secondary group-hover:text-white transition-all duration-700 transform group-hover:rotate-[360deg] group-hover:scale-110">
-                                    {cert.icon}
-                                </div>
-                                <h3 className="text-2xl font-black text-primary uppercase tracking-tighter group-hover:text-secondary transition-colors duration-500">{cert.name}</h3>
-                                <p className="text-slate-400 font-black text-[9px] tracking-[0.3em] uppercase mt-2">{cert.description}</p>
-                            </motion.div>
 
-                            <FlipBookComponent images={cert.images} name={cert.name} index={index} />
-                        </div>
-                    ))}
+                {/* ── Certificate cards + flipbooks ── */}
+                <div className="flex flex-wrap justify-center gap-x-12 gap-y-24 items-start max-w-7xl mx-auto">
+                    {finalCerts.map((cert, index) => {
+                        const theme = getTheme(index);
+                        return (
+                            <div key={cert.id || cert.name} className="flex flex-col items-center w-full md:w-[calc(50%-3rem)] lg:w-[calc(50%-3rem)] xl:w-[calc(33%-3rem)] min-w-[320px] max-w-[480px] group/item">
+
+                                {/* ── Cert header card ── */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }} transition={{ delay: index * 0.1 }}
+                                    className="w-full mb-10 relative overflow-hidden rounded-[2rem] p-6 shadow-sm"
+                                    style={{ background: theme.light, border: `1px solid ${theme.border}` }}>
+
+                                    {/* Faint number watermark */}
+                                    <div className="absolute right-4 top-0 text-[5rem] font-black leading-none pointer-events-none select-none"
+                                        style={{ color: 'rgba(0,0,0,0.03)' }}>
+                                        {String(index + 1).padStart(2, '0')}
+                                    </div>
+
+                                    <div className="flex items-center gap-4 relative z-10">
+                                        {/* Coloured icon */}
+                                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-xl shrink-0 transition-all duration-500 group-hover/item:scale-110 group-hover/item:-rotate-6"
+                                            style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` }}>
+                                            {cert.icon}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-base font-black uppercase tracking-tight leading-tight mb-1 transition-colors duration-300"
+                                                style={{ color: '#0f172a' }}>
+                                                {cert.name}
+                                            </h3>
+                                            {cert.description && (
+                                                <p className="text-[8px] font-black uppercase tracking-[0.2em] leading-relaxed truncate"
+                                                    style={{ color: '#475569' }}>
+                                                    {cert.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Bottom label */}
+                                    <div className="flex items-center gap-2 mt-4 relative z-10">
+                                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: theme.primary }} />
+                                        <span className="text-[8px] font-black uppercase tracking-widest" style={{ color: theme.text }}>
+                                            Primary Document • Verified Legal Copy
+                                        </span>
+                                    </div>
+                                </motion.div>
+
+                                <CertificateImage images={cert.images} name={cert.name} index={index} />
+                            </div>
+                        );
+                    })}
                 </div>
 
-                {/* Dynamic Certificates from Admin */}
-                {dynamicCerts.length > 0 && (
-                    <>
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            className="mt-24 mb-16 text-center"
-                        >
-                            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white shadow-lg rounded-full text-secondary text-[9px] font-black uppercase tracking-[0.3em] mb-6 border border-slate-50">
-                                <Plus size={12} />
-                                Additional Certificates
-                            </div>
-                            <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter uppercase">
-                                More <span className="text-secondary italic">Credentials</span>
-                            </h2>
-                        </motion.div>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-[1300px] mx-auto items-start">
-                            {dynamicCerts.map((cert, index) => (
-                                <div key={cert.id} className="flex flex-col items-center">
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 15 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        className="mb-8 flex flex-col items-center text-center group"
-                                    >
-                                        <div className="w-14 h-14 rounded-[1.2rem] bg-white shadow-xl flex items-center justify-center border border-slate-50 text-secondary mb-4 group-hover:bg-secondary group-hover:text-white transition-all duration-700 transform group-hover:rotate-[360deg] group-hover:scale-110">
-                                            <Award className="text-secondary group-hover:text-white transition-colors" size={24} />
-                                        </div>
-                                        <h3 className="text-2xl font-black text-primary uppercase tracking-tighter group-hover:text-secondary transition-colors duration-500">{cert.name}</h3>
-                                        {cert.description && <p className="text-slate-400 font-black text-[9px] tracking-[0.3em] uppercase mt-2">{cert.description}</p>}
-                                    </motion.div>
+                {/* ── Bottom trust bar ── */}
+                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                    className="mt-32 max-w-5xl mx-auto">
+                    <div className="relative overflow-hidden rounded-[3rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.03)]"
+                        style={{ border: '1px solid rgba(0,0,0,0.05)', background: '#fff' }}>
 
-                                    <FlipBookComponent images={cert.pages || []} name={cert.name} index={certificates.length + index} />
+                        {/* Top shimmer line */}
+                        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.05), transparent)' }} />
+                        {/* Gradient tint */}
+                        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.02), transparent 50%, rgba(99,102,241,0.02))' }} />
+
+                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div className="flex items-center gap-5 text-left">
+                                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-xl shrink-0"
+                                    style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                                    <ShieldCheck size={30} />
                                 </div>
-                            ))}
-                        </div>
-                    </>
-                )}
+                                <div>
+                                    <h2 className="text-xl font-black uppercase tracking-tight leading-tight mb-1" style={{ color: '#0f172a' }}>Authenticated Global Entity</h2>
+                                    <p className="text-sm font-medium" style={{ color: '#64748b' }}>Verified by Government of India Trade Authorities</p>
+                                </div>
+                            </div>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="mt-32 p-10 bg-white border border-slate-100 rounded-[3rem] text-center relative overflow-hidden shadow-xl max-w-5xl mx-auto"
-                >
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
-                        <div className="flex items-center gap-6 text-left">
-                            <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-                                <ShieldCheck size={32} />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-black text-primary uppercase tracking-tight mb-1">Authenticated Global Entity</h2>
-                                <p className="text-slate-500 text-sm font-medium">Verified by Government of India Trade Authorities</p>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap justify-center md:justify-end gap-4 items-center">
-                            <div className="flex items-center gap-3 bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-100">
-                                <Lock className="text-secondary" size={14} />
-                                <span className="text-[10px] font-black text-primary tracking-[0.2em] uppercase">AES-256 Secured</span>
-                            </div>
-                            <div className="flex items-center gap-3 bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-100">
-                                <CheckCircle className="text-secondary" size={14} />
-                                <span className="text-[10px] font-black text-primary tracking-[0.2em] uppercase">Trade Integrity</span>
+                            <div className="flex flex-wrap justify-center md:justify-end gap-3">
+                                {[
+                                    { icon: <Lock size={13} />, label: 'AES-256 Secured', color: '#818cf8' },
+                                    { icon: <CheckCircle size={13} />, label: 'Trade Integrity', color: '#34d399' },
+                                    { icon: <Award size={13} />, label: 'APEDA Aligned', color: '#fbbf24' },
+                                ].map((tag, i) => (
+                                    <div key={i} className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                                        style={{ border: '1px solid rgba(0,0,0,0.05)', background: '#f8fafc', color: '#475569' }}
+                                        onMouseEnter={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#475569'; }}>
+                                        <span style={{ color: tag.color }}>{tag.icon}</span>
+                                        {tag.label}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
                 </motion.div>
+
             </div>
         </div>
     );

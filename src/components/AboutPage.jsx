@@ -114,16 +114,7 @@ const AboutPage = () => {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-8 mt-12">
-                            <div className="group">
-                                <div className="text-4xl font-black text-primary mb-2 tracking-tighter group-hover:text-secondary transition-colors">150+</div>
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Partners</div>
-                            </div>
-                            <div className="group">
-                                <div className="text-4xl font-black text-primary mb-2 tracking-tighter group-hover:text-secondary transition-colors">25+</div>
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Export Countries</div>
-                            </div>
-                        </div>
+
                     </motion.div>
                 </div>
             </section>

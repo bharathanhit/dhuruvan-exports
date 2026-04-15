@@ -26,13 +26,25 @@ const ProductDetail = () => {
         const fetchProduct = async () => {
             setLoading(true);
             try {
-                const staticProd = staticProducts.find(p => p.id === id);
+                const staticProd = staticProducts.find(p => p.id === id) || staticProducts.find(p => p.title.toLowerCase() === id.toLowerCase());
                 const q = query(collection(db, 'products'), where('id', '==', id));
                 const snap = await getDocs(q);
+                
+                // Fallback query by title if ID query is empty
+                let actualSnap = snap;
+                if (actualSnap.empty && staticProd) {
+                    const qTitle = query(collection(db, 'products'), where('title', '==', staticProd.title));
+                    actualSnap = await getDocs(qTitle);
+                }
 
-                if (!snap.empty) {
-                    const firestoreProd = { ...snap.docs[0].data(), docId: snap.docs[0].id };
-                    setProduct({ ...staticProd, ...firestoreProd });
+                if (!actualSnap.empty) {
+                    const firestoreProd = { ...actualSnap.docs[0].data(), docId: actualSnap.docs[0].id };
+                    // Prioritize Firestore data over static data
+                    let finalProd = { ...staticProd, ...firestoreProd };
+                    
+                    // No longer forcing static fields to allow updates from admin panel
+                    
+                    setProduct(finalProd);
                 } else if (staticProd) {
                     setProduct(staticProd);
                 } else {
@@ -142,8 +154,8 @@ const ProductDetail = () => {
 
                             <motion.h1
                                 initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="text-4xl md:text-6xl font-black text-primary mb-8 tracking-tighter leading-[0.95] uppercase"
+                                animate={{ opacity: 0.95, x: 0 }}
+                                className="text-4xl md:text-6xl font-black text-primary mb-2 tracking-tighter leading-[0.95] uppercase"
                             >
                                 {product.title.split(' ').map((word, i) => (
                                     <span key={i} className={i === product.title.split(' ').length - 1 ? "text-secondary italic block lg:inline" : ""}>
@@ -151,6 +163,20 @@ const ProductDetail = () => {
                                     </span>
                                 ))}
                             </motion.h1>
+
+                            {product.price && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="inline-flex flex-col gap-1 px-8 py-4 bg-white border-l-4 border-secondary shadow-sm rounded-r-3xl mb-12"
+                                >
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Estimated Quote Value</span>
+                                    <div className="text-3xl font-black text-primary italic tracking-tight">
+                                        {product.price}
+                                    </div>
+                                </motion.div>
+                            )}
 
                             <motion.p
                                 initial={{ opacity: 0 }}
@@ -176,17 +202,17 @@ const ProductDetail = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 relative z-10">
                                     {product.specifications.map((spec, i) => (
-                                        <div key={i} className="flex flex-col gap-1 border-b border-slate-50 pb-3 last:border-0 md:[&:nth-last-child(2)]:border-0 transition-colors group/spec">
+                                        <div key={i} className="flex flex-col gap-1 border-b border-slate-50 pb-3 last:border-0 md:[&:nth-last-child(2)]:border-0 transition-colors group/spec overflow-hidden">
                                             <span className="text-[9px] font-black text-secondary tracking-widest uppercase">{spec.label}</span>
-                                            <span className="text-[14px] font-black text-primary leading-tight">{spec.value}</span>
+                                            <span className="text-[14px] font-black text-primary leading-tight break-words whitespace-pre-line">{spec.value}</span>
                                         </div>
                                     ))}
                                 </div>
 
-                                {/* Available Types */}
+                                {/* Available Types - Positioned closely after specs */}
                                 {product.types && product.types.length > 0 && (
-                                    <div className="mt-10 pt-8 border-t border-slate-50 relative z-10">
-                                        <div className="flex items-center gap-2 mb-4">
+                                    <div className="mt-6 pt-4 relative z-10">
+                                        <div className="flex items-center gap-2 mb-3">
                                             <Layers size={14} className="text-secondary" />
                                             <p className="text-[9px] font-black text-secondary tracking-widest uppercase">Available Types</p>
                                         </div>
@@ -258,6 +284,66 @@ const ProductDetail = () => {
                         )}
                     </div>
                 </div>
+
+                {/* Custom Paragraph Sections (Admin Entered) */}
+                {product.paragraphs && product.paragraphs.filter(p => p.heading || p.body).length > 0 && (
+                    <motion.section
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="mt-20"
+                    >
+                        {/* Section Header */}
+                        <div className="flex items-center gap-4 mb-10">
+                            <div className="w-1 h-10 bg-gradient-to-b from-secondary to-secondary/30 rounded-full" />
+                            <div>
+                                <span className="text-[9px] font-black text-secondary uppercase tracking-[0.35em]">In-Depth</span>
+                                <h2 className="text-3xl font-black text-primary uppercase tracking-tighter leading-none">Product Insights</h2>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {product.paragraphs.filter(p => p.heading || p.body).map((para, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: i * 0.12, duration: 0.5 }}
+                                    className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2.5rem] p-8 md:p-10 overflow-hidden group hover:shadow-2xl hover:shadow-secondary/10 transition-all duration-500 border border-white/5 hover:border-secondary/20"
+                                >
+                                    {/* Decorative number */}
+                                    <div className="absolute top-6 right-8 text-[5rem] font-black text-white/[0.04] leading-none pointer-events-none select-none">
+                                        {String(i + 1).padStart(2, '0')}
+                                    </div>
+
+                                    {/* Decorative quote mark */}
+                                    <div className="absolute top-8 left-8 text-4xl text-secondary/20 font-black leading-none pointer-events-none">"</div>
+
+                                    {/* Glowing blob */}
+                                    <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+                                    <div className="relative z-10 pt-4">
+                                        {para.heading && (
+                                            <div className="flex items-start gap-3 mb-4">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-2.5 shrink-0" />
+                                                <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-secondary transition-colors duration-300 leading-tight">
+                                                    {para.heading}
+                                                </h3>
+                                            </div>
+                                        )}
+                                        {para.body && (
+                                            <p className="text-base text-slate-300 font-medium leading-[1.8] whitespace-pre-line pl-4">
+                                                {para.body}
+                                            </p>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.section>
+                )}
 
 
                 <div className="mt-12 pt-12 border-t border-slate-100">

@@ -9,6 +9,7 @@ import {
     serverTimestamp, getDoc
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import { categories as staticCategories } from '../data/products';
 
 const slugify = (str) => str.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
@@ -131,6 +132,14 @@ const AdminCategoryFormPage = () => {
     const { docId } = useParams();
     const isEditing = !!docId;
 
+    // ─── Security Check ───
+    useEffect(() => {
+        const isAuth = sessionStorage.getItem('adminAuth');
+        if (!isAuth) {
+            navigate('/admin');
+        }
+    }, [navigate]);
+
     const [form, setForm] = useState(emptyForm);
     const [saving, setSaving] = useState(false);
     const [loadingData, setLoadingData] = useState(isEditing);
@@ -138,20 +147,39 @@ const AdminCategoryFormPage = () => {
     useEffect(() => {
         if (!isEditing) return;
         const loadCategory = async () => {
-            const docRef = doc(db, 'categories', docId);
-            const snap = await getDoc(docRef);
-            if (snap.exists()) {
-                const data = snap.data();
-                setForm({
-                    title: data.title || '',
-                    description: data.description || '',
-                    imageUrl: data.imageUrl || data.image || '',
-                    color: data.color || '#16a34a',
-                    isFeatured: data.isFeatured !== false,
-                    order: typeof data.order === 'number' ? data.order : 0
-                });
+            try {
+                setLoadingData(true);
+                // First try Firestore by Doc ID
+                const docRef = doc(db, 'categories', docId);
+                const snap = await getDoc(docRef);
+                
+                let data = null;
+
+                if (snap.exists()) {
+                    data = snap.data();
+                } else {
+                    // Try looking in static data (where docId might be the slug)
+                    const staticCat = staticCategories.find(c => c.slug === docId || c.id === docId);
+                    if (staticCat) {
+                        data = staticCat;
+                    }
+                }
+
+                if (data) {
+                    setForm({
+                        title: data.title || '',
+                        description: data.description || '',
+                        imageUrl: data.imageUrl || data.image || '',
+                        color: data.color || '#16a34a',
+                        isFeatured: data.isFeatured !== false,
+                        order: typeof data.order === 'number' ? data.order : 0
+                    });
+                }
+            } catch (err) {
+                console.error("Error loading category:", err);
+            } finally {
+                setLoadingData(false);
             }
-            setLoadingData(false);
         };
         loadCategory();
     }, [docId, isEditing]);
