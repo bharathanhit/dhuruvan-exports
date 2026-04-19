@@ -270,7 +270,8 @@ export const products = [
             { label: 'Packing Type', value: 'Vacuum Packed / Poly Bag Packing / Carton Box Packing' },
             { label: 'Net Weight per Carton', value: '20 Kg / 25 Kg (or as per requirement)' },
             { label: 'Labeling', value: 'Standard Export Label / Custom Label Available' },
-            { label: 'Certifications', value: 'FSSAI, APEDA, Halal Certification, ISO Certification' },
+            { label: 'Certifications', value: 'APEDA, Halal Certification, ISO Certification' },
+
             { label: 'Customization', value: 'Custom Cutting & Packing: Available' },
             { label: 'Delivery Time', value: 'Depends on Destination Country' },
             { label: 'Supply Ability', value: 'Up to 100 Metric Tons per Month' },
@@ -296,7 +297,8 @@ export const products = [
             { label: 'Packing Type', value: 'Vacuum Packed / Poly Bag Packing / Carton Box Packing' },
             { label: 'Net Weight per Carton', value: '20 Kg / 25 Kg (or as per requirement)' },
             { label: 'Labeling', value: 'Standard Export Label / Custom Label Available' },
-            { label: 'Certifications', value: 'FSSAI, APEDA, Halal Certification, ISO Certification' },
+            { label: 'Certifications', value: 'APEDA, Halal Certification, ISO Certification' },
+
             { label: 'Customization', value: 'Custom Cutting & Packing: Available' },
             { label: 'Delivery Time', value: 'Depends on Destination Country' },
             { label: 'Supply Ability', value: 'Up to 100 Metric Tons per Month' },
@@ -322,7 +324,8 @@ export const products = [
             { label: 'Packing Type', value: 'Vacuum Packed / Poly Bag Packing / Carton Box Packing' },
             { label: 'Net Weight per Carton', value: '20 Kg / 25 Kg (or as per requirement)' },
             { label: 'Labeling', value: 'Standard Export Label / Custom Label Available' },
-            { label: 'Certifications', value: 'FSSAI, APEDA, Halal Certification, ISO Certification' },
+            { label: 'Certifications', value: 'APEDA, Halal Certification, ISO Certification' },
+
             { label: 'Customization', value: 'Custom Cutting & Packing: Available' },
             { label: 'Delivery Time', value: 'Depends on Destination Country' },
             { label: 'Supply Ability', value: 'Up to 100 Metric Tons per Month' },
@@ -348,7 +351,8 @@ export const products = [
             { label: 'Packing Type', value: 'Vacuum Packed / Poly Bag Packing / Carton Box Packing' },
             { label: 'Net Weight per Carton', value: '20 Kg / 25 Kg (or as per requirement)' },
             { label: 'Labeling', value: 'Standard Export Label / Custom Label Available' },
-            { label: 'Certifications', value: 'FSSAI, APEDA, Halal Certification, ISO Certification' },
+            { label: 'Certifications', value: 'APEDA, Halal Certification, ISO Certification' },
+
             { label: 'Customization', value: 'Custom Cutting & Packing: Available' },
             { label: 'Delivery Time', value: 'Depends on Destination Country' },
             { label: 'Supply Ability', value: 'Up to 100 Metric Tons per Month' },
@@ -374,7 +378,8 @@ export const products = [
             { label: 'Packing Type', value: 'Vacuum Packed / Poly Bag Packing / Carton Box Packing' },
             { label: 'Net Weight per Carton', value: '20 Kg / 25 Kg (or as per requirement)' },
             { label: 'Labeling', value: 'Standard Export Label / Custom Label Available' },
-            { label: 'Certifications', value: 'FSSAI, APEDA, Halal Certification, ISO Certification' },
+            { label: 'Certifications', value: 'APEDA, Halal Certification, ISO Certification' },
+
             { label: 'Customization', value: 'Custom Cutting & Packing: Available' },
             { label: 'Delivery Time', value: 'Depends on Destination Country' },
             { label: 'Supply Ability', value: 'Up to 100 Metric Tons per Month' },
@@ -397,7 +402,8 @@ export const products = [
             { label: 'pH Value', value: 'Upto 8 pH' },
             { label: 'TDS Level', value: '90 - 110 mg/L' },
             { label: 'Shelf Life', value: '6 to 9 Months' },
-            { label: 'Certifications', value: 'FSSAI Central, ISO 9001, Factory, Dept. of Metrology Central, Labour & MSME' },
+            { label: 'Certifications', value: 'ISO 9001, Factory, Dept. of Metrology Central, Labour & MSME' },
+
             { label: 'Supply Ability', value: '2K Cases/Day, 2K 20L Jars/Day' },
             { label: 'Delivery Time', value: '1 Day Order In Advance' },
             { label: 'Custom Labeling/Branding', value: 'Available (Different Rates)' },

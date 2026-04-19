@@ -1193,21 +1193,12 @@ const CertificateManager = () => {
                 ))}
             </div>
 
-            <div className="mt-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col gap-4">
-                <p className="text-amber-700 text-xs font-bold">
-                    <span className="font-black">ℹ️ Note:</span> Certificates are now displayed as <strong>static images</strong>. Only the first page you upload will be visible on the public site.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                    {['FSSAI License', 'ECGC Cover'].map(placeholder => (
-                        <span key={placeholder} className="px-3 py-1.5 bg-amber-100 text-amber-800 rounded-lg text-[10px] font-black uppercase tracking-wider border border-amber-200">
-                            {placeholder}
-                        </span>
-                    ))}
-                </div>
-                <p className="text-amber-600/60 text-[10px] font-black uppercase tracking-[0.1em]">
-                    Use these exact names to update existing placeholders.
+            <div className="mt-8 p-6 bg-slate-50 border border-slate-200 rounded-2xl">
+                <p className="text-slate-600 text-xs font-bold">
+                    <span className="font-black">ℹ️ Note:</span> Certificates are displayed as <strong>static images</strong>. Only the first page you upload will be visible on the public site.
                 </p>
             </div>
+
         </div>
     );
 };

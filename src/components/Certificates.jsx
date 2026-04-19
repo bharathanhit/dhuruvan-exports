@@ -46,9 +46,10 @@ const CertificateImage = ({ images, name, index }) => {
                     </div>
                     <p className="text-[11px] font-bold text-slate-800 leading-relaxed max-w-[280px]">
                         {name.includes('APEDA') && "Our APEDA partnership ensures that every agricultural shipment adheres to stringent quality controls and global export protocols."}
-                        {name.includes('FSSAI') && "We maintain rigorous food safety standards, ensuring that all our products comply with international hygiene and consumption benchmarks."}
-                        {name.includes('ECGC') && "Our export operations are secured under ECGC, providing financial trust and risk protection for our global trade partners."}
-                        {!['APEDA', 'FSSAI', 'ECGC'].some(key => name.includes(key)) && "Verified document confirming our adherence to international trade regulations and quality assurance standards."}
+
+
+                        {!['APEDA'].some(key => name.includes(key)) && "Verified document confirming our adherence to international trade regulations and quality assurance standards."}
+
                     </p>
                     <div className="mt-4 px-3 py-1 rounded-full bg-slate-50 border border-slate-100 italic text-[8px] font-black uppercase tracking-widest" style={{ color: theme.primary }}>
                         Verification In Progress
@@ -155,8 +156,8 @@ const Certificates = () => {
     const staticCerts = [
         { name: 'GST Registration',  description: 'GOVERNMENT OF INDIA • TAX REGISTRATION',    images: [GST_P1, GST_P2, GST_P3],              icon: <Award size={26} /> },
         { name: 'MSME Certificate',  description: 'MINISTRY OF MSME • UDYAM REGISTRATION',      images: [MSME_P1, MSME_P2, MSME_P3, MSME_P4],  icon: <CheckCircle size={26} /> },
-        { name: 'FSSAI License',     description: 'FOOD SAFETY AND STANDARDS AUTHORITY',       images: [],                                    icon: <ShieldCheck size={26} /> },
-        { name: 'ECGC Cover',        description: 'EXPORT CREDIT GUARANTEE CORPORATION',       images: [],                                    icon: <Lock size={26} /> },
+
+
     ];
 
     const getIcon = (iconName) => {
